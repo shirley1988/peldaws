@@ -44,4 +44,4 @@ def queryEnergy(sound):
     return praat.runScript("queryEnergy", [sound, _sounds_dir])
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=80)

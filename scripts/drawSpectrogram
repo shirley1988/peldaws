@@ -5,8 +5,8 @@ form Draw Spectrogram
    boolean show_pitch 0
    boolean show_intensity 0
    boolean show_formants 0
-   sentence sounds_dir "sounds/"
-   sentence images_dir "images/"
+   sentence sounds_dir sounds/
+   sentence images_dir images/
 endform
 
 sound = Read from file: "../"+sounds_dir$+name_of_sound$
@@ -24,22 +24,19 @@ if show_intensity=1
    select sound
    To Intensity: 100,0,"yes"
    Colour: "Yellow"
-   Draw: start_time,end_time,0,0,"yes"
+   Draw: start_time,end_time,0,0,"no"
 endif
 
 if show_pitch=1
    select sound
    To Pitch: 0,75,600
    Colour: "Blue"
-   Draw: start_time,end_time,0,500,"yes"
+   Draw: start_time,end_time,0,500,"no"
 endif
 
 if show_formants=1
    select sound
    To Formant (burg): 0,5,5500,0.025,50
    Colour: "Red"
-   Speckle: start_time,end_time,5500,30,"yes"
+   Speckle: start_time,end_time,5500,30,"no"
 endif
-
-Select outer viewport: 0,8,0,8
-Save as 300-dpi PNG file: "../"+images_dir$+"/"+name_of_sound$+".png"

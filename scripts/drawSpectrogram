@@ -40,3 +40,6 @@ if show_formants=1
    Colour: "Red"
    Speckle: start_time,end_time,5500,30,"no"
 endif
+
+Select outer viewport: 0,8,0,8
+Save as 300-dpi PNG file: "../"+images_dir$+"/"+name_of_sound$+".png"

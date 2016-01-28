@@ -1,0 +1,3 @@
+[submodule "praat"]
+	path = praat
+	url = https://github.com/praat/praat.git

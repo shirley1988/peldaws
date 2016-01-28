@@ -1,0 +1,8 @@
+form Draw Spectrogram
+   sentence name_of_sound sp1.wav
+   sentence sounds_dir "sounds/"
+endform
+
+sound = Read from file: sounds_dir$+name_of_sound$
+Get start time
+Get end time

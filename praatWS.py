@@ -5,7 +5,7 @@ app = Flask(__name__, static_folder="../images")
 
 _images_dir = "images/"
 _scripts_dir = "scripts/"
-_sounds_dir = "../sounds/"
+_sounds_dir = "sounds/"
 
 @app.route('/')
 def index():
@@ -31,6 +31,13 @@ def getBounds(sound):
         "end": float(res[2])
     };
     return jsonify(bounds);
+
+@app.route('/play/<sound>')
+def playSound(sound):
+    fullpath = _sounds_dir + sound
+    resp = app.make_response(open(fullpath).read())
+    resp.content_type = "audio/wav"
+    return resp
 
 @app.route('/queryEnergy/<sound>')
 def queryEnergy(sound):

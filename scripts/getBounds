@@ -3,6 +3,6 @@ form Draw Spectrogram
    sentence sounds_dir "sounds/"
 endform
 
-sound = Read from file: sounds_dir$+name_of_sound$
+sound = Read from file: "../"+sounds_dir$+name_of_sound$
 Get start time
 Get end time

@@ -3,5 +3,5 @@ form Draw Spectrogram
    sentence sounds_dir "sounds/"
 endform
 
-sound = Read from file: sounds_dir$+name_of_sound$
+sound = Read from file: "../"+sounds_dir$+name_of_sound$
 Get energy: 0.0, 0.0

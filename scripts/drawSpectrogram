@@ -9,7 +9,7 @@ form Draw Spectrogram
    sentence images_dir "images/"
 endform
 
-sound = Read from file: sounds_dir$+name_of_sound$
+sound = Read from file: "../"+sounds_dir$+name_of_sound$
 Select outer viewport: 0,8,0,4
 Colour: "Black"
 Draw: start_time, end_time, 0, 0, "yes"

@@ -10,12 +10,12 @@ form Draw Spectrogram
 endform
 
 sound = Read from file: "../"+sounds_dir$+name_of_sound$
-Select outer viewport: 0,8,0,4
+Select outer viewport: 0,6,0,3
 Colour: "Black"
 Draw: start_time, end_time, 0, 0, "yes"
 
 To Spectrogram: 0.005,5000.0,0.002,20.0,"Gaussian"
-Select outer viewport: 0,8,4,8
+Select outer viewport: 0,6,3,6
 Paint: start_time,end_time,0,0,100,"yes",50,6,0,"yes"
 
 Line width: 2.0
@@ -41,5 +41,5 @@ if show_formants=1
    Speckle: start_time,end_time,5500,30,"no"
 endif
 
-Select outer viewport: 0,8,0,8
+Select outer viewport: 0,6,0,6
 Save as 300-dpi PNG file: "../"+images_dir$+"/"+name_of_sound$+".png"

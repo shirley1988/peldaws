@@ -12,8 +12,15 @@ _sounds_dir = "sounds/"
 
 @app.route('/')
 def index():
-    #return "REST API to run scripts on Praat"
-    return app.send_static_file("index.html")
+   return app.send_static_file("index.html")
+
+@app.route('/js/<jsfile>')
+def getJS(jsfile):
+   return send_from_directory("static/js/", jsfile)
+
+@app.route('/css/cssfile>')
+def getCSS(cssfile):
+   return send_from_directory("static/css/", cssfile)
 
 @app.route('/drawSound/<sound>/<startTime>/<endTime>/<showPitch>/<showIntensity>/<showFormants>')
 def drawSound(sound, startTime, endTime, showPitch, showIntensity, showFormants):

@@ -32,7 +32,7 @@ def drawSound(sound, startTime, endTime, showPitch, showIntensity, showFormants)
        praat.runScript(script, params);
     
     resp = app.make_response(open(image).read())
-    resp.content_type = "image/jpeg"
+    resp.content_type = "image/png"
     return resp
 
 @app.route('/getBounds/<sound>')

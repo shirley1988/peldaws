@@ -7,8 +7,3 @@ def runScript(scriptName, args):
 
    return output
 
-if __name__ == "__main__":
-   runScript("sp1.wav", "drawSpectrogram")
-   energy = runScript("sp1.wav", "queryEnergy")
-   print energy
-

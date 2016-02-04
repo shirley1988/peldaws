@@ -1,0 +1,18 @@
+#above {
+display : none;
+}
+#below {
+display : none;
+}
+
+
+/* need modify */
+html, body{
+    height:100%; 
+    overflow: hidden;
+    background: #FFF; 
+    font-size: 9.5pt;
+}
+ img {
+  width:100%; 
+}

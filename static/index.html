@@ -1,8 +1,458 @@
+<!DOCTYPE html>
+<!-- pitch intensity, formant --> 
+<!-- http://127.0.0.1:5000/drawSound/sp1.wav/0/2/0/1/0 --> 
+<!-- http://127.0.0.1:5000/getBounds/sp1.wav --> 
+<!-- ws/getBounds/sp1.wav --> 
+
+
+
+
+<!--MODIFY:::::::::::::::::::ZOOM IN CHANGE THE POSITION OF CROPBOX  
+may need to modify, cant show number if zoom in :visuTime = 0.0009
+jcrop:::: revise the borders so the right side will match 
+jcrop:::: display cropbox opacity
+
+source code access  
+
+decimal 
+-->
+
 <html>
-   <head>
-      <title>Praat Web UI</title>
-   </head>
-   <body>
-      UI will go here
-   </body>
+	<head>
+		<link rel = "stylesheet" type = "text/css" href = "css/styles.css">
+		<link rel="stylesheet" type"text/css" href="css/print.css" media="print">
+		
+		
+		<script src="js/jquery.min.js"></script>
+		<script src="js/jquery.Jcrop.min.js"></script>
+		
+		<link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
+		
+				<script type="text/javascript">
+			var getBound = "http://127.0.0.1/getBounds/sp1.wav";
+			var drawSound = "http://127.0.0.1/drawSound/sp1.wav/"; 
+				
+			var obj = {
+				oriStart: 0,
+				oriEnd: 0,
+				   
+				totalTime: 0,
+				visuTime: 0,
+				checkPitch: 1,
+				checkSpectrum: 1,
+				checkIntensity: 1,
+				checkFormant: 1,
+				checkHarmonicity: 0,
+				checkPointprocess: 0,
+				checkSpectogram: 0,
+				checkWaveform: 0,
+				selStart:0,
+				selT1:0,
+				selT2:0
+			};	
+			var checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
+			
+			$(document).ready(function(){
+					
+					
+					$.get(getBound,function(data, status){
+					//alert('Read boundary!');
+				    	oriStart = data.start;
+				  		oriEnd = data.end;
+						totalTime = oriEnd-oriStart;
+						visuTime = totalTime;
+						selStart = 0;
+						//document.getElementById('info').innerHTML ='Start time: '+ oriStart + ',     End time: '+oriEnd +", total : "+ visuTime;  
+				  	});
+					
+					<!--MODIFY:::::::::::::::::::ZOOM IN CHANGE THE POSITION OF CROPBOX --> 
+				    $("#in").click(function(){
+				        
+				        if(visuTime/2 < 0.0009){
+				    	
+				    	}else{
+				    	var newURL = drawSound+(visuTime/2-(visuTime/4))+"/"
+				    	+(visuTime/2 +(visuTime/4))+"/"+checkStatus;
+				    	selStart = (visuTime/2-(visuTime/4));
+				    	visuTime = visuTime/2;
+				    	$('.jcrop-holder img').attr('src',newURL);
+				    	}
+				    });
+				    
+				    
+				    $("#out").click(function(){
+				    	if(visuTime== totalTime){
+				    	
+				    	}else{
+				    	var newURL = drawSound+((totalTime-visuTime)/2 - visuTime/2)+"/"
+				    	+((totalTime+visuTime)/2 + visuTime/2)+"/"+checkStatus;
+				    	selStart = ((totalTime-visuTime)/2 - visuTime/2);
+				    	visuTime = visuTime*2;
+				    	$('.jcrop-holder img').attr('src',newURL);
+				    	}
+				    });
+				    
+				    $("#all").click(function(){
+				    	visuTime = totalTime;
+				    	selStart = 0;
+				    	var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus ;
+				    	$('.jcrop-holder img').attr('src',newURL);
+				    });
+				    
+				   
+				    $("#pitch").click(function(){
+				    	
+				    	if(obj.checkPitch == 1){
+				    	obj.checkPitch = 0;
+				    	
+				    	}else{
+				    	obj.checkPitch = 1;
+				    	
+				    	}
+				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
+				    	if(visuTime == totalTime){
+				    		var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus;
+				    	}else if(visuTime != totalTime){
+				    		var newURL = drawSound + selStart+"/"+(selStart+visuTime)+"/"+checkStatus;
+				    	}	
+				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
+				    });
+				    
+				    $("#intensity").click(function(){
+				    	
+				    	if(obj.checkIntensity == 1){
+				    	obj.checkIntensity = 0;
+				    	}else{
+				    	obj.checkIntensity = 1;
+				    	}
+				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
+				    	if(visuTime == totalTime){
+				    		var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus;
+				    	}else if(visuTime != totalTime){
+				    		var newURL = drawSound + selStart+"/"+(selStart+visuTime)+"/"+checkStatus;
+				    	}	
+				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
+				    });
+				    
+				    $("#formant").click(function(){
+				    	
+				    	if(obj.checkFormant == 1){
+				    	obj.checkFormant = 0;
+				    	
+				    	}else{
+				    	obj.checkFormant = 1;
+				    	
+				    	}
+				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
+				    	if(visuTime == totalTime){
+				    		var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus;
+				    	}else if(visuTime != totalTime){
+				    		var newURL = drawSound + selStart+"/"+(selStart+visuTime)+"/"+checkStatus;
+				    	}	
+				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
+				    });
+			});
+		
+	
+		<!-- Jcrop functions -->
+				
+		jQuery(function($){
+			
+		    var api;
+
+		    $('#target').Jcrop({
+		      
+		      onChange:   showCoords,
+		      onSelect:   displayCoords,
+		      onRelease:  clearCoords,
+			  
+		    },function(){
+			  $('#target').Jcrop({ allowResize:false });
+			  $('#target').Jcrop({ allowMove:false });
+		      $('#cropbox').Jcrop({ trueSize: [427,487] });
+		      //change background opacity
+		      $('#target').Jcrop({ bgOpacity:1 });
+		      api = this;
+		      
+		    });
+    
+		    $('#coords').on('change','input',function(e){
+		       
+		      var x1 = $('#x1').val(),
+		          x2 = $('#x2').val(),
+		          y1 = $('#y1').val(),
+		          y2 = $('#y2').val();
+		       
+		    api.setSelect([x1,x2,y1,y2]);
+		    });
+		     
+		     
+		    $("#sel").click(function(){
+		    	//alert(visuTime);
+		    	//change api   showing 
+		    	if(selT2 == selT1){
+		    	
+		    	}
+		    	else if( ((selT2-selT1)/345*visuTime) < 0.0009 ){
+		    		alert('Unable to Display.');
+		    	
+		    	}else{
+		    	<!-- show display --> 
+		    	api.release();
+		    	var newURL = drawSound+(selT1/345*visuTime)+"/"+(selT2/345*visuTime)+"/"+checkStatus ;
+		    	selStart = selT1/345*visuTime;
+		    	visuTime = (selT2-selT1)/345 * visuTime;
+		    	//alert(visuTime);
+		    	$('.jcrop-holder img').attr('src',newURL);	
+		    	}
+		    	
+		    });
+		    
+		    
+		    
+		    function displayCoords(c){	
+		    	if(c.x < 41){
+		    	api.animateTo([selT1+41,31,selT1+41,456]);
+		    	
+		    	
+		    	}	
+		    	    
+		    	api.animateTo([selT1+41,31,selT2+41,456]);
+		    	
+		    	
+						 
+		    };
+		 	
+		  	function showCoords(c){
+		  		selT1 = c.x;
+		  		selT2 = c.x2;
+		  		selT1 = selT1 - 41;
+		  		selT2 = selT2 - 41;
+		  		if(selT1!= selT2){
+		  		$(".verticalLine").removeClass('afterClick');
+		  		}
+		  	
+		  		if(c.x === c.x2){
+		  		
+		  			if(c.x < 41){
+		  				api.release();
+		  				$(".verticalLine").addClass('afterClick');
+		  				$(".verticalLine").css({left: 411, position:'absolute'});
+		  				document.getElementById('selectedInfo').innerHTML='';
+		  				document.getElementById('info').innerHTML='';	
+		  			}else if(c.x > 386){
+		  				api.release();
+		  				$(".verticalLine").addClass('afterClick');
+		  				$(".verticalLine").css({left: 754, position:'absolute'});
+		  				document.getElementById('selectedInfo').innerHTML='';
+		  				document.getElementById('info').innerHTML='';		
+		  			}else{	 
+		  				document.getElementById('selectedInfo').innerHTML='';
+		  				$(".verticalLine").addClass('afterClick');
+		  				$(".verticalLine").css({left: selT1+411, position:'absolute'});
+		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (selStart + selT1/345*visuTime);
+		  			}
+		  			
+		  		}else if (c.x != c.x2){
+		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ (selT2-selT1)/345*visuTime ;
+		  			document.getElementById('info').innerHTML='Start time : '+( selStart +selT1/345*visuTime) +'&nbsp;&nbsp;&nbsp;End Time : '+ (selStart +selT2/345*visuTime ) ;
+		  		}
+		  	};
+		  
+		  	function clearCoords(){
+		   		$('#coords input').val('');		   		
+		  	};		  	
+		});
+
+		
+		<!-- function that convert the file size -->
+		function formatSize(bytes,decimals) {
+		   if(bytes == 0) return '0 Byte';
+		   
+		   var k = 1000;
+		   var de = decimals + 1 || 3;
+		   var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+		   var si = Math.floor(Math.log(bytes) / Math.log(k));
+		   return (bytes / Math.pow(k, si)).toPrecision(de) + ' ' + sizes[si];
+		}
+				
+	    function play(){
+	        alert('Start playing')     
+	    }
+	    
+	    </script>
+	</head>
+
+	<body>
+	<Span id='above'>
+	   
+			<!-- the vertical split line -->
+			<div class="split"></div>
+			<!-- the horizontal split line -->
+			<div class="block1"><br> <br> </div> <hr />
+			
+			<!-- the upload button -->	
+			<div class="uploadFile">
+			    <span>Upload sound file </span>
+			    <input id="upload" type="file"  accept="audio/*,video/*" />
+			</div>
+			
+				<!-- javascript for the upload button -->	
+				<script>
+				document.getElementById('upload').onchange = displayInfo;
+						
+				function displayInfo() {
+			    	var select= document.getElementById('upload').files[0];
+			    	
+			    	var name = this.files[0].name;
+			    	
+			    	var lastIndex = name.lastIndexOf("\\");
+			    	if (lastIndex >= 0) {
+			        name = name.substring(lastIndex + 1);
+			    	}
+			    
+			    	var size = formatSize(this.files[0].size, 2);
+			    
+			    	var date = this.files[0].lastModifiedDate;
+			    
+			    	<!-- NEED TO WORK ON ACQUIRING TIME DURATION -->
+			    	document.getElementById('fileName').innerHTML = name;
+			    	document.getElementById('fileSize').innerHTML =size;
+			    	document.getElementById('lastModifyDate').innerHTML = date;
+			    	<!-- document.getElementById('timeDuration').innerHTML =;--> 
+				}
+				</script>
+			
+			
+		 	<button type = "button" onclick="alert('Add Script!')" class= "Script"> Open Script </button>
+		 	<p id = "fileNameText">File name : </p>
+		 	<p id = "fileName"></p>
+		 	
+		 	<p id = "fileSizeText">File size : </p>
+		 	<p id = "fileSize"></p>
+		 	
+		 	<p id = "lastModifyDateText">Last modify date : </p>
+		 	<p id = "lastModifyDate"></p>
+		 	
+		 	<p id = "timeDurationText">Time duration : </p>
+		 	<p id = "timeDuration"></p>
+		 
+		
+			<!-- the side menus -->	
+			<div  class = "menu">
+			    <button class= "play" onclick="play()"> Play </button>
+			</div>
+			<br><br>
+
+			<div  class = "menu">	
+			 	<button class= "mainmenu">Pitch</button>
+			 	<div class = "drop-content">
+			 		<a href = "#">&nbsp; Get pitch </a>
+			 		<a href = "#">&nbsp; Count voiced frames  </a>
+			 		<a href = "#">&nbsp; Get value at time...</a>
+			 		<a href = "#">&nbsp; Get value in frame... </a>
+			 	</div>
+			</div>
+			<br><br>
+			
+			<div  class = "menu">	
+			 	<button class= "mainmenu">Spectrum</button>
+			 	<div class = "drop-content">
+			 		<a href = "#">&nbsp; Get lowest frequency  </a>
+			 		<a href = "#">&nbsp; Get highest frequency </a>
+			 	</div>
+			</div>
+			<br><br>
+			
+			
+			<div  class = "menu">	
+			 	<button class= "mainmenu"> Intensity  </button>
+			 	<div class = "drop-content">
+			 		<a href = "#">&nbsp; Get intensity </a>
+			 		<a href = "#">&nbsp; Get minimum intensity </a>
+			 		<a href = "#">&nbsp; Get maximum intensity</a>
+			 		<a href = "#">&nbsp; Get mean intensity </a>
+			 	</div>
+			</div>
+			<br><br>
+			
+			
+			<div  class = "menu">	
+			 	<button class= "mainmenu"> Formant </button>
+			 	<div class = "drop-content">
+			 		<a href = "#">&nbsp; Get formant </a>
+			 		<a href = "#">&nbsp; Get number of frames</a>
+			 		<a href = "#">&nbsp; Get numbers of formants...</a>
+			 		<a href = "#">&nbsp; Get value at time... </a>
+			 	</div>
+			</div>
+			<br><br>
+			
+			
+			<div  class = "menu">	
+			 	<button class= "mainmenu"> Harmonicity  </button>
+			 	<div class = "drop-content">
+			 		<a href = "#">&nbsp; Get minimum... </a>
+			 		<a href = "#">&nbsp; Get maximum...</a>
+			 		<a href = "#">&nbsp; Get value at time... </a>
+			 	</div>
+			</div>
+			<br><br>
+			
+			
+			<div  class = "menu">	
+			 	<button class= "mainmenu"> PointProcess </button>
+			 	<div class = "drop-content">
+			 		<a href = "#">&nbsp; Get number of periods...  </a>
+			 		<a href = "#">&nbsp; Get number of points...</a>
+			 		<a href = "#">&nbsp; Get jitter (local)... </a>
+			 	</div>
+			</div>
+			
+			<!--   the vertical line displayed within the image   -->
+			<div class="verticalLine"></div> 
+			<br><br>	
+	</Span>	
+		
+		
+		<div class = "interactSection">
+		    
+			<img src="img/0.jpeg" alt="spectrum image" width="427" height="487"id = "target" />
+			
+		</div>
+			
+			<br><br>
+	<Span id='below'>
+
+		<br><br>
+		<input type='button' value='Print'  class = "printbox" onclick="window.print()">
+					    
+		<!-- the checkboxes --> 
+		<div id = "checkboxes">	
+			<input  id="spectrum" type="checkbox" value = "spectrum" checked> Spectrum<br>
+			<input  id="pitch" type="checkbox" value = "Pitch" checked> Pitch<br>
+			<input  id="intensity" type="checkbox" value = "intensity" checked> Intensity<br>
+			<input  id="formant" type="checkbox" value = "formant" checked> Formant<br>
+			<input  id="harmonicity" type="checkbox" value = "harmonicity"> Harmonicity<br>
+			<input  id="pointprocess" type="checkbox" value = "pointprocess"> PointProcess<br>
+			<input  id="spectogram" type="checkbox" value = "spectogram"> Spectogram<br>
+			<input  id="waveform" type="checkbox" value = "waveform" > Waveform<br>
+	    </div>
+				
+		<!-- the buttons -->
+		<button type = "button" onclick="alert('Implement Save!')" id = "Save">Save </button>
+		<button type = "button"  class = "bottomButton" id = "all">all </button>
+		<button type = "button"  class = "bottomButton" id = "in">in </button>
+		<button type = "button"  class = "bottomButton" id = "out">out </button>
+		<button type = "button"  class = "bottomButton" id = "sel">sel </button>
+
+		<div id = "timeLabel">
+			<p id = "info"></p>
+		</div>
+		<div id = "selTimeLabel">
+			<p id = "selectedInfo"></p>
+		</div> 
+	</Span>
+		
+	</body>
 </html>

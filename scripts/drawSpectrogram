@@ -7,6 +7,7 @@ form Draw Spectrogram
    boolean show_formants 0
    sentence sounds_dir sounds/
    sentence images_dir images/
+   sentence image_name
 endform
 
 sound = Read from file: "../"+sounds_dir$+name_of_sound$
@@ -42,4 +43,4 @@ if show_formants=1
 endif
 
 Select outer viewport: 0,6,0,6
-Save as 300-dpi PNG file: "../"+images_dir$+"/"+name_of_sound$+".png"
+Save as 300-dpi PNG file: "../"+image_name$

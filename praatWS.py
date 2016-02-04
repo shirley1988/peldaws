@@ -1,7 +1,10 @@
 from flask import Flask, jsonify, request, send_from_directory
+from flask.ext.cors import CORS
 import praat
+import os
 
-app = Flask(__name__, static_folder="../images")
+app = Flask(__name__)
+CORS(app)
 
 _images_dir = "images/"
 _scripts_dir = "scripts/"
@@ -14,10 +17,21 @@ def index():
 @app.route('/drawSound/<sound>/<startTime>/<endTime>/<showPitch>/<showIntensity>/<showFormants>')
 def drawSound(sound, startTime, endTime, showPitch, showIntensity, showFormants):
     script = _scripts_dir + "drawSpectrogram";
-    praat.runScript(script, [sound, startTime, endTime, showPitch, showIntensity, showFormants, _sounds_dir, _images_dir]);
+
+    #Parameters to the script
+    params = [sound, startTime, endTime, showPitch, showIntensity, showFormants, _sounds_dir, _images_dir]
     
-    fullpath = _images_dir + sound + ".png"
-    resp = app.make_response(open(fullpath).read())
+    #Image name will be a combination of relevant params joined by a period.
+    image = _images_dir + ".".join(params[:-2]) + ".png"
+
+    #Add image name to params list
+    params.append(image)
+
+    #If image does not exist, run script
+    if not os.path.isfile(image):
+       praat.runScript(script, params);
+    
+    resp = app.make_response(open(image).read())
     resp.content_type = "image/jpeg"
     return resp
 
@@ -44,4 +58,4 @@ def queryEnergy(sound):
     return praat.runScript("queryEnergy", [sound, _sounds_dir])
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=80)
+    app.run(host='0.0.0.0', port=5000)

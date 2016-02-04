@@ -18,9 +18,13 @@ def index():
 def getJS(jsfile):
    return send_from_directory("static/js/", jsfile)
 
-@app.route('/css/cssfile>')
+@app.route('/css/<cssfile>')
 def getCSS(cssfile):
    return send_from_directory("static/css/", cssfile)
+
+@app.route('/img/<imgfile>')
+def getImage(imgfile):
+   return send_from_directory("static/img/", imgfile)
 
 @app.route('/drawSound/<sound>/<startTime>/<endTime>/<showPitch>/<showIntensity>/<showFormants>')
 def drawSound(sound, startTime, endTime, showPitch, showIntensity, showFormants):

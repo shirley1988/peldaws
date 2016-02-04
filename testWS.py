@@ -9,7 +9,7 @@ class TestPraatWS(unittest.TestCase):
 
    def test_index(self):
        result = self.app.get("/")
-       assert "REST API to run scripts on Praat" in result.data
+       assert "<html>" in result.data
 
    def test_drawSound(self):
       result = self.app.get("/drawSound/sp1.wav/0/0/1/1/1")

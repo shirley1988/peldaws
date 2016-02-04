@@ -1,4 +1,4 @@
-form Draw Spectrogram
+form Get Bounds 
    sentence name_of_sound sp1.wav
    sentence sounds_dir "sounds/"
 endform

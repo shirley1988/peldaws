@@ -53,9 +53,10 @@ def playSound(sound):
     resp.content_type = "audio/wav"
     return resp
 
-@app.route('/queryEnergy/<sound>')
-def queryEnergy(sound):
-    return praat.runScript("queryEnergy", [sound, _sounds_dir])
+@app.route('/getEnergy/<sound>')
+def getEnergy(sound):
+    script = _scripts_dir + "getEnergy";
+    return praat.runScript(script, [sound, _sounds_dir])
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)

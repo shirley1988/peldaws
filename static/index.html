@@ -61,7 +61,7 @@ decimal
 				  		oriEnd = data.end;
 						totalTime = oriEnd-oriStart;
 						visuTime = totalTime;
-						selStart = 0;
+						obj.selStart = 0;
 						//document.getElementById('info').innerHTML ='Start time: '+ oriStart + ',     End time: '+oriEnd +", total : "+ visuTime;  
 				  	});
 					
@@ -73,7 +73,7 @@ decimal
 				    	}else{
 				    	var newURL = drawSound+(visuTime/2-(visuTime/4))+"/"
 				    	+(visuTime/2 +(visuTime/4))+"/"+checkStatus;
-				    	selStart = (visuTime/2-(visuTime/4));
+				    	obj.selStart = (visuTime/2-(visuTime/4));
 				    	visuTime = visuTime/2;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    	}
@@ -86,7 +86,7 @@ decimal
 				    	}else{
 				    	var newURL = drawSound+((totalTime-visuTime)/2 - visuTime/2)+"/"
 				    	+((totalTime+visuTime)/2 + visuTime/2)+"/"+checkStatus;
-				    	selStart = ((totalTime-visuTime)/2 - visuTime/2);
+				    	obj.selStart = ((totalTime-visuTime)/2 - visuTime/2);
 				    	visuTime = visuTime*2;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    	}
@@ -94,7 +94,7 @@ decimal
 				    
 				    $("#all").click(function(){
 				    	visuTime = totalTime;
-				    	selStart = 0;
+				    	obj.selStart = 0;
 				    	var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus ;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    });
@@ -113,7 +113,7 @@ decimal
 				    	if(visuTime == totalTime){
 				    		var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus;
 				    	}else if(visuTime != totalTime){
-				    		var newURL = drawSound + selStart+"/"+(selStart+visuTime)+"/"+checkStatus;
+				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+visuTime)+"/"+checkStatus;
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
@@ -129,7 +129,7 @@ decimal
 				    	if(visuTime == totalTime){
 				    		var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus;
 				    	}else if(visuTime != totalTime){
-				    		var newURL = drawSound + selStart+"/"+(selStart+visuTime)+"/"+checkStatus;
+				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+visuTime)+"/"+checkStatus;
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
@@ -147,7 +147,7 @@ decimal
 				    	if(visuTime == totalTime){
 				    		var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus;
 				    	}else if(visuTime != totalTime){
-				    		var newURL = drawSound + selStart+"/"+(selStart+visuTime)+"/"+checkStatus;
+				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+visuTime)+"/"+checkStatus;
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
@@ -200,7 +200,7 @@ decimal
 		    	<!-- show display --> 
 		    	api.release();
 		    	var newURL = drawSound+(selT1/345*visuTime)+"/"+(selT2/345*visuTime)+"/"+checkStatus ;
-		    	selStart = selT1/345*visuTime;
+		    	obj.selStart = selT1/345*visuTime;
 		    	visuTime = (selT2-selT1)/345 * visuTime;
 		    	//alert(visuTime);
 		    	$('.jcrop-holder img').attr('src',newURL);	
@@ -250,12 +250,12 @@ decimal
 		  				document.getElementById('selectedInfo').innerHTML='';
 		  				$(".verticalLine").addClass('afterClick');
 		  				$(".verticalLine").css({left: selT1+411, position:'absolute'});
-		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (selStart + selT1/345*visuTime);
+		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (obj.selStart + selT1/345*visuTime);
 		  			}
 		  			
 		  		}else if (c.x != c.x2){
 		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ (selT2-selT1)/345*visuTime ;
-		  			document.getElementById('info').innerHTML='Start time : '+( selStart +selT1/345*visuTime) +'&nbsp;&nbsp;&nbsp;End Time : '+ (selStart +selT2/345*visuTime ) ;
+		  			document.getElementById('info').innerHTML='Start time : '+( obj.selStart +selT1/345*visuTime) +'&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +selT2/345*visuTime ) ;
 		  		}
 		  	};
 		  

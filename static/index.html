@@ -1,14 +1,11 @@
 <!DOCTYPE html>
-<!-- pitch intensity, formant --> 
-<!-- http://127.0.0.1:5000/drawSound/sp1.wav/0/2/0/1/0 --> 
-<!-- http://127.0.0.1:5000/getBounds/sp1.wav --> 
-<!-- ws/getBounds/sp1.wav --> 
+<!-- try use two vertical lines for selection!!!  --> 
 
 
 
 
 <!--MODIFY:::::::::::::::::::ZOOM IN CHANGE THE POSITION OF CROPBOX  
-may need to modify, cant show number if zoom in :visuTime = 0.0009
+may need to modify, cant show number if zoom in :obj.visuTime = 0.0009
 jcrop:::: revise the borders so the right side will match 
 jcrop:::: display cropbox opacity
 
@@ -29,6 +26,7 @@ decimal
 		<link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
 		
 				<script type="text/javascript">
+				//get rid of http://127.0.0.1/
 			var getBound = "http://127.0.0.1/getBounds/sp1.wav";
 			var drawSound = "http://127.0.0.1/drawSound/sp1.wav/"; 
 				
@@ -57,45 +55,45 @@ decimal
 					
 					$.get(getBound,function(data, status){
 					//alert('Read boundary!');
-				    	oriStart = data.start;
-				  		oriEnd = data.end;
-						totalTime = oriEnd-oriStart;
-						visuTime = totalTime;
+				    	obj.oriStart = data.start;
+				  		obj.oriEnd = data.end;
+						obj.totalTime = obj.oriEnd-obj.oriStart;
+						obj.visuTime = obj.totalTime;
 						obj.selStart = 0;
-						//document.getElementById('info').innerHTML ='Start time: '+ oriStart + ',     End time: '+oriEnd +", total : "+ visuTime;  
+						//document.getElementById('info').innerHTML ='Start time: '+ oriStart + ',     End time: '+oriEnd +", total : "+ obj.visuTime;  
 				  	});
 					
 					<!--MODIFY:::::::::::::::::::ZOOM IN CHANGE THE POSITION OF CROPBOX --> 
 				    $("#in").click(function(){
 				        
-				        if(visuTime/2 < 0.0009){
+				        if(obj.visuTime/2 < 0.0009){
 				    	
 				    	}else{
-				    	var newURL = drawSound+(visuTime/2-(visuTime/4))+"/"
-				    	+(visuTime/2 +(visuTime/4))+"/"+checkStatus;
-				    	obj.selStart = (visuTime/2-(visuTime/4));
-				    	visuTime = visuTime/2;
+				    	var newURL = drawSound+(obj.visuTime/2-(obj.visuTime/4))+"/"
+				    	+(obj.visuTime/2 +(obj.visuTime/4))+"/"+checkStatus;
+				    	obj.selStart = (obj.visuTime/2-(obj.visuTime/4));
+				    	obj.visuTime = obj.visuTime/2;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    	}
 				    });
 				    
 				    
 				    $("#out").click(function(){
-				    	if(visuTime== totalTime){
+				    	if(obj.visuTime== obj.totalTime){
 				    	
 				    	}else{
-				    	var newURL = drawSound+((totalTime-visuTime)/2 - visuTime/2)+"/"
-				    	+((totalTime+visuTime)/2 + visuTime/2)+"/"+checkStatus;
-				    	obj.selStart = ((totalTime-visuTime)/2 - visuTime/2);
-				    	visuTime = visuTime*2;
+				    	var newURL = drawSound+((obj.totalTime-obj.visuTime)/2 - obj.visuTime/2)+"/"
+				    	+((obj.totalTime+obj.visuTime)/2 + obj.visuTime/2)+"/"+checkStatus;
+				    	obj.selStart = ((obj.totalTime-obj.visuTime)/2 - obj.visuTime/2);
+				    	obj.visuTime = obj.visuTime*2;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    	}
 				    });
 				    
 				    $("#all").click(function(){
-				    	visuTime = totalTime;
+				    	obj.visuTime = obj.totalTime;
 				    	obj.selStart = 0;
-				    	var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus ;
+				    	var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus ;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    });
 				    
@@ -110,10 +108,10 @@ decimal
 				    	
 				    	}
 				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
-				    	if(visuTime == totalTime){
-				    		var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus;
-				    	}else if(visuTime != totalTime){
-				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+visuTime)+"/"+checkStatus;
+				    	if(obj.visuTime == obj.totalTime){
+				    		var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    	}else if(obj.visuTime != obj.totalTime){
+				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
@@ -126,10 +124,10 @@ decimal
 				    	obj.checkIntensity = 1;
 				    	}
 				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
-				    	if(visuTime == totalTime){
-				    		var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus;
-				    	}else if(visuTime != totalTime){
-				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+visuTime)+"/"+checkStatus;
+				    	if(obj.visuTime == obj.totalTime){
+				    		var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    	}else if(obj.visuTime != obj.totalTime){
+				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
@@ -144,10 +142,10 @@ decimal
 				    	
 				    	}
 				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
-				    	if(visuTime == totalTime){
-				    		var newURL = drawSound+oriStart+"/"+oriEnd+"/"+checkStatus;
-				    	}else if(visuTime != totalTime){
-				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+visuTime)+"/"+checkStatus;
+				    	if(obj.visuTime == obj.totalTime){
+				    		var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    	}else if(obj.visuTime != obj.totalTime){
+				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
@@ -188,21 +186,21 @@ decimal
 		     
 		     
 		    $("#sel").click(function(){
-		    	//alert(visuTime);
+		    	//alert(obj.visuTime);
 		    	//change api   showing 
-		    	if(selT2 == selT1){
+		    	if(obj.selT2 == obj.selT1){
 		    	
 		    	}
-		    	else if( ((selT2-selT1)/345*visuTime) < 0.0009 ){
+		    	else if( ((obj.selT2-obj.selT1)/345*obj.visuTime) < 0.0009 ){
 		    		alert('Unable to Display.');
 		    	
 		    	}else{
 		    	<!-- show display --> 
 		    	api.release();
-		    	var newURL = drawSound+(selT1/345*visuTime)+"/"+(selT2/345*visuTime)+"/"+checkStatus ;
-		    	obj.selStart = selT1/345*visuTime;
-		    	visuTime = (selT2-selT1)/345 * visuTime;
-		    	//alert(visuTime);
+		    	var newURL = drawSound+(obj.selT1/345*obj.visuTime)+"/"+(obj.selT2/345*obj.visuTime)+"/"+checkStatus ;
+		    	obj.selStart = obj.selT1/345*obj.visuTime;
+		    	obj.visuTime = (obj.selT2-obj.selT1)/345 * obj.visuTime;
+		    	//alert(obj.visuTime);
 		    	$('.jcrop-holder img').attr('src',newURL);	
 		    	}
 		    	
@@ -211,24 +209,17 @@ decimal
 		    
 		    
 		    function displayCoords(c){	
-		    	if(c.x < 41){
-		    	api.animateTo([selT1+41,31,selT1+41,456]);
 		    	
-		    	
-		    	}	
-		    	    
-		    	api.animateTo([selT1+41,31,selT2+41,456]);
-		    	
+		    	api.animateTo([obj.selT1+41,31,obj.selT2+41,456]);
 		    	
 						 
 		    };
 		 	
 		  	function showCoords(c){
-		  		selT1 = c.x;
-		  		selT2 = c.x2;
-		  		selT1 = selT1 - 41;
-		  		selT2 = selT2 - 41;
-		  		if(selT1!= selT2){
+		  		obj.selT1 = c.x - 41;
+		  		obj.selT2 = c.x2 - 41;
+		  		
+		  		if(obj.selT1!= obj.selT2){
 		  		$(".verticalLine").removeClass('afterClick');
 		  		}
 		  	
@@ -249,13 +240,13 @@ decimal
 		  			}else{	 
 		  				document.getElementById('selectedInfo').innerHTML='';
 		  				$(".verticalLine").addClass('afterClick');
-		  				$(".verticalLine").css({left: selT1+411, position:'absolute'});
-		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (obj.selStart + selT1/345*visuTime);
+		  				$(".verticalLine").css({left: obj.selT1+411, position:'absolute'});
+		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (obj.selStart + obj.selT1/345*obj.visuTime);
 		  			}
 		  			
 		  		}else if (c.x != c.x2){
-		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ (selT2-selT1)/345*visuTime ;
-		  			document.getElementById('info').innerHTML='Start time : '+( obj.selStart +selT1/345*visuTime) +'&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +selT2/345*visuTime ) ;
+		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ (obj.selT2-obj.selT1)/345*obj.visuTime ;
+		  			document.getElementById('info').innerHTML='Start time : '+( obj.selStart +obj.selT1/345*obj.visuTime) +'&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +obj.selT2/345*obj.visuTime ) ;
 		  		}
 		  	};
 		  
@@ -284,8 +275,9 @@ decimal
 	</head>
 
 	<body>
+
 	<Span id='above'>
-	   
+	
 			<!-- the vertical split line -->
 			<div class="split"></div>
 			<!-- the horizontal split line -->
@@ -420,7 +412,7 @@ decimal
 			<img src="img/0.jpeg" alt="spectrum image" width="427" height="487"id = "target" />
 			
 		</div>
-			
+		
 			<br><br>
 	<Span id='below'>
 
@@ -438,20 +430,26 @@ decimal
 			<input  id="spectogram" type="checkbox" value = "spectogram"> Spectogram<br>
 			<input  id="waveform" type="checkbox" value = "waveform" > Waveform<br>
 	    </div>
-				
+			
 		<!-- the buttons -->
 		<button type = "button" onclick="alert('Implement Save!')" id = "Save">Save </button>
 		<button type = "button"  class = "bottomButton" id = "all">all </button>
 		<button type = "button"  class = "bottomButton" id = "in">in </button>
 		<button type = "button"  class = "bottomButton" id = "out">out </button>
 		<button type = "button"  class = "bottomButton" id = "sel">sel </button>
-
+		
+		
+		
 		<div id = "timeLabel">
 			<p id = "info"></p>
 		</div>
+		<div id ="sourceLink">
+		<a  class = "source" href = "#"> Source Code Access </a>
+		</div>	
 		<div id = "selTimeLabel">
 			<p id = "selectedInfo"></p>
 		</div> 
+		
 	</Span>
 		
 	</body>

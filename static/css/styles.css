@@ -14,7 +14,7 @@
 #checkboxes{
 	position: absolute;
 	left: 830px;
-	top: 200px;
+	top: 140px;
 	line-height: 35px;
 }
 
@@ -83,17 +83,26 @@
 	top: 120px;
 	left: 370px;
 }
-.verticalLine{	
-	left:  583.5 px;
-}
+
 .afterClick{
 	position: absolute;
-	top: 150px;
+	top: 151px;
 	border-left: 2px dotted #fe0909;
-	height:  430px;
+	height:  426px;
 	left: 0;
 	z-index: 3;
 }
+
+.afterDisplay{
+	position: absolute;
+	top: 153px;
+	height:  421.3px;
+	
+	z-index: 5;
+	opacity: 0.6;
+	background-color: #5a5050;
+}
+
 
 /**************************
  CSS for the menus
@@ -301,13 +310,13 @@
 }
 #timeLabel{
 	position: absolute;
-	left: 380px;
-	top: 595px;
+	left: 430px;
+	top: 593px;
 }
 #selTimeLabel{
 	position: absolute;
-	left: 430px;
-	top: 115px;
+	left: 470px;
+	top: 109px;
 }
 
 #sourceLink{
@@ -341,6 +350,7 @@ hr {
 	border-top: 3px solid #000000;
 	margin: 1em -8px;
 	padding: 0;
+	
     
 }
 

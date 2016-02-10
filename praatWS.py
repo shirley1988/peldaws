@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask.ext.cors import CORS
 import praat
 import os
+from PIL import Image
 
 app = Flask(__name__, static_url_path="")
 CORS(app)
@@ -41,7 +42,10 @@ def drawSound(sound, startTime, endTime, showPitch, showIntensity, showFormants)
 
     #If image does not exist, run script
     if not os.path.isfile(image):
-       praat.runScript(script, params);
+       praat.runScript(script, params)
+       img = Image.open(image)
+       img.thumbnail((500,500), Image.ANTIALIAS)
+       img.save(image, "PNG", quality=88)
     
     resp = app.make_response(open(image).read())
     resp.content_type = "image/png"

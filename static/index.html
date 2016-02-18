@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 
 <!-- 
-y1 and y2 is for testing
-c.y-c.y2  == 0  -> no transbox 
 
-transbox cant display full part -> the outer bound 
+Y range: 0~203 ,  237~439
 
-change source of image to make print possible 
-change the hr bar 
+upload , object list, 
+dropdown    
+
+ 
 -->
+
 
 <html>
 	<head>
@@ -22,8 +23,9 @@ change the hr bar
 		<link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
 		
 				<script type="text/javascript">
-			var getBound = "getBounds/sp1.wav";
-			var drawSound = "drawSound/sp1.wav/"; 
+				//get rid of http://127.0.0.1/
+			var getBound = "http://127.0.0.1:5000/getBounds/sp1.wav";
+			var drawSound = "http://127.0.0.1:5000/drawSound/sp1.wav/"; 
 				
 			var obj = {
 				oriStart: 0,
@@ -31,9 +33,15 @@ change the hr bar
 				   
 				totalTime: 0,
 				visuTime: 0,
+				
 				checkPitch: 1,
-				checkSpectrum: 1,
+				minPitch:0,
+				maxPitch:0,
+				
 				checkIntensity: 1,
+				minIntensity:0,
+				maxIntensity: 0,
+				
 				checkFormant: 1,
 				checkHarmonicity: 0,
 				checkPointprocess: 0,
@@ -50,9 +58,43 @@ change the hr bar
 			};	
 			var checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 			
-			$(document).ready(function(){
+
+			
+			
+		
+			<!-- Jcrop functions -->
 					
+			jQuery(function($){
 					
+					function displayFrequency(){
+						 	if((obj.checkFormant+obj.checkSpectogram) == 0){
+						 		document.getElementById('showHz').innerHTML= '';
+								//disable the line
+								
+								$("#hzLine").removeClass('showHorizontal');
+						 		return;
+						 	}
+						 	
+						 	if(obj.selY1 >=237 && obj.selY1 <=439 ){
+						 	
+						 		document.getElementById('showHz').innerHTML= (5000-(obj.selY1-237)/202*5000).toFixed(0)+' Hz' ;
+						 		$("#showHz").css({top: (124 + obj.selY1) , position: 'absolute'});
+						 		$("#hzLine").addClass('showHorizontal');
+						 		$("#hzLine").css({top:(114 +obj.selY1) , position :'absolute'});
+						 		//draw the line 
+						 	}
+						 	
+					};
+					
+					function showTimes(){
+						if(obj.selStart == 0 ){
+						document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp0';
+						}
+						else{
+						document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp'+ (obj.selStart).toFixed(6);
+						}
+						document.getElementById('showTimesRight').innerHTML= (obj.selEnd).toFixed(6);
+					}
 					
 					function zoomoutNormal(){
 					    var start = obj.selStart; 
@@ -64,7 +106,7 @@ change the hr bar
 						
 					}
 					
-
+					
 					function changeSelectionBar(){
 					
 						if(obj.absoluteT1 == obj.absoluteT2){
@@ -76,8 +118,9 @@ change the hr bar
 							//alert('test');
 							
 							$("#line1").addClass('afterClick');
-							$("#line1").css({left: (411+345/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart)),position:'absolute'});
+							$("#line1").css({left: (384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart)),position:'absolute'});
 							}
+							showTimes();
 							return;
 					    }
 						var transt1;
@@ -85,32 +128,60 @@ change the hr bar
 						
 						if(obj.absoluteT1 >= obj.selStart){
 						$("#line1").addClass('afterClick');
-						transt1 = 411+345/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart);
+						transt1 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart);
 						$("#line1").css({left: transt1 ,position:'absolute'});
 						
 						}else if(obj.absoluteT1 < obj.selStart){
 						//alert('obj.absoluteT1: '+obj.absoluteT1);
 						//alert('obj.selStart: '+ obj.selStart);
-						transt1 = 410;
+						transt1 = 383;
 						$("#line1").removeClass('afterClick');
 						}
 						
 						if(obj.absoluteT2 <= obj.selEnd){
 						$("#line2").addClass('afterClick');
-						transt2 = 411+345/(obj.selEnd-obj.selStart)*(obj.absoluteT2-obj.selStart);
+						transt2 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT2-obj.selStart);
 						$("#line2").css({left: transt2, position:'absolute'});
 						
 						}
 						else if(obj.absoluteT2 > obj.selEnd){
 						$("#line2").removeClass('afterClick');
-						transt2 = 753;
+						transt2 = 758;
 						}
 						
 						
-						$("#transBox").css({left: transt1+1, width: transt2-transt1 - 1});
-						
+						$("#transBox").css({left: transt1+1, width: transt2-transt1 + 0.5});
+						showTimes();
 					
 					}
+					
+					function displayLimitRange(){
+						
+						displayFrequency();
+						
+						if((obj.checkPitch + obj.checkIntensity) == 0){
+							document.getElementById('showIntensityRange').innerHTML= '';
+							document.getElementById('showPitchRange').innerHTML= '';
+							return;
+						}else {
+							if(obj.checkPitch == 1){
+							document.getElementById('showPitchRange').innerHTML= obj.maxPitch +' Hz<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n'+obj.minPitch+' Hz';
+							
+							}
+							else{
+							document.getElementById('showPitchRange').innerHTML= '';
+							}
+							
+							if(obj.checkIntensity == 1){
+							document.getElementById('showIntensityRange').innerHTML= obj.maxIntensity +' dB<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n'+obj.minIntensity+' dB';
+							}
+							else{
+							document.getElementById('showIntensityRange').innerHTML= '';
+							}	
+						}
+
+					}
+					
 					
 					
 					$.get(getBound,function(data, status){
@@ -121,7 +192,10 @@ change the hr bar
 						obj.visuTime = obj.totalTime;
 						obj.selStart = obj.oriStart;
 						obj.selEnd = obj.oriEnd;
-						//document.getElementById('info').innerHTML ='Start time: '+ oriStart + ',     End time: '+oriEnd +", total : "+ obj.visuTime;  
+						//START DRAWING  , display time 
+						showTimes();
+						displayLimitRange();
+						
 				  	});
 					
 										
@@ -140,7 +214,6 @@ change the hr bar
 				    	
 				    	
 				    	changeSelectionBar();
-				    	
 				    	
 				    	obj.visuTime = obj.visuTime/2;
 				    	$('.jcrop-holder img').attr('src',newURL);
@@ -228,22 +301,25 @@ change the hr bar
 				    	obj.checkPitch = 1;
 				    	
 				    	}
+				    	displayLimitRange();
 				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				    	if(obj.visuTime == obj.totalTime){
 				    		var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
 				    	}else if(obj.visuTime != obj.totalTime){
 				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
 				    	}	
-				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
+				    	$('.jcrop-holder img').attr('src',newURL);
+				    				    			    	
 				    });
 				    
 				    $("#intensity").click(function(){
-				    	
 				    	if(obj.checkIntensity == 1){
 				    	obj.checkIntensity = 0;
 				    	}else{
 				    	obj.checkIntensity = 1;
 				    	}
+				    	displayLimitRange();
+				    	
 				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				    	if(obj.visuTime == obj.totalTime){
 				    		var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
@@ -254,7 +330,6 @@ change the hr bar
 				    });
 				    
 				    $("#formant").click(function(){
-				    	
 				    	if(obj.checkFormant == 1){
 				    	obj.checkFormant = 0;
 				    	
@@ -262,20 +337,29 @@ change the hr bar
 				    	obj.checkFormant = 1;
 				    	
 				    	}
+				    	displayLimitRange();
+				    	
 				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				    	if(obj.visuTime == obj.totalTime){
 				    		var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
 				    	}else if(obj.visuTime != obj.totalTime){
 				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
 				    	}	
+				    	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
-			});
-		
-	
-		<!-- Jcrop functions -->
-				
-		jQuery(function($){
+				    
+				    $("#spectogram").click(function(){
+				    	if(obj.checkSpectogram== 1){
+				    	obj.checkSpectogram = 0;
+				    	}else{
+				    	obj.checkSpectogram = 1;
+				    	}
+				    	displayLimitRange();
+				    		    			    	
+				    });
+				   
+			<!-- for JCROP -->
 			
 		    var api;
 
@@ -289,7 +373,7 @@ change the hr bar
 			  $('#target').Jcrop({ allowResize:false });
 			  $('#target').Jcrop({ allowMove:false });
 		      $('#cropbox').Jcrop({ trueSize: [427,487] });
-		      $('#target').Jcrop({ bgOpacity:1 });
+		      $('#target').Jcrop({ bgOpacity:1});
 		      api = this;
 		      
 		    });
@@ -311,25 +395,37 @@ change the hr bar
 		    	if(obj.selT2 == obj.selT1){
 		    	
 		    	}
-		    	else if( ((obj.selT2-obj.selT1)/345*obj.visuTime) < 0.0009 ){
+		    	else if( ((obj.selT2-obj.selT1)/375*obj.visuTime) < 0.0009 ){
 		    		document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time duration too small.';
 		    	}else{
 		    	<!-- show display --> 
-		    		api.release();
 		    		var newURL = drawSound+obj.absoluteT1+"/"+obj.absoluteT2+"/"+checkStatus ;
 		    		obj.selStart = obj.absoluteT1;
-		    		obj.visuTime = (obj.selT2-obj.selT1)/345 * obj.visuTime;
-		    		//alert(obj.visuTime);
+		    		obj.selEnd = obj.absoluteT2;
+		    		obj.visuTime = (obj.selT2-obj.selT1)/375 * obj.visuTime;
+		    		api.release();
 		    		$('.jcrop-holder img').attr('src',newURL);	
-		    		$("#line1").css({left: 411, position:'absolute'});
-		    		$("#line2").css({left: 754, position:'absolute'});
+		    		$("#line1").css({left: 384, position:'absolute'});
+		    		$("#line2").css({left: 759, position:'absolute'});
 		    		
-		    		$("#transBox").css({left: 412.5, width: 343});
+		    		$("#transBox").css({left: 385.5, width: 373});
+		    		
+		    		if(obj.selStart == 0 ){
+		    		document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp0';
+		    		}
+		    		else{
+		    		document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp'+ (obj.selStart).toFixed(6);
+		    		}
+		    		document.getElementById('showTimesRight').innerHTML= (obj.selEnd).toFixed(6);
+		    				    		
+		    		
 		    	}
 		    	
 		    	
+		    	
+		    	
 		    });
-		    
+		   
 		    function changeTransBox(){
 		    				  		
 		    		if(obj.selT1 == obj.selT2){
@@ -338,88 +434,97 @@ change the hr bar
 		    		else{
 		    			//alert(obj.selY1);
 		    			//alert(obj.selY2);
-		    		if(obj.selT2 == 345){
+		    			
+		    		//fixed bug: transBox go out of bound
+		    		if(obj.selT2 == 375){
 		    		$("#transBox").addClass('afterDisplay');
-		    		$("#transBox").css({left: obj.selT1+412.5, width: (345 -obj.selT1 - 4)});
+		    		$("#transBox").css({left: obj.selT1+385.5, width: (375 -obj.selT1 - 2)});
 		    		return; 			
 		    		}
 		    			$("#transBox").addClass('afterDisplay');
-		    			$("#transBox").css({left: obj.selT1+412.5, width: (obj.selT2-obj.selT1 - 2)});
+		    			$("#transBox").css({left: obj.selT1+385.5, width: (obj.selT2-obj.selT1 - 2)});
 		    		
 		    		}
 		    		
 		    		
 		    };	  	
+		   	
+		   
 		   	 	
 		  	function showCoords(c){
 		  	$("#transBox").removeClass('afterDisplay');
 		  	
-		  		obj.selT1 = c.x - 41;
-		  		obj.selT2 = c.x2 - 41;
+		  		obj.selT1 = c.x - 44;
+		  		obj.selT2 = c.x2 - 44;
 		  		
-		  		obj.selY1 = c.y - 41;
-		  		obj.selY2 = c.y2 - 41;
+		  	
+		  		obj.selY1 = c.y-13 ;
+		  		obj.selY2 = c.y2-13 ;
 		  		
-		  		obj.absoluteT1 = obj.selStart +obj.selT1/345*obj.visuTime;
-		  		obj.absoluteT2 = obj.selStart +obj.selT2/345*obj.visuTime;
+		  		obj.absoluteT1 = obj.selStart +obj.selT1/375*obj.visuTime;
+		  		obj.absoluteT2 = obj.selStart +obj.selT2/375*obj.visuTime;
 		  		
 		  		$("#line1").addClass('afterClick');
 		  	
 		  		if(c.x === c.x2){
 		  			$("#line2").removeClass('afterClick');
-		  			if(c.x < 41){
+		  			if(c.x < 44){
 		  				api.release();
-		  				$("#line1").css({left: 411, position:'absolute'});
+		  				$("#line1").css({left: 384, position:'absolute'});
 		  				document.getElementById('selectedInfo').innerHTML='';
 		  				document.getElementById('info').innerHTML='';	
 		  						  				
 		  				
-		  			}else if(c.x > 385){
+		  			}else if(c.x > 419){
 		  				api.release();
-		  				$("#line1").css({left: 754, position:'absolute'});
+		  				$("#line1").css({left: 759, position:'absolute'});
 		  				document.getElementById('selectedInfo').innerHTML='';
 		  				document.getElementById('info').innerHTML='';		
 		  			}else{	 
 		  				document.getElementById('selectedInfo').innerHTML='';
-		  				$("#line1").css({left: obj.selT1+411, position:'absolute'});
+		  				$("#line1").css({left: obj.selT1+384, position:'absolute'});
 		  				
-		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (obj.selStart + obj.selT1/345*obj.visuTime).toFixed(6);
+		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (obj.selStart + obj.selT1/375*obj.visuTime).toFixed(6);
 		  			}
 		  			
 		  		}else if (c.x != c.x2){
-		  			if((c.x < c.x2) && (c.x < 40)){
-		  			//alert('test');
+		  			if((c.x < c.x2) && (c.x < 44)){
+		  			
 		  			api.release();
 		  			$("#line2").addClass('afterClick');
-		  			$("#line2").css({left: obj.selT2+411, position:'absolute'});
-		  			$("#line1").css({left:411, position:'absolute'});
+		  			$("#line2").css({left: obj.selT2+384, position:'absolute'});
+		  			$("#line1").css({left:384, position:'absolute'});
 		  			obj.selT1 = 0;
 		  			obj.absoluteT1 = obj.selStart ;	
 		  			changeTransBox();
 		  				
-		  			}else if((c.x < c.x2) && (c.x2 > 385)){
+		  			}else if((c.x < c.x2) && (c.x2 > 419)){
 		  			
 		  			api.release();
 		  			$("#line2").addClass('afterClick');
-		  			$("#line2").css({left: 754, position:'absolute'});
-		  			$("#line1").css({left:obj.selT1411, position:'absolute'});
-		  			obj.selT2 = 345;
+		  			$("#line2").css({left: 759, position:'absolute'});
+		  			$("#line1").css({left:obj.selT1+384, position:'absolute'});
+		  			obj.selT2 = 375;
 		  			obj.absoluteT2 = obj.selEnd;
 		  			changeTransBox();
 		  				
 		  			}
 		  			else{
 		  			$("#line2").addClass('afterClick');
-		  			$("#line1").css({left: obj.selT1+411, position:'absolute'});
-		  			$("#line2").css({left: obj.selT2+411, position:'absolute'});
-		  			
-		  			
+		  			$("#line1").css({left: obj.selT1+384, position:'absolute'});
+		  			$("#line2").css({left: obj.selT2+384, position:'absolute'});
+	
 		  			}
+		  			api.release();
+		  			changeTransBox();
+		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ ((obj.selT2-obj.selT1)/375*obj.visuTime).toFixed(6) ;
+		  			document.getElementById('info').innerHTML='Start time : '+( obj.selStart +obj.selT1/375*obj.visuTime).toFixed(6) +'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +obj.selT2/375*obj.visuTime).toFixed(6) ;
 		  			
-		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ ((obj.selT2-obj.selT1)/345*obj.visuTime).toFixed(6) ;
-		  			document.getElementById('info').innerHTML='Start time : '+( obj.selStart +obj.selT1/345*obj.visuTime).toFixed(6) +'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +obj.selT2/345*obj.visuTime).toFixed(6) ;
 		  			
 		  		}
+		  		
+		  		displayFrequency();
+		  	
 		  	};
 		  	
 		  	//remove c!!!!!!!!!!!!! 
@@ -433,8 +538,6 @@ change the hr bar
 		  	function clearCoords(){
 		   		$('#coords input').val('');		   		
 		  	};	
-		  	
-		  	
 		  	
 		  	
 		});
@@ -455,6 +558,40 @@ change the hr bar
 	        alert('Start playing')     
 	    }
 	    
+	    function getPitch(){
+	    	alert('show pitch, if selected time-> show pitch,  range-> show mean ')
+	    }
+	    
+	    function countvf(){
+	    	alert('display total voice frames')
+	    }
+	    
+	    
+	    
+	    function getvat(){
+	    	var time = prompt("Time(s)", "0.5");
+	    	    
+	    	    if (time != null) {
+	    	        alert('show value at time , drop down?');
+	    	    }
+	    }
+	    function getvif(){
+	    	var frame = prompt("Frame number", "10");
+	    	    
+	    	    if (frame != null) {
+	    	        alert('show value at time, drop down? ');
+	    	    }
+	    }
+	    
+	    function getlf(){
+	    	alert('lowest f');
+	    }
+	    
+	    function gethf(){
+	    	alert('higest f')
+	    
+	    }
+	    
 	    </script>
 	</head>
 
@@ -472,6 +609,7 @@ change the hr bar
 			    <span>Upload sound file </span>
 			    <input id="upload" type="file"  accept="audio/*,video/*" />
 			</div>
+			<button class= "uploadFromList">Upload from list</button>
 			
 				<!-- javascript for the upload button -->	
 				<script>
@@ -520,22 +658,22 @@ change the hr bar
 			</div>
 			<br><br>
 
-			<div  class = "menu">	
+			<div  class = "menu" >	
 			 	<button class= "mainmenu">Pitch</button>
 			 	<div class = "drop-content">
-			 		<a href = "#">&nbsp; Get pitch </a>
-			 		<a href = "#">&nbsp; Count voiced frames  </a>
-			 		<a href = "#">&nbsp; Get value at time...</a>
-			 		<a href = "#">&nbsp; Get value in frame... </a>
+			 		<a href = "javascript:void(0)"  onclick = "getPitch()">&nbsp; Get pitch </a>
+			 		<a href = "javascript:void(0)" onclick = "countvf()">&nbsp; Count voiced frames  </a>
+			 		<a href = "javascript:void(0)" onclick = "getvat()">&nbsp; Get value at time...</a>
+			 		<a href = "javascript:void(0)" onclick = "getvif()">&nbsp; Get value in frame... </a>
 			 	</div>
 			</div>
 			<br><br>
 			
-			<div  class = "menu">	
+			<div  class = "menu" >	
 			 	<button class= "mainmenu">Spectrum</button>
 			 	<div class = "drop-content">
-			 		<a href = "#">&nbsp; Get lowest frequency  </a>
-			 		<a href = "#">&nbsp; Get highest frequency </a>
+			 		<a href = "javascript:void(0)" onclick = "getlf()">&nbsp; Get lowest frequency  </a>
+			 		<a href = "javascript:void(0)" onclick = "gethf()">&nbsp; Get highest frequency </a>
 			 	</div>
 			</div>
 			<br><br>
@@ -544,48 +682,48 @@ change the hr bar
 			<div  class = "menu">	
 			 	<button class= "mainmenu"> Intensity  </button>
 			 	<div class = "drop-content">
-			 		<a href = "#">&nbsp; Get intensity </a>
-			 		<a href = "#">&nbsp; Get minimum intensity </a>
-			 		<a href = "#">&nbsp; Get maximum intensity</a>
-			 		<a href = "#">&nbsp; Get mean intensity </a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get intensity </a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get minimum intensity </a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get maximum intensity</a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get mean intensity </a>
 			 	</div>
 			</div>
 			<br><br>
 			
 			
-			<div  class = "menu">	
+			<div  class = "menu" >	
 			 	<button class= "mainmenu"> Formant </button>
 			 	<div class = "drop-content">
-			 		<a href = "#">&nbsp; Get formant </a>
-			 		<a href = "#">&nbsp; Get number of frames</a>
-			 		<a href = "#">&nbsp; Get numbers of formants...</a>
-			 		<a href = "#">&nbsp; Get value at time... </a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get formant </a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get number of frames</a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get numbers of formants...</a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get value at time... </a>
 			 	</div>
 			</div>
 			<br><br>
 			
 			
-			<div  class = "menu">	
+			<div  class = "menu" >	
 			 	<button class= "mainmenu"> Harmonicity  </button>
 			 	<div class = "drop-content">
-			 		<a href = "#">&nbsp; Get minimum... </a>
-			 		<a href = "#">&nbsp; Get maximum...</a>
-			 		<a href = "#">&nbsp; Get value at time... </a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get minimum... </a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get maximum...</a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get value at time... </a>
 			 	</div>
 			</div>
 			<br><br>
 			
 			
-			<div  class = "menu">	
+			<div  class = "menu" >	
 			 	<button class= "mainmenu"> PointProcess </button>
 			 	<div class = "drop-content">
-			 		<a href = "#">&nbsp; Get number of periods...  </a>
-			 		<a href = "#">&nbsp; Get number of points...</a>
-			 		<a href = "#">&nbsp; Get jitter (local)... </a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get number of periods...  </a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get number of points...</a>
+			 		<a href = "javascript:void(0)" >&nbsp; Get jitter (local)... </a>
 			 	</div>
 			</div>
 			
-			<!--   vertical lines and transbox inside the image   -->
+			<!-- IMAGE DISPLAY::  vertical lines and transbox inside the image   -->
 			<div class="verticalLine" id = "line1"></div> 
 			<div class="verticalLine" id = "line2"></div>
 			<div class="transBox" id="transBox" > </div> 
@@ -595,19 +733,38 @@ change the hr bar
 		
 		<div class = "interactSection">
 		    
-			<img src="img/0.jpeg" alt="spectrum image" width="427" height="487"id = "target" />
+			<img src="img/1.png" alt="spectrum image" width="427" height="487"id = "target" />
 			
 		</div>
+		
+		<div  id = "showPitchRange"></div>
+		
+		
+		<div  id = "showIntensityRange"></div>
+		
+		<div id = "blockTimes">
+		&nbsp;
+		</div>
+		
+		<div id = "showTimesLeft"></div>
+		
+		<div id = "showTimesRight"></div>
+		
+		<div id = "showHz"></div>
+		
+		<div id = "hzLine">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </div>
 		
 			<br><br>
 	<Span id='below'>
 
 		<br><br>
+		
+		
 		<input type='button' value='Print'  class = "printbox" onclick="window.print()">
 					    
 		<!-- the checkboxes --> 
 		<div id = "checkboxes">	
-			<input  id="spectrum" type="checkbox" value = "spectrum" checked> Spectrum<br>
+			
 			<input  id="pitch" type="checkbox" value = "Pitch" checked> Pitch<br>
 			<input  id="intensity" type="checkbox" value = "intensity" checked> Intensity<br>
 			<input  id="formant" type="checkbox" value = "formant" checked> Formant<br>

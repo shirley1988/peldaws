@@ -24,6 +24,7 @@
 	color: #686262;
 	text-align: left;
 	top: -5px;
+	width: 100px;
 }
 #fileName{
 	position: absolute;
@@ -31,6 +32,7 @@
 	color: #000000;
 	text-align: left;
 	top: 15px;
+	width: 100px;
 }
 
 #lastModifyDateText{
@@ -39,6 +41,7 @@
 	color: #686262;
 	text-align: left;
 	top: -5px;
+	width: 150px;
 }
 #lastModifyDate{
 	position: absolute;
@@ -46,6 +49,7 @@
 	color: #000000;
 	text-align: left;
 	top: 15px;
+	width: 150px;
 }
 #fileSizeText{
 	position: absolute;
@@ -53,6 +57,7 @@
 	color: #686262;
 	top: 45px;
 	text-align: left;
+	width: 100px;
 }
 #fileSize{
 	position: absolute;
@@ -60,6 +65,7 @@
 	color: #000000;
 	top: 65px;
 	text-align: left;
+	width: 100px;
 }
 #timeDurationText{
 	position: absolute;
@@ -67,6 +73,7 @@
 	color: #686262;
 	top: 45px;
 	text-align: left;
+	width: 150px;
 }
 #timeDuration{
 	position: absolute;
@@ -74,6 +81,7 @@
 	color: #000000;
 	top: 65px;
 	text-align: left;
+	width: 150px;
 }
 /**************************
  CSS for the Images 
@@ -81,22 +89,86 @@
 .interactSection{
 	position: absolute;
 	top: 120px;
-	left: 370px;
+	left: 340px;
 }
+
+#showPitchRange{
+	position: absolute;
+	top: 370px;
+	left: 763px;
+	z-index: 1;
+	color: #1c1efe;
+	width: 100px;
+}
+
+
+#showHz{
+	position: absolute;
+	color: #fe0909;
+	
+	left: 338px;
+	font-size: 13px;
+	font-weight: bold;
+	width: 5 px;
+	background-color: #ffffff;
+}
+
+.showHorizontal{
+	position: absolute;
+	left: 384px;
+	border-bottom: 2px dotted #dc4040;
+	word-spacing: 100px 
+	z-index:  3;
+	color: #f90606;
+}
+
+#showIntensityRange{
+	position: absolute;
+	top: 370px;
+	left: 720px;
+	z-index: 1;
+	color: #0eca03;
+	width:  100px;
+	text-shadow: 0 0 1px #050505;
+}
+#blockTimes{
+	position:  absolute;
+	top: 339px;
+	left: 378px;
+	width: 400px;
+	background-color: #ffffff;
+	
+}
+#showTimesLeft{
+	position:  absolute;
+	top: 576px;
+	left: 360px;
+	width: 450px;
+	background-color: #ffffff;
+	font-size: 11px;
+}
+
+#showTimesRight{
+	position:  absolute;
+	top: 576px;
+	left: 756px;
+	font-size: 11px;
+}
+
 
 .afterClick{
 	position: absolute;
-	top: 151px;
+	top: 131px;
 	border-left: 2px dotted #fe0909;
-	height:  426px;
+	height:  440px;
 	left: 0;
 	z-index: 3;
 }
 
 .afterDisplay{
 	position: absolute;
-	top: 153px;
-	height:  421.3px;
+	top: 133px;
+	height:  438px;
 	
 	z-index: 5;
 	opacity: 0.6;
@@ -112,6 +184,7 @@
 	display: inline-block;
 	left: 50px;
 }
+
 .play{
 	background-color: white;
 	color: black;
@@ -189,13 +262,13 @@
     background: #c6c5c5;
     border: 1px solid #040404;
     border-radius: 4px;
-	padding: 30px 5px 5px;
+	padding: 25px 5px 5px;
 	overflow: hidden;
     color: #000000;
 	text-indent: 0;
-    line-height: 20px;
+    line-height: 0px;
 	width: 220px;
-	height: 40px;
+	height: 20px;
 	left: 50px;
 	text-align: center;
 	font-size: 22px;
@@ -206,7 +279,7 @@
 	font-variant: normal;
 	opacity: 1;
 	position: absolute;
-	top: 23px;
+	top: 48px;
 }
 .uploadFile input {
     position: absolute;
@@ -216,10 +289,31 @@
     top: 0 ;
     opacity: 0;
 }
+.uploadFromList{
+	background-color: #dad8d8;
+	color: black;
+	font-size: 12px;
+	cursor: pointer;
+	height: 20px;
+	width: 232px;
+	border: 1px solid #131212;
+	
+	text-align: center;
+	position:absolute;
+	left: 50px;
+	top:  24px;
+	border-radius: 5px;
+	
+	
+}
+
+.uploadFromList:hover{
+	background: #aaa5a5;
+	color: #000000;
+}
 .uploadFile:hover {
     background: #aaa5a5;
     color: #000000;
-    text-decoration: none;
 }
 
 .Script{
@@ -312,11 +406,13 @@
 	position: absolute;
 	left: 430px;
 	top: 593px;
+	width: 500px;
 }
 #selTimeLabel{
 	position: absolute;
 	left: 470px;
-	top: 109px;
+	top: 99px;
+	width: 500px;
 }
 
 #sourceLink{
@@ -350,7 +446,7 @@ hr {
 	border-top: 3px solid #000000;
 	margin: 1em -8px;
 	padding: 0;
-	
+	width:  1290px;
     
 }
 

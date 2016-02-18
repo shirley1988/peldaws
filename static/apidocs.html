@@ -1,0 +1,252 @@
+<html>
+   <head>
+      <title>Praat Web-Services API Documentation</title>
+
+      <style>
+           table thead td {
+              font-weight: bold;
+           }
+           table, th, td {
+              border: 1px solid black;
+           }
+           table {
+              border-collapse: collapse;
+           }
+      </style>
+   </head>
+
+   <body>
+       <h2>Praat Web-Services</h2>
+       <h3>1. uploadSound</h3>
+       Upload a new sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>POST</td>
+          <td>/uploadSound</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Response</h4>
+       JSON Object:<br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"status": Status Message,<br/>
+       &nbsp;&nbsp;&nbsp;"sound": fileName<br/>
+       }<br/>
+       The status message above will be "Success" if upload succeeded. <br/>
+       If no file was uploaded, status will be "No sound file"<br/>
+       If file does not have a recognized extension, status will be "Unknown file type"<br/>
+       The fileName will be the original filename of the uploaded file.
+
+       <h3>2. listSounds</h3>
+       Return list of sound files
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/listSounds</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Response</h4>
+       JSON Object:<br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"files": [list-of-files]<br/>
+       }<br/>
+       list-of-files is a python list of file-names as strings.
+ 
+       <h3>3. drawSound</h3>
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/drawSound/&lt;sound&gt;/&lt;startTime&gt;/&lt;endTime&gt;/&lt;showPitch&gt;/&lt;showIntensity&gt;/&lt;showFormants&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>startTime</td>
+          <td>Number</td>
+          <td>Location in seconds from which to start drawing</td>
+       </tr>
+       <tr>
+          <td>endTime</td>
+          <td>Number</td>
+          <td>Location in seconds at which the drawing ends. Use 0 to draw till the end of the file</td>
+       </tr>
+       <tr>
+          <td>showPitch</td>
+          <td>Number</td>
+          <td>0: Do not draw pitch, 1: Draw pitch</td>
+       </tr>
+       <tr>
+          <td>showIntensity</td>
+          <td>Number</td>
+          <td>0: Do not draw intensity, 1: Draw intensity</td>
+       </tr>      <tr>
+          <td>showFormants</td>
+          <td>Number</td>
+          <td>0: Do not draw formant contours, 1: Draw formant contours</td>
+       </tr>
+       </tbody>
+       </table>
+
+       <h4>Response</h4>
+       A png image of the drawing
+
+       <h3> 4. getBounds</h3>
+       Get boundaries of a sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/getBounds/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       A JSON object: <br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"start": Start Time (Almost always 0.0),<br/>
+       &nbsp;&nbsp;&nbsp;"end": End Time in seconds,<br/>
+       &nbsp;&nbsp;&nbsp;"min": Minimum amplitude,<br/>
+       &nbsp;&nbsp;&nbsp;"max": Maximum amplitude<br/>
+       }<br/>
+
+       <h3>5. playSound</h3>
+       Returns the sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/play/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Returns the sound file with content-type audio/wav or audio/mp3
+
+       <h3>6. getEnergy</h3>
+       Query the energy of the sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/getEnergy/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Returns the value of energy of the sound file as a string
+
+   </body>
+</html>

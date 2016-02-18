@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask.ext.cors import CORS
-import praat
+from werkzeug import secure_filename
 import os
-from PIL import Image
+import praat
+import utils
 
 app = Flask(__name__, static_url_path="")
 CORS(app)
@@ -15,6 +16,10 @@ _sounds_dir = "sounds/"
 def index():
    return app.send_static_file("index.html")
 
+@app.route('/apidocs')
+def apidocs():
+   return app.send_static_file("apidocs.html")
+
 @app.route('/js/<jsfile>')
 def getJS(jsfile):
    return send_from_directory("static/js/", jsfile)
@@ -26,6 +31,34 @@ def getCSS(cssfile):
 @app.route('/img/<imgfile>')
 def getImage(imgfile):
    return send_from_directory("static/img/", imgfile)
+
+@app.route('/uploadSound', methods=['POST'])
+def uploadSound():
+   sound = request.files['sound']
+   if not sound or not sound.filename:
+      status = "No sound file"
+      soundName = ""
+   elif not utils.isSound(sound.filename):
+      status = "Unknown file type"
+      soundName = secure_filename(sound.filename)
+   else:
+      filename = secure_filename(sound.filename)
+      sound.save(os.path.join(_sounds_dir, filename))
+      status = "Success"
+      soundName = filename
+
+   result = {
+      "status": status,
+      "sound": soundName
+   }
+   return jsonify(result)
+
+@app.route('/listSounds')
+def listSounds():
+   response = {
+      "files": os.listdir("sounds")
+   }
+   return jsonify(response)
 
 @app.route('/drawSound/<sound>/<startTime>/<endTime>/<showPitch>/<showIntensity>/<showFormants>')
 def drawSound(sound, startTime, endTime, showPitch, showIntensity, showFormants):
@@ -43,10 +76,8 @@ def drawSound(sound, startTime, endTime, showPitch, showIntensity, showFormants)
     #If image does not exist, run script
     if not os.path.isfile(image):
        praat.runScript(script, params)
-       img = Image.open(image)
-       img.thumbnail((500,500), Image.ANTIALIAS)
-       img.save(image, "PNG", quality=88)
-    
+       utils.resizeImage(image)
+
     resp = app.make_response(open(image).read())
     resp.content_type = "image/png"
     return resp
@@ -58,7 +89,9 @@ def getBounds(sound):
     res = output.split()
     bounds = {
         "start": float(res[0]),
-        "end": float(res[2])
+        "end": float(res[2]),
+        "min": float(res[4]),
+        "max": float(res[6])
     };
     return jsonify(bounds);
 
@@ -66,7 +99,7 @@ def getBounds(sound):
 def playSound(sound):
     fullpath = _sounds_dir + sound
     resp = app.make_response(open(fullpath).read())
-    resp.content_type = "audio/wav"
+    resp.content_type = "audio/" + utils.fileType(sound)
     return resp
 
 @app.route('/getEnergy/<sound>')

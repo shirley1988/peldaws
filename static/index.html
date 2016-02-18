@@ -1,17 +1,13 @@
 <!DOCTYPE html>
-<!-- try use two vertical lines for selection!!!  --> 
 
+<!-- 
+y1 and y2 is for testing
+c.y-c.y2  == 0  -> no transbox 
 
+transbox cant display full part -> the outer bound 
 
-
-<!--MODIFY:::::::::::::::::::ZOOM IN CHANGE THE POSITION OF CROPBOX  
-may need to modify, cant show number if zoom in :obj.visuTime = 0.0009
-jcrop:::: revise the borders so the right side will match 
-jcrop:::: display cropbox opacity
-
-source code access  
-
-decimal 
+change source of image to make print possible 
+change the hr bar 
 -->
 
 <html>
@@ -44,54 +40,180 @@ decimal
 				checkSpectogram: 0,
 				checkWaveform: 0,
 				selStart:0,
+				selEnd: 0,
+				absoluteT1 : 0,
+				absoluteT2: 0,
 				selT1:0,
-				selT2:0
+				selT2:0,
+				selY1:0,
+				selY2:0
 			};	
 			var checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 			
 			$(document).ready(function(){
 					
 					
+					
+					function zoomoutNormal(){
+					    var start = obj.selStart; 
+						obj.selStart = (start +obj.visuTime/2)-obj.visuTime/2*2;
+						obj.selEnd = (start +obj.visuTime/2)+obj.visuTime/2*2 ;
+						var newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+						obj.visuTime = obj.visuTime*2;
+						$('.jcrop-holder img').attr('src',newURL);
+						
+					}
+					
+
+					function changeSelectionBar(){
+					
+						if(obj.absoluteT1 == obj.absoluteT2){
+						    $("#line2").removeClass('afterClick');
+						    $("#line1").removeClass('afterClick');
+						    
+							if((obj.absoluteT1 > obj.selStart) && (obj.absoluteT1 < obj.selEnd) ){
+							
+							//alert('test');
+							
+							$("#line1").addClass('afterClick');
+							$("#line1").css({left: (411+345/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart)),position:'absolute'});
+							}
+							return;
+					    }
+						var transt1;
+						var transt2;
+						
+						if(obj.absoluteT1 >= obj.selStart){
+						$("#line1").addClass('afterClick');
+						transt1 = 411+345/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart);
+						$("#line1").css({left: transt1 ,position:'absolute'});
+						
+						}else if(obj.absoluteT1 < obj.selStart){
+						//alert('obj.absoluteT1: '+obj.absoluteT1);
+						//alert('obj.selStart: '+ obj.selStart);
+						transt1 = 410;
+						$("#line1").removeClass('afterClick');
+						}
+						
+						if(obj.absoluteT2 <= obj.selEnd){
+						$("#line2").addClass('afterClick');
+						transt2 = 411+345/(obj.selEnd-obj.selStart)*(obj.absoluteT2-obj.selStart);
+						$("#line2").css({left: transt2, position:'absolute'});
+						
+						}
+						else if(obj.absoluteT2 > obj.selEnd){
+						$("#line2").removeClass('afterClick');
+						transt2 = 753;
+						}
+						
+						
+						$("#transBox").css({left: transt1+1, width: transt2-transt1 - 1});
+						
+					
+					}
+					
+					
 					$.get(getBound,function(data, status){
-					//alert('Read boundary!');
+					    //alert('Read boundary!');
 				    	obj.oriStart = data.start;
 				  		obj.oriEnd = data.end;
 						obj.totalTime = obj.oriEnd-obj.oriStart;
 						obj.visuTime = obj.totalTime;
-						obj.selStart = 0;
+						obj.selStart = obj.oriStart;
+						obj.selEnd = obj.oriEnd;
 						//document.getElementById('info').innerHTML ='Start time: '+ oriStart + ',     End time: '+oriEnd +", total : "+ obj.visuTime;  
 				  	});
 					
-					<!--MODIFY:::::::::::::::::::ZOOM IN CHANGE THE POSITION OF CROPBOX --> 
+										
+									 
 				    $("#in").click(function(){
-				        
+				         //alert(obj.absoluteT1);
+				         //alert(obj.visuTime);
 				        if(obj.visuTime/2 < 0.0009){
 				    	
 				    	}else{
-				    	var newURL = drawSound+(obj.visuTime/2-(obj.visuTime/4))+"/"
-				    	+(obj.visuTime/2 +(obj.visuTime/4))+"/"+checkStatus;
-				    	obj.selStart = (obj.visuTime/2-(obj.visuTime/4));
+				    	var start = obj.selStart;
+				    	obj.selStart = ((start +obj.visuTime/2)-(obj.visuTime/4));
+				    	obj.selEnd = ((start+obj.visuTime/2) +(obj.visuTime/4));
+				    	
+				    	var newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				    	
+				    	
+				    	changeSelectionBar();
+				    	
+				    	
 				    	obj.visuTime = obj.visuTime/2;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    	}
 				    });
 				    
-				    
+				    //check if absoluet t1 == t2 
 				    $("#out").click(function(){
-				    	if(obj.visuTime== obj.totalTime){
+				        //alert(obj.absoluteT1);
+				        //alert(obj.visuTime);
+				        
+				       
+				        
+				    	if(obj.visuTime == obj.totalTime){
 				    	
-				    	}else{
-				    	var newURL = drawSound+((obj.totalTime-obj.visuTime)/2 - obj.visuTime/2)+"/"
-				    	+((obj.totalTime+obj.visuTime)/2 + obj.visuTime/2)+"/"+checkStatus;
-				    	obj.selStart = ((obj.totalTime-obj.visuTime)/2 - obj.visuTime/2);
-				    	obj.visuTime = obj.visuTime*2;
+				    	}else if(obj.visuTime*2 >= obj.totalTime){
+				    	
+				    	obj.selStart = obj.oriStart;
+				    	obj.selEnd = obj.oriEnd;
+				    	obj.visuTime = obj.totalTime;
+				    	changeSelectionBar();
+				    	var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
 				    	$('.jcrop-holder img').attr('src',newURL);
+				    	
+				    	}
+				    	
+				        				    	
+				    	else if((obj.selStart +obj.visuTime/2) > (obj.oriEnd-obj.oriStart)/2 ){
+				    		if((obj.selStart +obj.visuTime/2)+obj.visuTime/2*3 <= obj.oriEnd){
+				    		    zoomoutNormal();
+				    		    changeSelectionBar();
+				    		}else{
+				    		//spare the space
+				    		obj.selEnd = obj.oriEnd;
+				    		obj.selStart = obj.oriEnd - obj.visuTime*2;
+				    		var newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				    		obj.visuTime = obj.visuTime*2;
+				    		$('.jcrop-holder img').attr('src',newURL);
+				    		changeSelectionBar();
+				    		}
+				    	
+				    	}else if((obj.selStart +obj.visuTime/2) < (obj.oriEnd-obj.oriStart)/2 ){
+				    		if((obj.selStart +obj.visuTime/2)-obj.visuTime/2*3 >= obj.oriStart){
+				    		    zoomoutNormal();
+				    		    changeSelectionBar(); 
+				    		}else{
+				    		//spare the space 
+				    		obj.selStart = obj.oriStart;
+				    		obj.selEnd = obj.oriStart + obj.visuTime*2;
+				    		var newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				    		obj.visuTime = obj.visuTime*2;
+				    		$('.jcrop-holder img').attr('src',newURL);
+				    		changeSelectionBar();
+				    		}
+				    		
+				    	}
+				    	else {
+				    		zoomoutNormal();
+				    		changeSelectionBar();
 				    	}
 				    });
 				    
+				    				    	
+				    	
+				    //change selectino bar
 				    $("#all").click(function(){
-				    	obj.visuTime = obj.totalTime;
+				    	
+				    	
 				    	obj.selStart = 0;
+				    	obj.selEnd = obj.oriEnd; 
+
+				    	obj.visuTime = obj.totalTime;
+				    	changeSelectionBar();
 				    	var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus ;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    });
@@ -167,7 +289,6 @@ decimal
 			  $('#target').Jcrop({ allowResize:false });
 			  $('#target').Jcrop({ allowMove:false });
 		      $('#cropbox').Jcrop({ trueSize: [427,487] });
-		      //change background opacity
 		      $('#target').Jcrop({ bgOpacity:1 });
 		      api = this;
 		      
@@ -183,75 +304,139 @@ decimal
 		    api.setSelect([x1,x2,y1,y2]);
 		    });
 		     
-		     
+		     ///modify: absolute selection!!
 		    $("#sel").click(function(){
 		    	//alert(obj.visuTime);
-		    	//change api   showing 
+		    	
 		    	if(obj.selT2 == obj.selT1){
 		    	
 		    	}
 		    	else if( ((obj.selT2-obj.selT1)/345*obj.visuTime) < 0.0009 ){
-		    		alert('Unable to Display.');
-		    	
+		    		document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time duration too small.';
 		    	}else{
 		    	<!-- show display --> 
-		    	api.release();
-		    	var newURL = drawSound+(obj.selT1/345*obj.visuTime)+"/"+(obj.selT2/345*obj.visuTime)+"/"+checkStatus ;
-		    	obj.selStart = obj.selT1/345*obj.visuTime;
-		    	obj.visuTime = (obj.selT2-obj.selT1)/345 * obj.visuTime;
-		    	//alert(obj.visuTime);
-		    	$('.jcrop-holder img').attr('src',newURL);	
+		    		api.release();
+		    		var newURL = drawSound+obj.absoluteT1+"/"+obj.absoluteT2+"/"+checkStatus ;
+		    		obj.selStart = obj.absoluteT1;
+		    		obj.visuTime = (obj.selT2-obj.selT1)/345 * obj.visuTime;
+		    		//alert(obj.visuTime);
+		    		$('.jcrop-holder img').attr('src',newURL);	
+		    		$("#line1").css({left: 411, position:'absolute'});
+		    		$("#line2").css({left: 754, position:'absolute'});
+		    		
+		    		$("#transBox").css({left: 412.5, width: 343});
 		    	}
+		    	
 		    	
 		    });
 		    
-		    
-		    
-		    function displayCoords(c){	
-		    	
-		    	api.animateTo([obj.selT1+41,31,obj.selT2+41,456]);
-		    	
-						 
-		    };
-		 	
+		    function changeTransBox(){
+		    				  		
+		    		if(obj.selT1 == obj.selT2){
+		    	 		$("#transBox").removeClass('afterDisplay');
+		    		}
+		    		else{
+		    			//alert(obj.selY1);
+		    			//alert(obj.selY2);
+		    		if(obj.selT2 == 345){
+		    		$("#transBox").addClass('afterDisplay');
+		    		$("#transBox").css({left: obj.selT1+412.5, width: (345 -obj.selT1 - 4)});
+		    		return; 			
+		    		}
+		    			$("#transBox").addClass('afterDisplay');
+		    			$("#transBox").css({left: obj.selT1+412.5, width: (obj.selT2-obj.selT1 - 2)});
+		    		
+		    		}
+		    		
+		    		
+		    };	  	
+		   	 	
 		  	function showCoords(c){
+		  	$("#transBox").removeClass('afterDisplay');
+		  	
 		  		obj.selT1 = c.x - 41;
 		  		obj.selT2 = c.x2 - 41;
 		  		
-		  		if(obj.selT1!= obj.selT2){
-		  		$(".verticalLine").removeClass('afterClick');
-		  		}
+		  		obj.selY1 = c.y - 41;
+		  		obj.selY2 = c.y2 - 41;
+		  		
+		  		obj.absoluteT1 = obj.selStart +obj.selT1/345*obj.visuTime;
+		  		obj.absoluteT2 = obj.selStart +obj.selT2/345*obj.visuTime;
+		  		
+		  		$("#line1").addClass('afterClick');
 		  	
 		  		if(c.x === c.x2){
-		  		
+		  			$("#line2").removeClass('afterClick');
 		  			if(c.x < 41){
 		  				api.release();
-		  				$(".verticalLine").addClass('afterClick');
-		  				$(".verticalLine").css({left: 411, position:'absolute'});
+		  				$("#line1").css({left: 411, position:'absolute'});
 		  				document.getElementById('selectedInfo').innerHTML='';
 		  				document.getElementById('info').innerHTML='';	
-		  			}else if(c.x > 386){
+		  						  				
+		  				
+		  			}else if(c.x > 385){
 		  				api.release();
-		  				$(".verticalLine").addClass('afterClick');
-		  				$(".verticalLine").css({left: 754, position:'absolute'});
+		  				$("#line1").css({left: 754, position:'absolute'});
 		  				document.getElementById('selectedInfo').innerHTML='';
 		  				document.getElementById('info').innerHTML='';		
 		  			}else{	 
 		  				document.getElementById('selectedInfo').innerHTML='';
-		  				$(".verticalLine").addClass('afterClick');
-		  				$(".verticalLine").css({left: obj.selT1+411, position:'absolute'});
-		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (obj.selStart + obj.selT1/345*obj.visuTime);
+		  				$("#line1").css({left: obj.selT1+411, position:'absolute'});
+		  				
+		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (obj.selStart + obj.selT1/345*obj.visuTime).toFixed(6);
 		  			}
 		  			
 		  		}else if (c.x != c.x2){
-		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ (obj.selT2-obj.selT1)/345*obj.visuTime ;
-		  			document.getElementById('info').innerHTML='Start time : '+( obj.selStart +obj.selT1/345*obj.visuTime) +'&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +obj.selT2/345*obj.visuTime ) ;
+		  			if((c.x < c.x2) && (c.x < 40)){
+		  			//alert('test');
+		  			api.release();
+		  			$("#line2").addClass('afterClick');
+		  			$("#line2").css({left: obj.selT2+411, position:'absolute'});
+		  			$("#line1").css({left:411, position:'absolute'});
+		  			obj.selT1 = 0;
+		  			obj.absoluteT1 = obj.selStart ;	
+		  			changeTransBox();
+		  				
+		  			}else if((c.x < c.x2) && (c.x2 > 385)){
+		  			
+		  			api.release();
+		  			$("#line2").addClass('afterClick');
+		  			$("#line2").css({left: 754, position:'absolute'});
+		  			$("#line1").css({left:obj.selT1411, position:'absolute'});
+		  			obj.selT2 = 345;
+		  			obj.absoluteT2 = obj.selEnd;
+		  			changeTransBox();
+		  				
+		  			}
+		  			else{
+		  			$("#line2").addClass('afterClick');
+		  			$("#line1").css({left: obj.selT1+411, position:'absolute'});
+		  			$("#line2").css({left: obj.selT2+411, position:'absolute'});
+		  			
+		  			
+		  			}
+		  			
+		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ ((obj.selT2-obj.selT1)/345*obj.visuTime).toFixed(6) ;
+		  			document.getElementById('info').innerHTML='Start time : '+( obj.selStart +obj.selT1/345*obj.visuTime).toFixed(6) +'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +obj.selT2/345*obj.visuTime).toFixed(6) ;
+		  			
 		  		}
 		  	};
-		  
+		  	
+		  	//remove c!!!!!!!!!!!!! 
+		  	function displayCoords(){	
+		  		api.release();
+		  		changeTransBox();
+		  		
+		  	};
+		  	
+		  	
 		  	function clearCoords(){
 		   		$('#coords input').val('');		   		
-		  	};		  	
+		  	};	
+		  	
+		  	
+		  	
+		  	
 		});
 
 		
@@ -280,7 +465,7 @@ decimal
 			<!-- the vertical split line -->
 			<div class="split"></div>
 			<!-- the horizontal split line -->
-			<div class="block1"><br> <br> </div> <hr />
+			<div ><br> <br> </div> <hr >
 			
 			<!-- the upload button -->	
 			<div class="uploadFile">
@@ -400,8 +585,10 @@ decimal
 			 	</div>
 			</div>
 			
-			<!--   the vertical line displayed within the image   -->
-			<div class="verticalLine"></div> 
+			<!--   vertical lines and transbox inside the image   -->
+			<div class="verticalLine" id = "line1"></div> 
+			<div class="verticalLine" id = "line2"></div>
+			<div class="transBox" id="transBox" > </div> 
 			<br><br>	
 	</Span>	
 		
@@ -443,7 +630,7 @@ decimal
 			<p id = "info"></p>
 		</div>
 		<div id ="sourceLink">
-		<a  class = "source" href = "#"> Source Code Access </a>
+		<a  class = "source" href = "https://bitbucket.org/ashiksmd/peldaws"> Source Code Access </a>
 		</div>	
 		<div id = "selTimeLabel">
 			<p id = "selectedInfo"></p>

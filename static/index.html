@@ -35,12 +35,12 @@ dropdown
 				visuTime: 0,
 				
 				checkPitch: 1,
-				minPitch:0,
-				maxPitch:0,
+				minPitch:75,
+				maxPitch:500,
 				
 				checkIntensity: 1,
 				minIntensity:0,
-				maxIntensity: 0,
+				maxIntensity: 100,
 				
 				checkFormant: 1,
 				checkHarmonicity: 0,
@@ -165,7 +165,7 @@ dropdown
 							return;
 						}else {
 							if(obj.checkPitch == 1){
-							document.getElementById('showPitchRange').innerHTML= obj.maxPitch +' Hz<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n'+obj.minPitch+' Hz';
+							document.getElementById('showPitchRange').innerHTML= obj.maxPitch +' Hz<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n'+obj.minPitch+' Hz';
 							
 							}
 							else{
@@ -173,7 +173,7 @@ dropdown
 							}
 							
 							if(obj.checkIntensity == 1){
-							document.getElementById('showIntensityRange').innerHTML= obj.maxIntensity +' dB<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n'+obj.minIntensity+' dB';
+							document.getElementById('showIntensityRange').innerHTML= obj.maxIntensity +' dB<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n'+obj.minIntensity+' dB';
 							}
 							else{
 							document.getElementById('showIntensityRange').innerHTML= '';

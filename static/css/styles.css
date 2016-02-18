@@ -94,7 +94,7 @@
 
 #showPitchRange{
 	position: absolute;
-	top: 370px;
+	top: 375px;
 	left: 763px;
 	z-index: 1;
 	color: #1c1efe;
@@ -124,8 +124,8 @@
 
 #showIntensityRange{
 	position: absolute;
-	top: 370px;
-	left: 720px;
+	top: 375px;
+	left: 710px;
 	z-index: 1;
 	color: #0eca03;
 	width:  100px;

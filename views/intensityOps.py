@@ -2,7 +2,7 @@ from flask import jsonify
 import praat
 from praat import app
 
-@app.route('/intensity/getBounds/<sound>')
+@app.route('/intensity/get-bounds/<sound>')
 def intensityBounds(sound):
     script = praat._scripts_dir + "intensityBounds";
     output = praat.runScript(script, [sound, praat._sounds_dir])

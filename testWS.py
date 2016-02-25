@@ -20,18 +20,18 @@ class TestPraatWS(unittest.TestCase):
        assert "<html>" in result.data
 
    def test_drawSound(self):
-      result = self.test_client.get("/drawSound/sp1.wav/0/4/?pitch&pulse&formants&spectrogram&pulses")
+      result = self.test_client.get("/draw-sound/sp1.wav/0/4/?pitch&pulse&formants&spectrogram&pulses")
       self.assertEqual(result.content_type, "image/png")
 
    def test_getBounds(self):
-      result = self.test_client.get("/getBounds/sp1.wav")
+      result = self.test_client.get("/get-bounds/sp1.wav")
       bounds = json.loads(result.data)
 
       self.assertEquals(bounds["start"], 0.0)
       self.assertEquals(bounds["end"], 4.0)
 
    def test_getEnergy(self):
-      result = self.test_client.get("/getEnergy/sp1.wav")
+      result = self.test_client.get("/get-energy/sp1.wav")
       assert "0.002112626523245126 Pa2 sec" in result.data
 
    def test_playSound(self):
@@ -46,14 +46,14 @@ class TestPraatWS(unittest.TestCase):
       }
 
       #TypeError: constructor takes no arguments. Needs degugging.
-      #response = testClient.post("/uploadSound",data=data)
+      #response = testClient.post("/upload-sound",data=data)
       #result = json.loads(response.data)
 
       #self.assertEquals(result["status"], "Success")
       self.assertTrue(True)
 
    def test_listSounds(self):
-      result = self.test_client.get("/listSounds")
+      result = self.test_client.get("/list-sounds")
       files = json.loads(result.data)
       assert "sp1.wav" in files["files"]
 

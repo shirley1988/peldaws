@@ -5,7 +5,7 @@ import praat
 import utils
 from praat import app
 
-@app.route('/drawSound/<sound>/<startTime>/<endTime>/')
+@app.route('/draw-sound/<sound>/<startTime>/<endTime>/')
 def drawSound(sound, startTime, endTime):
     #Get URL parameters
     showSpectrogram = '0' if request.args.get("spectrogram") is None else '1'
@@ -37,7 +37,7 @@ def drawSound(sound, startTime, endTime):
     resp.content_type = "image/png"
     return resp
 
-@app.route('/getBounds/<sound>')
+@app.route('/get-bounds/<sound>')
 def getBounds(sound):
     script = praat._scripts_dir + "getBounds";
     output = praat.runScript(script, [sound, praat._sounds_dir])
@@ -57,7 +57,7 @@ def playSound(sound):
     resp.content_type = "audio/" + utils.fileType(sound)
     return resp
 
-@app.route('/getEnergy/<sound>')
+@app.route('/get-energy/<sound>')
 def getEnergy(sound):
     script = praat._scripts_dir + "getEnergy";
     return praat.runScript(script, [sound, praat._sounds_dir])

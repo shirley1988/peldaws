@@ -6,7 +6,7 @@ import utils
 import praat
 from praat import app
 
-@app.route('/uploadSound', methods=['POST'])
+@app.route('/upload-sound', methods=['POST'])
 def uploadSound():
    sound = request.files['sound']
    if not sound or not sound.filename:
@@ -27,7 +27,7 @@ def uploadSound():
    }
    return jsonify(result)
 
-@app.route('/listSounds')
+@app.route('/list-sounds')
 def listSounds():
    response = {
       "files": os.listdir(praat._sounds_dir)

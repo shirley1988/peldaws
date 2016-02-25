@@ -1,13 +1,30 @@
 <!DOCTYPE html>
 
 <!-- 
+http://peldaws.westus.cloudapp.azure.com/
 
-Y range: 0~203 ,  237~439
+Dialog not supported in firefox 
 
-upload , object list, 
-dropdown    
+
+ DATE 
+test audio.load 
+
+
+
+Y range: 0~203 ,  237~439   237->236
 
  
+
+if select out of bound,  should not able to crop!!!!!!!!!!
+
+change x position 
+ 
+remove Jcrop.gif 
+
+
+ 
+ firefox problem
+ ******************settings 
 -->
 
 
@@ -19,15 +36,48 @@ dropdown
 		
 		<script src="js/jquery.min.js"></script>
 		<script src="js/jquery.Jcrop.min.js"></script>
+		<script src="http://malsup.github.com/jquery.form.js"></script>
 		
 		<link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
 		
-				<script type="text/javascript">
-				//get rid of http://127.0.0.1/
-			var getBound = "http://127.0.0.1:5000/getBounds/sp1.wav";
-			var drawSound = "http://127.0.0.1:5000/drawSound/sp1.wav/"; 
+		<script> 
+		       $(document).ready(function() { 
+		       	   
+		           // bind 'myForm' and provide a simple callback function 
+		           $('#myForm').ajaxForm({ 
+		           		success: showSoundInfo
+		           }); 
+		           
+		          
+		           	$("#upload").change(function(e){
+		           		document.getElementById('fileName').innerHTML = this.files[0].name;		     
+		           		document.getElementById('fileSize').innerHTML = formatSize(this.files[0].size, 2);
+		           		document.getElementById('lastModifyDate').innerHTML = this.files[0].lastModifiedDate;	
+		           		
+		           		
+		           		
+		           		/*var name = this.files[0].name;
+		           		obj.name = name;		     
+		           		var size = formatSize(this.files[0].size, 2);
+		           		obj.size = size;
+		           		var date = this.files[0].lastModifiedDate; 
+		           		obj.date = date;
+		           		*/
+		           	}); 
+		       });    
+		</script> 
+		
+
+		<script type="text/javascript">
 				
+			//var getBound = "/getBounds/sp1.wav";
+			var drawSound = "/drawSound/"; 
+			var listSound  = "/listSounds";
+			var newURL = '';	
 			var obj = {
+				name : 0,
+				//date:0,
+				//size:0,
 				oriStart: 0,
 				oriEnd: 0,
 				   
@@ -58,107 +108,73 @@ dropdown
 			};	
 			var checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 			
-
-			
-			
 		
 			<!-- Jcrop functions -->
-					
-			jQuery(function($){
-					
-					function displayFrequency(){
-						 	if((obj.checkFormant+obj.checkSpectogram) == 0){
-						 		document.getElementById('showHz').innerHTML= '';
-								//disable the line
+			
+			
+			function showSoundInfo(data){
+			 obj.name = data.sound;
+			 var status = data.status; 
+			 //alert(status);
+			 var success = "Success";
+			 
+			  if(status.localeCompare(success) == 0){
+			  	drawSound = "/drawSound/";
+			  	document.getElementById('audio').src = '';
+			    getSoundInfo(); 
+			   	
+			  }
+			  else{
+			  	obj.name = '0';
+			  }
+			}
+			
+			function getSoundInfo(){
+				//alert('get Sound Info '+ obj.name);
+				var bound = "/getBounds/"+obj.name;
+			
+					$.get(bound,function(data, status){
+						obj.oriStart = data.start;
+						obj.oriEnd = data.end;
+						
+						obj.totalTime = obj.oriEnd-obj.oriStart;
+						obj.visuTime = obj.totalTime;
+						obj.selStart = obj.oriStart;
+						obj.selEnd = obj.oriEnd;
 								
-								$("#hzLine").removeClass('showHorizontal');
-						 		return;
-						 	}
-						 	
-						 	if(obj.selY1 >=237 && obj.selY1 <=439 ){
-						 	
-						 		document.getElementById('showHz').innerHTML= (5000-(obj.selY1-237)/202*5000).toFixed(0)+' Hz' ;
-						 		$("#showHz").css({top: (124 + obj.selY1) , position: 'absolute'});
-						 		$("#hzLine").addClass('showHorizontal');
-						 		$("#hzLine").css({top:(114 +obj.selY1) , position :'absolute'});
-						 		//draw the line 
-						 	}
-						 	
-					};
-					
-					function showTimes(){
-						if(obj.selStart == 0 ){
-						document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp0';
-						}
-						else{
-						document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp'+ (obj.selStart).toFixed(6);
-						}
-						document.getElementById('showTimesRight').innerHTML= (obj.selEnd).toFixed(6);
-					}
-					
-					function zoomoutNormal(){
-					    var start = obj.selStart; 
-						obj.selStart = (start +obj.visuTime/2)-obj.visuTime/2*2;
-						obj.selEnd = (start +obj.visuTime/2)+obj.visuTime/2*2 ;
-						var newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
-						obj.visuTime = obj.visuTime*2;
+					    				
+						document.getElementById('timeDuration').innerHTML = formatTime(obj.totalTime);
+						drawSound  = drawSound + obj.name +'/';
+						 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+						document.getElementById('selectNewFile').innerHTML='';
+						// display new image!!!!!!!!!!!!!!!!!!!!!!!!!!!
 						$('.jcrop-holder img').attr('src',newURL);
 						
-					}
-					
-					
-					function changeSelectionBar(){
-					
-						if(obj.absoluteT1 == obj.absoluteT2){
-						    $("#line2").removeClass('afterClick');
-						    $("#line1").removeClass('afterClick');
-						    
-							if((obj.absoluteT1 > obj.selStart) && (obj.absoluteT1 < obj.selEnd) ){
-							
-							//alert('test');
-							
-							$("#line1").addClass('afterClick');
-							$("#line1").css({left: (384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart)),position:'absolute'});
-							}
-							showTimes();
-							return;
-					    }
-						var transt1;
-						var transt2;
+					    showTimes();
+						displayLimitRange();
 						
-						if(obj.absoluteT1 >= obj.selStart){
-						$("#line1").addClass('afterClick');
-						transt1 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart);
-						$("#line1").css({left: transt1 ,position:'absolute'});
-						
-						}else if(obj.absoluteT1 < obj.selStart){
-						//alert('obj.absoluteT1: '+obj.absoluteT1);
-						//alert('obj.selStart: '+ obj.selStart);
-						transt1 = 383;
-						$("#line1").removeClass('afterClick');
-						}
-						
-						if(obj.absoluteT2 <= obj.selEnd){
-						$("#line2").addClass('afterClick');
-						transt2 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT2-obj.selStart);
-						$("#line2").css({left: transt2, position:'absolute'});
-						
-						}
-						else if(obj.absoluteT2 > obj.selEnd){
-						$("#line2").removeClass('afterClick');
-						transt2 = 758;
-						}
-						
-						
-						$("#transBox").css({left: transt1+1, width: transt2-transt1 + 0.5});
-						showTimes();
-					
-					}
-					
-					function displayLimitRange(){
-						
-						displayFrequency();
-						
+						//upload the sound file 
+						var audio = document.getElementById('audio');
+						audio.src='/play/'+obj.name;
+						audio.load();
+					});
+			}
+			
+			
+			function showTimes(){
+				
+				if(obj.selStart == 0 ){
+				document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp0';
+				}
+				else{
+				document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp'+ (obj.selStart).toFixed(6);
+				}
+				document.getElementById('showTimesRight').innerHTML= (obj.selEnd).toFixed(6);
+			}
+			
+			
+			function displayLimitRange(){			
+				displayFrequency();	
 						if((obj.checkPitch + obj.checkIntensity) == 0){
 							document.getElementById('showIntensityRange').innerHTML= '';
 							document.getElementById('showPitchRange').innerHTML= '';
@@ -173,36 +189,108 @@ dropdown
 							}
 							
 							if(obj.checkIntensity == 1){
-							document.getElementById('showIntensityRange').innerHTML= obj.maxIntensity +' dB<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n'+obj.minIntensity+' dB';
+							document.getElementById('showIntensityRange').innerHTML= obj.maxIntensity +' dB<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n&nbsp;&nbsp;&nbsp;&nbsp;'+obj.minIntensity+' dB';
 							}
 							else{
 							document.getElementById('showIntensityRange').innerHTML= '';
 							}	
 						}
 
-					}
-					
-					
-					
-					$.get(getBound,function(data, status){
-					    //alert('Read boundary!');
-				    	obj.oriStart = data.start;
-				  		obj.oriEnd = data.end;
-						obj.totalTime = obj.oriEnd-obj.oriStart;
-						obj.visuTime = obj.totalTime;
-						obj.selStart = obj.oriStart;
-						obj.selEnd = obj.oriEnd;
-						//START DRAWING  , display time 
-						showTimes();
-						displayLimitRange();
+			}
+			
+			function displayFrequency(){
+				 	if((obj.checkFormant+obj.checkSpectogram) == 0){
+				 		document.getElementById('showHz').innerHTML= '';
+						//disable the line
 						
-				  	});
+						$("#hzLine").removeClass('showHorizontal');
+				 		return;
+				 	}
+				 	
+				 	if(obj.selY1 >=236 && obj.selY1 <=439 ){
+				 	
+				 		document.getElementById('showHz').innerHTML= (5000-(obj.selY1-236)/202*5000).toFixed(0)+' Hz' ;
+				 		$("#showHz").css({top: (126 + obj.selY1) , position: 'absolute'});
+				 		$("#hzLine").addClass('showHorizontal');
+				 		$("#hzLine").css({top:(116 +obj.selY1) , position :'absolute'});
+				 	}
+				 	
+			}
+			
+			function changeSelectionBar(){
+			
+				if(obj.absoluteT1 == obj.absoluteT2){
+				    $("#line2").removeClass('afterClick');
+				    $("#line1").removeClass('afterClick');
+				    
+					if((obj.absoluteT1 > obj.selStart) && (obj.absoluteT1 < obj.selEnd) ){
+					$("#line1").addClass('afterClick');
+					$("#line1").css({left: (384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart)),position:'absolute'});
+					}
+					showTimes();
+					return;
+			    }
+			    
+				var transt1;
+				var transt2;
+				
+				if(obj.absoluteT1 >= obj.selStart){
+					$("#line1").addClass('afterClick');
+					transt1 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart);
+					$("#line1").css({left: transt1 ,position:'absolute'});
+				
+				}else if(obj.absoluteT1 < obj.selStart){
+					transt1 = 383;
+					$("#line1").removeClass('afterClick');
+					if(obj.absoluteT2 < obj.selStart){
+						$("#line2").removeClass('afterClick');
+						$("#transBox").css({ width:0});
+						showTimes();
+						return;
+					}
+				}
+				
+				if(obj.absoluteT2 <= obj.selEnd){
+					$("#line2").addClass('afterClick');
+					transt2 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT2-obj.selStart);
+					$("#line2").css({left: transt2, position:'absolute'});
+				
+				}
+				else if(obj.absoluteT2 > obj.selEnd){
+					transt2 = 758;
+					$("#line2").removeClass('afterClick');
+					if(obj.absoluteT1 > obj.selEnd){
+						$("#line1").removeClass('afterClick');
+						$("#transBox").css({ width:0});
+						showTimes();
+						return;
+					}
+				}
+				
+				$("#transBox").css({left: transt1+1, width: transt2-transt1 + 0.5});
+				showTimes();
+			}
+			
+			
+			function zoomoutNormal(){
+			    var start = obj.selStart; 
+				obj.selStart = (start +obj.visuTime/2)-obj.visuTime/2*2;
+				obj.selEnd = (start +obj.visuTime/2)+obj.visuTime/2*2 ;
+				 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				obj.visuTime = obj.visuTime*2;
+				$('.jcrop-holder img').attr('src',newURL);
+				
+			}
+			
+	
+			
 					
-										
-									 
+	jQuery(function($){
+				 
 				    $("#in").click(function(){
 				         //alert(obj.absoluteT1);
 				         //alert(obj.visuTime);
+				        if(obj.name == 0) return;
 				        if(obj.visuTime/2 < 0.0009){
 				    	
 				    	}else{
@@ -210,7 +298,7 @@ dropdown
 				    	obj.selStart = ((start +obj.visuTime/2)-(obj.visuTime/4));
 				    	obj.selEnd = ((start+obj.visuTime/2) +(obj.visuTime/4));
 				    	
-				    	var newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				    	 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
 				    	
 				    	
 				    	changeSelectionBar();
@@ -226,7 +314,7 @@ dropdown
 				        //alert(obj.visuTime);
 				        
 				       
-				        
+				        if(obj.name == 0) return;
 				    	if(obj.visuTime == obj.totalTime){
 				    	
 				    	}else if(obj.visuTime*2 >= obj.totalTime){
@@ -235,7 +323,7 @@ dropdown
 				    	obj.selEnd = obj.oriEnd;
 				    	obj.visuTime = obj.totalTime;
 				    	changeSelectionBar();
-				    	var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    	 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    	
 				    	}
@@ -249,7 +337,7 @@ dropdown
 				    		//spare the space
 				    		obj.selEnd = obj.oriEnd;
 				    		obj.selStart = obj.oriEnd - obj.visuTime*2;
-				    		var newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
 				    		obj.visuTime = obj.visuTime*2;
 				    		$('.jcrop-holder img').attr('src',newURL);
 				    		changeSelectionBar();
@@ -263,7 +351,7 @@ dropdown
 				    		//spare the space 
 				    		obj.selStart = obj.oriStart;
 				    		obj.selEnd = obj.oriStart + obj.visuTime*2;
-				    		var newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
 				    		obj.visuTime = obj.visuTime*2;
 				    		$('.jcrop-holder img').attr('src',newURL);
 				    		changeSelectionBar();
@@ -276,37 +364,35 @@ dropdown
 				    	}
 				    });
 				    
-				    				    	
-				    	
+	
 				    //change selectino bar
 				    $("#all").click(function(){
-				    	
-				    	
+				    	if(obj.name == 0) return;
+				    	if(obj.name == 0) return;
 				    	obj.selStart = 0;
 				    	obj.selEnd = obj.oriEnd; 
 
 				    	obj.visuTime = obj.totalTime;
 				    	changeSelectionBar();
-				    	var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus ;
+				    	 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus ;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    });
 				    
 				   
 				    $("#pitch").click(function(){
-				    	
 				    	if(obj.checkPitch == 1){
 				    	obj.checkPitch = 0;
 				    	
 				    	}else{
 				    	obj.checkPitch = 1;
-				    	
 				    	}
-				    	displayLimitRange();
 				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
+				    	if(obj.name == 0) return;
+				    	displayLimitRange();
 				    	if(obj.visuTime == obj.totalTime){
-				    		var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
 				    	}else if(obj.visuTime != obj.totalTime){
-				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
+				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    				    			    	
@@ -318,18 +404,20 @@ dropdown
 				    	}else{
 				    	obj.checkIntensity = 1;
 				    	}
+				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
+				    	if(obj.name == 0) return;
 				    	displayLimitRange();
 				    	
-				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				    	if(obj.visuTime == obj.totalTime){
-				    		var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
 				    	}else if(obj.visuTime != obj.totalTime){
-				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
+				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
 				    
 				    $("#formant").click(function(){
+				    	
 				    	if(obj.checkFormant == 1){
 				    	obj.checkFormant = 0;
 				    	
@@ -337,13 +425,17 @@ dropdown
 				    	obj.checkFormant = 1;
 				    	
 				    	}
-				    	displayLimitRange();
 				    	
 				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
+				    	if(obj.name == 0) return;
+				    	
+				    	
+				    	displayLimitRange();
+				    	
 				    	if(obj.visuTime == obj.totalTime){
-				    		var newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
 				    	}else if(obj.visuTime != obj.totalTime){
-				    		var newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
+				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
 				    	}	
 				    	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
@@ -355,7 +447,11 @@ dropdown
 				    	}else{
 				    	obj.checkSpectogram = 1;
 				    	}
+				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
+				    	if(obj.name == 0) return;
 				    	displayLimitRange();
+				    	
+				    	//change display images 
 				    		    			    	
 				    });
 				   
@@ -388,7 +484,6 @@ dropdown
 		    api.setSelect([x1,x2,y1,y2]);
 		    });
 		     
-		     ///modify: absolute selection!!
 		    $("#sel").click(function(){
 		    	//alert(obj.visuTime);
 		    	
@@ -396,10 +491,10 @@ dropdown
 		    	
 		    	}
 		    	else if( ((obj.selT2-obj.selT1)/375*obj.visuTime) < 0.0009 ){
-		    		document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time duration too small.';
+		    		document.getElementById('info').innerHTML='Selected time duration too small.';
 		    	}else{
 		    	<!-- show display --> 
-		    		var newURL = drawSound+obj.absoluteT1+"/"+obj.absoluteT2+"/"+checkStatus ;
+		    		 newURL = drawSound+obj.absoluteT1+"/"+obj.absoluteT2+"/"+checkStatus ;
 		    		obj.selStart = obj.absoluteT1;
 		    		obj.selEnd = obj.absoluteT2;
 		    		obj.visuTime = (obj.selT2-obj.selT1)/375 * obj.visuTime;
@@ -452,6 +547,12 @@ dropdown
 		   
 		   	 	
 		  	function showCoords(c){
+		  	
+		  	if(obj.name.localeCompare(0) == 0){
+		  		api.release();
+		  		return;
+		  	}
+		  	
 		  	$("#transBox").removeClass('afterDisplay');
 		  	
 		  		obj.selT1 = c.x - 44;
@@ -484,7 +585,7 @@ dropdown
 		  				document.getElementById('selectedInfo').innerHTML='';
 		  				$("#line1").css({left: obj.selT1+384, position:'absolute'});
 		  				
-		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (obj.selStart + obj.selT1/375*obj.visuTime).toFixed(6);
+		  				document.getElementById('info').innerHTML='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Selected time : '+ (obj.selStart + obj.selT1/375*obj.visuTime).toFixed(6);
 		  			}
 		  			
 		  		}else if (c.x != c.x2){
@@ -541,11 +642,25 @@ dropdown
 		  	
 		  	
 		});
-
 		
+		
+		
+		function formatTime(s){
+			if(s == 0){
+		  	 return '0 s'; 
+			}
+			
+			var u = 60;
+			var sizes = ['s', 'min', 'hr'];
+			var r  = Math.floor(Math.log(s)/Math.log(u));
+			return (s/Math.pow(u,r)).toPrecision(6) + ' '+sizes[r]; 
+		}
 		<!-- function that convert the file size -->
 		function formatSize(bytes,decimals) {
-		   if(bytes == 0) return '0 Byte';
+			//alert('start format size '+bytes);
+		   if(bytes == 0){
+			return '0 Byte';
+		   }
 		   
 		   var k = 1000;
 		   var de = decimals + 1 || 3;
@@ -555,10 +670,25 @@ dropdown
 		}
 				
 	    function play(){
-	        alert('Start playing')     
+	        //alert('Start playing')
+	        document.getElementById('audio').play();     
+	    }
+	    function getEnergy(){
+	    	
+	    	var energy = '/getEnergy/'+obj.name;
+	    	$.get(energy,function(data, status){
+	    		
+	    		if(status.localeCompare('success') == 0){
+	    		alert(data);
+	    		
+	    		
+	    		}
+	    	});
+	    
 	    }
 	    
 	    function getPitch(){
+	    	<!-- may use prompt -->
 	    	alert('show pitch, if selected time-> show pitch,  range-> show mean ')
 	    }
 	    
@@ -592,53 +722,132 @@ dropdown
 	    
 	    }
 	    
+	    function save() {
+	    	
+	    	if(obj.name.localeCompare(0)==0){
+	    	
+	    	}else{
+	        window.open(newURL);
+	        }
+	    }
+	    
+	   	    
+	    
+	    function displayList(){
+	    // retrieve the list 
+			$.get(listSound,function(data,status){
+	    		var size = data.files.length;
+				var vals = data.files;
+				var $soundList = $('#fileSelection');
+			
+				$soundList.empty();
+				$soundList.append('<option value ="noSelection"> Select from below : </option>');
+				$.each(vals, function (index, value){
+					$soundList.append('<option value ='+value+'>' + value + '</option>');
+				});
+     	
+			});
+	    
+	    	showDialog();
+	    }
+	    
+	    function selectFile(){
+	    var selectedFile = document.getElementById("fileSelection");
+	    var selectedValue = selectedFile.options[selectedFile.selectedIndex].value;
+	    
+	    	if(selectedValue.localeCompare('noSelection') == 0){
+	        
+	    	}
+	    	else{
+	    	//alert('file selected!');
+	    	document.getElementById("myDialog").close();
+	    	
+	    	obj.name = selectedValue; 
+	    	drawSound = "/drawSound/";
+	    	document.getElementById('audio').src = '';
+	    	document.getElementById('fileName').innerHTML = obj.name;
+	    	
+	    	var audio = document.getElementById('audio');
+	    	audio.src='/play/'+ obj.name;
+	    	//audio.load();
+	        
+	    	$.get(audio.src,function(data, status){
+	    		alert('get');
+	     	    //alert(data.lastDate);
+	     		
+	    	document.getElementById('fileSize').innerHTML = formatSize(Number(data.length), 2);
+	    	});
+	    	document.getElementById('lastModifyDate').innerHTML = '';	
+	
+	    	
+	    	getSoundInfo(); 
+
+	    	}	
+	    }
+	    
 	    </script>
 	</head>
 
-	<body>
 
+
+
+
+
+
+
+
+
+
+	<body>
+     
+              
 	<Span id='above'>
 	
+			<audio id="audio" src="" preload="auto"></audio>
+			
+		    
 			<!-- the vertical split line -->
 			<div class="split"></div>
 			<!-- the horizontal split line -->
 			<div ><br> <br> </div> <hr >
 			
+			
+			
+			
 			<!-- the upload button -->	
-			<div class="uploadFile">
-			    <span>Upload sound file </span>
-			    <input id="upload" type="file"  accept="audio/*,video/*" />
+			<div class="uploadFile" data-toggle = "tooltip" title = "Upload a new sound file to start the analysis.">
+			    <span  >Upload sound file </span>
+			    <form id="myForm" enctype="multipart/form-data" method="post" action="/uploadSound">
+			    <input id="upload" type="file" name="sound" accept="audio/*" />
+			    </form>
 			</div>
-			<button class= "uploadFromList">Upload from list</button>
+			
+			
+						
+			
+			<button class= "selectFromList" id = "selectFromList" onclick = "displayList()" data-toggle = "tooltip" title = "Select a sound file from the list.">Select from list</button>
 			
 				<!-- javascript for the upload button -->	
 				<script>
-				document.getElementById('upload').onchange = displayInfo;
-						
-				function displayInfo() {
-			    	var select= document.getElementById('upload').files[0];
-			    	
-			    	var name = this.files[0].name;
-			    	
-			    	var lastIndex = name.lastIndexOf("\\");
-			    	if (lastIndex >= 0) {
-			        name = name.substring(lastIndex + 1);
-			    	}
-			    
-			    	var size = formatSize(this.files[0].size, 2);
-			    
-			    	var date = this.files[0].lastModifiedDate;
-			    
-			    	<!-- NEED TO WORK ON ACQUIRING TIME DURATION -->
-			    	document.getElementById('fileName').innerHTML = name;
-			    	document.getElementById('fileSize').innerHTML =size;
-			    	document.getElementById('lastModifyDate').innerHTML = date;
-			    	<!-- document.getElementById('timeDuration').innerHTML =;--> 
-				}
+			
+				 
+				$('#myForm').change(function() {
+				    $(this).submit();
+				});
+				
+				$('#myForm').ajaxForm(function() { 
+				     alert("ajaxform"); 
+				});
+			
+				
+			
 				</script>
 			
 			
-		 	<button type = "button" onclick="alert('Add Script!')" class= "Script"> Open Script </button>
+		 	
+		    <button  type = "button" onclick="alert('Add Script!')" class= "Script" data-toggle = "tooltip" title = "Upload own Script.">Open Script </button>
+		 	
+		 	
 		 	<p id = "fileNameText">File name : </p>
 		 	<p id = "fileName"></p>
 		 	
@@ -651,10 +860,16 @@ dropdown
 		 	<p id = "timeDurationText">Time duration : </p>
 		 	<p id = "timeDuration"></p>
 		 
-		
+		<div id = "leftMenuBar" >
 			<!-- the side menus -->	
 			<div  class = "menu">
-			    <button class= "play" onclick="play()"> Play </button>
+			    <!--<button class= "play" onclick="play()" data-toggle = "tooltip" title = "Play the selected sound file."> Play </button>-->
+			    <button class= "mainmenu">Sound</button>
+			    	<div class = "drop-content">
+			    		<a href = "javascript:void(0)"  onclick = "play()" >&nbsp; Play </a>
+			    		<a href = "javascript:void(0)" onclick = "getEnergy()">&nbsp; Get energy...  </a>
+			    		
+			    	</div>
 			</div>
 			<br><br>
 
@@ -722,7 +937,7 @@ dropdown
 			 		<a href = "javascript:void(0)" >&nbsp; Get jitter (local)... </a>
 			 	</div>
 			</div>
-			
+		</div>
 			<!-- IMAGE DISPLAY::  vertical lines and transbox inside the image   -->
 			<div class="verticalLine" id = "line1"></div> 
 			<div class="verticalLine" id = "line2"></div>
@@ -730,10 +945,11 @@ dropdown
 			<br><br>	
 	</Span>	
 		
-		
+		<p id = "selectNewFile"> Select a new file to start the analysis. </p>
 		<div class = "interactSection">
 		    
-			<img src="img/1.png" alt="spectrum image" width="427" height="487"id = "target" />
+			<img  src="img/0.png"  onmousedown="return false" alt="spectrum image" width="427" height="487"id = "target" />
+			
 			
 		</div>
 		
@@ -760,40 +976,73 @@ dropdown
 		<br><br>
 		
 		
-		<input type='button' value='Print'  class = "printbox" onclick="window.print()">
+		
+		<input type='button' value='Print'  class = "printbox" onclick="window.print()"data-toggle = "tooltip" title = "Print the analyzed outcome.">
 					    
 		<!-- the checkboxes --> 
 		<div id = "checkboxes">	
-			
+			<input  id="spectrogram" type="checkbox" value = "spectrogram" checked> Spectrogram<br>
 			<input  id="pitch" type="checkbox" value = "Pitch" checked> Pitch<br>
 			<input  id="intensity" type="checkbox" value = "intensity" checked> Intensity<br>
 			<input  id="formant" type="checkbox" value = "formant" checked> Formant<br>
-			<input  id="harmonicity" type="checkbox" value = "harmonicity"> Harmonicity<br>
-			<input  id="pointprocess" type="checkbox" value = "pointprocess"> PointProcess<br>
-			<input  id="spectogram" type="checkbox" value = "spectogram"> Spectogram<br>
-			<input  id="waveform" type="checkbox" value = "waveform" > Waveform<br>
+			<input  id="pointprocess" type="checkbox" value = "pointprocess"> Pulses<br>
+			
 	    </div>
 			
 		<!-- the buttons -->
-		<button type = "button" onclick="alert('Implement Save!')" id = "Save">Save </button>
-		<button type = "button"  class = "bottomButton" id = "all">all </button>
-		<button type = "button"  class = "bottomButton" id = "in">in </button>
-		<button type = "button"  class = "bottomButton" id = "out">out </button>
-		<button type = "button"  class = "bottomButton" id = "sel">sel </button>
+		<button type = "button" onclick="save()" id = "Save" data-toggle = "tooltip" title = "Save the result of your analysis.">Save </button>
+		<button type = "button"  class = "bottomButton" id = "all" data-toggle = "tooltip" data-placement="auto top" title = "Display the whole spectrogram.">all </button>
+		<button type = "button"  class = "bottomButton" id = "in" data-toggle = "tooltip" data-placement="top" title = "Zoom in the spectrogram.">zoom in </button>
+		<button type = "button"  class = "bottomButton" id = "out" data-toggle = "tooltip" data-placement="top" title = "Zoom out of the spectrogram.">zoom out </button>
+		<button type = "button"  class = "bottomButton" id = "sel" data-toggle = "tooltip" data-placement="top" title = "Display the specific selected time range.">selection </button>
 		
 		
 		
 		<div id = "timeLabel">
 			<p id = "info"></p>
 		</div>
+		
+		<div id = "otherSource">
+		<p> Other Sources: </p>
+		</div>
+		
 		<div id ="sourceLink">
 		<a  class = "source" href = "https://bitbucket.org/ashiksmd/peldaws"> Source Code Access </a>
 		</div>	
+		<div id ="peldaLink">
+		<a  class = "source" href = "#">Audio Retrieval and Version Control </a>
+		</div>
+		<div id ="deeplearningLink">
+		<a  class = "source" href = "#">Deep learning </a>
+		</div>
 		<div id = "selTimeLabel">
 			<p id = "selectedInfo"></p>
 		</div> 
 		
+		<dialog id="myDialog"  >
+		<h2 id = "selectAFile"> &nbsp;&nbsp;Select a file:</h2>
+			<br>
+			<select id = "fileSelection" style="font-size: 24px;"  >
+				 
+			</select>
+			<button  id = "close" onclick="closeDialog()" >Close</button>
+			<button  id = "select" onclick = "selectFile()" >Select</button>
+		</dialog>
+		<script>
+		var x = document.getElementById("myDialog"); 
+		
+		function showDialog(){
+		    x.show();
+		}
+		function closeDialog(){ 
+		    x.close(); 
+		}
+		</script>
+		
+		
 	</Span>
 		
+	
+				
 	</body>
 </html>

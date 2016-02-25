@@ -16,6 +16,7 @@
 	left: 830px;
 	top: 140px;
 	line-height: 35px;
+	width:  300px;
 }
 
 #fileNameText{
@@ -49,7 +50,7 @@
 	color: #000000;
 	text-align: left;
 	top: 15px;
-	width: 150px;
+	width: 400px;
 }
 #fileSizeText{
 	position: absolute;
@@ -65,7 +66,7 @@
 	color: #000000;
 	top: 65px;
 	text-align: left;
-	width: 100px;
+	width: 250px;
 }
 #timeDurationText{
 	position: absolute;
@@ -81,11 +82,78 @@
 	color: #000000;
 	top: 65px;
 	text-align: left;
-	width: 150px;
+	width: 250px;
 }
+
+/**************************
+ CSS for the Selection tag
+ ***************************/
+#myDialog{
+	
+	position: absolute; 
+	top: 35px; left:-320px; 
+	height: 80px; 
+	width: 330px;
+	font-size: 20px;
+	border: 2px ridge #000000;
+	background-color: #f0efef;
+	font-weight: bold;
+	-moz-box-shadow: 1px 0 1px #000000;
+	box-shadow: 1px 0 1px #000000;
+	border-radius: 5px;
+}
+
+#selectAFile{
+	position: absolute;
+	width: 370px;
+	top:  -14.5px;
+	font-size: 18px;
+	left: 0px;
+	height: 20px;
+	border-bottom: 2px solid #000000;
+	background-color: #c2bebe;
+	text-align: left;
+	padding-top: 5px;
+}
+#fileSelection{
+	position: absolute;
+	left: 15px;
+	top: 43px;
+	max-width:90%;
+	
+}
+#select{
+	border-radius: 5px;
+	position: absolute;
+	right: 85px;
+	top: 43px;
+	background-color: #d1cccc;
+	font-size: 14px;
+}
+
+#close{
+	border-radius: 5px;
+	position: absolute;
+	right: 20px;
+	top: 43px;
+	background-color: #d1cccc;
+	font-size: 14px;
+}
+
+
 /**************************
  CSS for the Images 
  ***************************/
+ 
+ #selectNewFile{
+ 	position: absolute;
+ 	top: 300px;
+ 	left: 430px;
+ 	z-index: 1;
+ 	width:300px;
+}
+ 
+ 
 .interactSection{
 	position: absolute;
 	top: 120px;
@@ -101,6 +169,15 @@
 	width: 100px;
 }
 
+#showIntensityRange{
+	position: absolute;
+	top: 375px;
+	left: 707px;
+	z-index: 1;
+	color: #0eca03;
+	width:  100px;
+	text-shadow: 0 0 1px #050505;
+}
 
 #showHz{
 	position: absolute;
@@ -122,15 +199,7 @@
 	color: #f90606;
 }
 
-#showIntensityRange{
-	position: absolute;
-	top: 375px;
-	left: 710px;
-	z-index: 1;
-	color: #0eca03;
-	width:  100px;
-	text-shadow: 0 0 1px #050505;
-}
+
 #blockTimes{
 	position:  absolute;
 	top: 339px;
@@ -179,8 +248,16 @@
 /**************************
  CSS for the menus
  ***************************/
+ 
+ #leftMenuBar{
+ 	position : relative;
+ 	top:  10px ;
+ 	left:  50px;
+ 	
+ }
+ 
 .menu{
-	position: relative;
+	position: absoulte;
 	display: inline-block;
 	left: 50px;
 }
@@ -262,7 +339,6 @@
     background: #c6c5c5;
     border: 1px solid #040404;
     border-radius: 4px;
-	padding: 25px 5px 5px;
 	overflow: hidden;
     color: #000000;
 	text-indent: 0;
@@ -271,15 +347,12 @@
 	height: 20px;
 	left: 50px;
 	text-align: center;
-	font-size: 22px;
+	font-size: 16px;
 	margin: 0;
-	font-weight: normal;
-	font-style: normal;
-	text-decoration: none;
-	font-variant: normal;
 	opacity: 1;
 	position: absolute;
-	top: 48px;
+	top: 12px;
+	padding: 20px 1px 1px;
 }
 .uploadFile input {
     position: absolute;
@@ -289,25 +362,25 @@
     top: 0 ;
     opacity: 0;
 }
-.uploadFromList{
-	background-color: #dad8d8;
+.selectFromList{
+	background-color:  #c6c5c5;
 	color: black;
-	font-size: 12px;
+	font-size: 16px;
 	cursor: pointer;
-	height: 20px;
-	width: 232px;
+	height: 40px;
+	width: 224px;
 	border: 1px solid #131212;
 	
 	text-align: center;
 	position:absolute;
 	left: 50px;
-	top:  24px;
+	top:  60px;
 	border-radius: 5px;
 	
 	
 }
 
-.uploadFromList:hover{
+.selectFromList:hover{
 	background: #aaa5a5;
 	color: #000000;
 }
@@ -370,41 +443,45 @@
 #all{
 	position: absolute;
 	top: 630px;
-	left: 470px;
-	width: 40px;
+	left: 400px;
+	width: 70px;
 	border: 1px solid #000000;
 	border-radius: 5px;
 }
 #in{
 	position: absolute;
 	top: 630px;
-	left: 530px;
-	width: 40px;
+	left: 490px;
+	width: 70px;
 	border: 1px solid #000000;
 	border-radius: 5px;
 }
 #out{
 	position: absolute;
 	top: 630px;
-	left: 590px;
-	width: 40px;
+	left: 580px;
+	width: 70px;
 	border: 1px solid #000000;
 	border-radius: 5px;
 }
+
 #sel{
 	position: absolute;
 	top: 630px;
-	left: 650px;
-	width: 40px;
+	left: 670px;
+	width: 70px;
 	border: 1px solid #000000;
 	border-radius: 5px;
 }
+
 .bottomButton:hover{
 	background-color: #aaa5a5;
 }
+
+
 #timeLabel{
 	position: absolute;
-	left: 430px;
+	left: 410px;
 	top: 593px;
 	width: 500px;
 }
@@ -415,11 +492,35 @@
 	width: 500px;
 }
 
+#otherSource{
+
+	position: absolute;
+	top: 560px;
+	left: 40px;
+}
+
+
+#peldaLink{
+    display: inline;
+	position: absolute;
+	left: 40px;
+	top: 595px;
+	font-size: 14 px;
+	float: right;
+}
+#deeplearningLink{
+    display: inline;
+	position: absolute;
+	left: 40px;
+	top: 615px;
+	font-size: 14 px;
+	float: right;
+}
 #sourceLink{
     display: inline;
 	position: absolute;
-	left: 60px;
-	top: 640px;
+	left: 40px;
+	top: 635px;
 	font-size: 14 px;
 	float: right;
 }
@@ -446,7 +547,7 @@ hr {
 	border-top: 3px solid #000000;
 	margin: 1em -8px;
 	padding: 0;
-	width:  1290px;
+	width:  1280px;
     
 }
 

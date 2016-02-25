@@ -17,6 +17,12 @@
 
    <body>
        <h2>Praat Web-Services</h2>
+       <p>The web services described below will allow you to run commonly used functions in Praat over HTTP. To access them, use any HTTP capable client. Most platforms have REST client implementations.
+       In a web-application, you can use ajax to access these services. </p>
+       <p>The services are currently hosted at <a href="http://peldaws.westus.cloudapp.azure.com/">http://peldaws.westus.cloudapp.azure.com/</a>.
+       To access any of the services below, append the service URL to the server address.
+       For example, to get a list of sounds, query <a href="http://peldaws.westus.cloudapp.azure.com/listSounds">http://peldaws.westus.cloudapp.azure.com/listSounds</a> </p>
+       
        <h3>1. uploadSound</h3>
        Upload a new sound file
        <h4>Request</h4>
@@ -81,7 +87,7 @@
        <tbody>
        <tr>
           <td>GET</td>
-          <td>/drawSound/&lt;sound&gt;/&lt;startTime&gt;/&lt;endTime&gt;/&lt;showPitch&gt;/&lt;showIntensity&gt;/&lt;showFormants&gt;</td>
+          <td>/drawSound/&lt;sound&gt;/&lt;startTime&gt;/&lt;endTime&gt;/&lt;showSpectrogram&gt;/&lt;showPitch&gt;/&lt;showIntensity&gt;/&lt;showFormants&gt/&lt;showPulses&gt;;</td>
        </tr>
        </tbody>
        </table>
@@ -112,6 +118,11 @@
           <td>Location in seconds at which the drawing ends. Use 0 to draw till the end of the file</td>
        </tr>
        <tr>
+          <td>showSpectrogram</td>
+          <td>Number</td>
+          <td>0: Do not draw spectrogram, 1: Draw spectrogram</td>
+       </tr>
+       <tr>
           <td>showPitch</td>
           <td>Number</td>
           <td>0: Do not draw pitch, 1: Draw pitch</td>
@@ -120,11 +131,18 @@
           <td>showIntensity</td>
           <td>Number</td>
           <td>0: Do not draw intensity, 1: Draw intensity</td>
-       </tr>      <tr>
+       </tr>
+       <tr>
           <td>showFormants</td>
           <td>Number</td>
           <td>0: Do not draw formant contours, 1: Draw formant contours</td>
        </tr>
+       <tr>
+          <td>showPulses</td>
+          <td>Number</td>
+          <td>0: Do not show pulses, 1: Show pulses</td>
+       </tr>
+
        </tbody>
        </table>
 

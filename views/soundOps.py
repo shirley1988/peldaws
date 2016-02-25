@@ -1,18 +1,27 @@
-from flask import jsonify
+from flask import jsonify, request
 import os
 
 import praat
 import utils
 from praat import app
 
-@app.route('/drawSound/<sound>/<startTime>/<endTime>/<showSpectrogram>/<showPitch>/<showIntensity>/<showFormants>/<showPulses>')
-def drawSound(sound, startTime, endTime, showSpectrogram, showPitch, showIntensity, showFormants, showPulses):
+@app.route('/drawSound/<sound>/<startTime>/<endTime>/')
+def drawSound(sound, startTime, endTime):
+    #Get URL parameters
+    showSpectrogram = '0' if request.args.get("spectrogram") is None else '1'
+    showPitch = '0' if request.args.get("pitch") is None else '1'
+    showIntensity = '0' if request.args.get("intensity") is None else '1'
+    showFormants = '0' if request.args.get("formants") is None else '1'
+    showPulses = '0' if request.args.get("pulses") is None else '1'
+
+    #Script file
     script = praat._scripts_dir + "drawSpectrogram";
+
     #Parameters to the script
     params = [sound, startTime, endTime,
               showSpectrogram, showPitch, showIntensity, showFormants, showPulses, 
               praat._sounds_dir, praat._images_dir];
-    
+
     #Image name will be a combination of relevant params joined by a period.
     image = praat._images_dir + ".".join(params[:-2]) + ".png"
 

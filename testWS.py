@@ -20,7 +20,7 @@ class TestPraatWS(unittest.TestCase):
        assert "<html>" in result.data
 
    def test_drawSound(self):
-      result = self.test_client.get("/drawSound/sp1.wav/0/0/1/1/1/1/1")
+      result = self.test_client.get("/drawSound/sp1.wav/0/4/?pitch&pulse&formants&spectrogram&pulses")
       self.assertEqual(result.content_type, "image/png")
 
    def test_getBounds(self):

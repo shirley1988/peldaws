@@ -87,7 +87,7 @@
        <tbody>
        <tr>
           <td>GET</td>
-          <td>/drawSound/&lt;sound&gt;/&lt;startTime&gt;/&lt;endTime&gt;/&lt;showSpectrogram&gt;/&lt;showPitch&gt;/&lt;showIntensity&gt;/&lt;showFormants&gt/&lt;showPulses&gt;;</td>
+          <td>/drawSound/&lt;sound&gt;/&lt;startTime&gt;/&lt;endTime&gt;/?<Optional_parameters></td>
        </tr>
        </tbody>
        </table>
@@ -117,32 +117,45 @@
           <td>Number</td>
           <td>Location in seconds at which the drawing ends. Use 0 to draw till the end of the file</td>
        </tr>
+       </tbody>
+       </table>
+       
+       <h4>Optional Parameters</h4> 
+       These parameters specify which optional components are drawn in the image. Combine multiple options using &amp; <br/>
+       For example: spectrogram&amp;pitch&amp;intensity will draw the spectrogram, and plot the pitch and intensity.
+       <table>
+	   <thead>
+		   <tr>
+			   <td>Name</td>
+			   <td>Type</td>
+			   <td>Description</td>
+		   </tr>
+	   </thead>
        <tr>
-          <td>showSpectrogram</td>
-          <td>Number</td>
-          <td>0: Do not draw spectrogram, 1: Draw spectrogram</td>
+          <td>spectrogram</td>
+          <td>String</td>
+          <td>Draw the spectrogram</td>
        </tr>
        <tr>
-          <td>showPitch</td>
-          <td>Number</td>
-          <td>0: Do not draw pitch, 1: Draw pitch</td>
+          <td>pitch</td>
+          <td>String</td>
+          <td>Plot the pitch</td>
        </tr>
        <tr>
-          <td>showIntensity</td>
-          <td>Number</td>
-          <td>0: Do not draw intensity, 1: Draw intensity</td>
+          <td>intensity</td>
+          <td>String</td>
+          <td>Draw intensity plot</td>
        </tr>
        <tr>
-          <td>showFormants</td>
-          <td>Number</td>
-          <td>0: Do not draw formant contours, 1: Draw formant contours</td>
+          <td>formants</td>
+          <td>String</td>
+          <td>Draw formant contours</td>
        </tr>
        <tr>
-          <td>showPulses</td>
-          <td>Number</td>
-          <td>0: Do not show pulses, 1: Show pulses</td>
+          <td>pulses</td>
+          <td>String</td>
+          <td>Show point-process (pulses)</td>
        </tr>
-
        </tbody>
        </table>
 

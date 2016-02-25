@@ -1,5 +1,5 @@
 import unittest
-from praatWS import app
+from praat import app
 import json
 from StringIO import StringIO
 

@@ -1,5 +1,5 @@
 import praat
-from praatWS import app
+from praat import app
 
 @app.route('/formant/number-of-frames/<sound>')
 def formantFrameCount(sound):

@@ -1,5 +1,5 @@
 from flask import send_from_directory
-from praatWS import app
+from praat import app
 
 @app.route('/')
 def index():

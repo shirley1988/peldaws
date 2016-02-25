@@ -1,6 +1,6 @@
 from flask import jsonify
 import praat
-from praatWS import app
+from praat import app
 
 @app.route('/intensity/getBounds/<sound>')
 def intensityBounds(sound):

@@ -3,12 +3,11 @@ import os
 
 import praat
 import utils
-from praatWS import app
+from praat import app
 
 @app.route('/drawSound/<sound>/<startTime>/<endTime>/<showSpectrogram>/<showPitch>/<showIntensity>/<showFormants>/<showPulses>')
 def drawSound(sound, startTime, endTime, showSpectrogram, showPitch, showIntensity, showFormants, showPulses):
-    script = praat_scripts_dir + "drawSpectrogram";
-
+    script = praat._scripts_dir + "drawSpectrogram";
     #Parameters to the script
     params = [sound, startTime, endTime,
               showSpectrogram, showPitch, showIntensity, showFormants, showPulses, 

@@ -1,5 +1,5 @@
 import praat
-from praatWS import app
+from praat import app
 
 @app.route('/pitch/countVoicedFrames/<sound>')
 def countVoicedFrames(sound):

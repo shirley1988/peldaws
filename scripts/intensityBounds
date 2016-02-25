@@ -5,7 +5,7 @@ endform
 
 sound = Read from file: "../"+sounds_dir$+name_of_sound$
 To Intensity: 100,0,1
-Get minimum: 0,0,"Hertz","Parabolic"
-Get maximum: 0,0,"Hertz","Parabolic"
-Get mean: 0,0,"Hertz"
+Get minimum: 0,0,"Parabolic"
+Get maximum: 0,0,"Parabolic"
+Get mean: 0,0,"energy"
 

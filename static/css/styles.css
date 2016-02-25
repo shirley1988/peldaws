@@ -101,6 +101,7 @@
 	-moz-box-shadow: 1px 0 1px #000000;
 	box-shadow: 1px 0 1px #000000;
 	border-radius: 5px;
+	z-index: 6;
 }
 
 #selectAFile{

@@ -43,7 +43,7 @@ def getBounds(sound):
 
 @app.route('/play/<sound>')
 def playSound(sound):
-    fullpath = _sounds_dir + sound
+    fullpath = praat._sounds_dir + sound
     resp = app.make_response(open(fullpath).read())
     resp.content_type = "audio/" + utils.fileType(sound)
     return resp

@@ -3,6 +3,7 @@ from werkzeug import secure_filename
 import os
 
 import utils
+import praat
 from praat import app
 
 @app.route('/uploadSound', methods=['POST'])

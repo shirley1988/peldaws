@@ -17,7 +17,13 @@
 
    <body>
        <h2>Praat Web-Services</h2>
-       <h3>1. uploadSound</h3>
+       <p>The web services described below will allow you to run commonly used functions in Praat over HTTP. To access them, use any HTTP capable client. Most platforms have REST client implementations.
+       In a web-application, you can use ajax to access these services. </p>
+       <p>The services are currently hosted at <a href="http://peldaws.westus.cloudapp.azure.com/">http://peldaws.westus.cloudapp.azure.com/</a>.
+       To access any of the services below, append the service URL to the server address.
+       For example, to get a list of sounds, query <a href="http://peldaws.westus.cloudapp.azure.com/list-sounds">http://peldaws.westus.cloudapp.azure.com/list-sounds</a> </p>
+       
+       <h3>1. Upload Sound</h3>
        Upload a new sound file
        <h4>Request</h4>
        <table border>
@@ -30,7 +36,7 @@
        <tbody>
        <tr>
           <td>POST</td>
-          <td>/uploadSound</td>
+          <td>/upload-sound</td>
        </tr>
        </tbody>
        </table>
@@ -45,7 +51,7 @@
        If file does not have a recognized extension, status will be "Unknown file type"<br/>
        The fileName will be the original filename of the uploaded file.
 
-       <h3>2. listSounds</h3>
+       <h3>2. List Sounds</h3>
        Return list of sound files
        <h4>Request</h4>
        <table border>
@@ -58,7 +64,7 @@
        <tbody>
        <tr>
           <td>GET</td>
-          <td>/listSounds</td>
+          <td>/list-sounds</td>
        </tr>
        </tbody>
        </table>
@@ -69,7 +75,7 @@
        }<br/>
        list-of-files is a python list of file-names as strings.
  
-       <h3>3. drawSound</h3>
+       <h3>3. Draw Sound</h3>
        <h4>Request</h4>
        <table border>
        <thead>
@@ -81,7 +87,7 @@
        <tbody>
        <tr>
           <td>GET</td>
-          <td>/drawSound/&lt;sound&gt;/&lt;startTime&gt;/&lt;endTime&gt;/&lt;showPitch&gt;/&lt;showIntensity&gt;/&lt;showFormants&gt;</td>
+          <td>/draw-sound/&lt;sound&gt;/&lt;startTime&gt;/&lt;endTime&gt;/?&lt;Optional_parameters&gt;</td>
        </tr>
        </tbody>
        </table>
@@ -111,19 +117,44 @@
           <td>Number</td>
           <td>Location in seconds at which the drawing ends. Use 0 to draw till the end of the file</td>
        </tr>
+       </tbody>
+       </table>
+       
+       <h4>Optional Parameters</h4> 
+       These parameters specify which optional components are drawn in the image. Combine multiple options using &amp; <br/>
+       For example: spectrogram&amp;pitch&amp;intensity will draw the spectrogram, and plot the pitch and intensity.
+       <table>
+	   <thead>
+		   <tr>
+			   <td>Name</td>
+			   <td>Type</td>
+			   <td>Description</td>
+		   </tr>
+	   </thead>
        <tr>
-          <td>showPitch</td>
-          <td>Number</td>
-          <td>0: Do not draw pitch, 1: Draw pitch</td>
+          <td>spectrogram</td>
+          <td>String</td>
+          <td>Draw the spectrogram</td>
        </tr>
        <tr>
-          <td>showIntensity</td>
-          <td>Number</td>
-          <td>0: Do not draw intensity, 1: Draw intensity</td>
-       </tr>      <tr>
-          <td>showFormants</td>
-          <td>Number</td>
-          <td>0: Do not draw formant contours, 1: Draw formant contours</td>
+          <td>pitch</td>
+          <td>String</td>
+          <td>Plot the pitch</td>
+       </tr>
+       <tr>
+          <td>intensity</td>
+          <td>String</td>
+          <td>Draw intensity plot</td>
+       </tr>
+       <tr>
+          <td>formants</td>
+          <td>String</td>
+          <td>Draw formant contours</td>
+       </tr>
+       <tr>
+          <td>pulses</td>
+          <td>String</td>
+          <td>Show point-process (pulses)</td>
        </tr>
        </tbody>
        </table>
@@ -131,7 +162,7 @@
        <h4>Response</h4>
        A png image of the drawing
 
-       <h3> 4. getBounds</h3>
+       <h3> 4. Get Bounds</h3>
        Get boundaries of a sound file
        <h4>Request</h4>
        <table border>
@@ -144,7 +175,7 @@
        <tbody>
        <tr>
           <td>GET</td>
-          <td>/getBounds/&lt;sound&gt;</td>
+          <td>/get-bounds/&lt;sound&gt;</td>
        </tr>
        </tbody>
        </table>
@@ -174,7 +205,7 @@
        &nbsp;&nbsp;&nbsp;"max": Maximum amplitude<br/>
        }<br/>
 
-       <h3>5. playSound</h3>
+       <h3>5. Play Sound</h3>
        Returns the sound file
        <h4>Request</h4>
        <table border>
@@ -211,7 +242,7 @@
        <h4>Response</h4>
        Returns the sound file with content-type audio/wav or audio/mp3
 
-       <h3>6. getEnergy</h3>
+       <h3>6. Get Energy</h3>
        Query the energy of the sound file
        <h4>Request</h4>
        <table border>
@@ -224,7 +255,7 @@
        <tbody>
        <tr>
           <td>GET</td>
-          <td>/getEnergy/&lt;sound&gt;</td>
+          <td>/get-energy/&lt;sound&gt;</td>
        </tr>
        </tbody>
        </table>

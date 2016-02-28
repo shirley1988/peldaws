@@ -88,28 +88,13 @@
 /**************************
  CSS for the Selection tag
  ***************************/
-#myDialog{
-	
-	position: absolute; 
-	top: 35px; left:-320px; 
-	height: 80px; 
-	width: 330px;
-	font-size: 20px;
-	border: 2px ridge #000000;
-	background-color: #f0efef;
-	font-weight: bold;
-	-moz-box-shadow: 1px 0 1px #000000;
-	box-shadow: 1px 0 1px #000000;
-	border-radius: 5px;
-	z-index: 6;
-}
 
 #selectAFile{
-	position: absolute;
-	width: 370px;
-	top:  -14.5px;
+	position: relative;
+	width: 425px;
+	top:  -25px;
 	font-size: 18px;
-	left: 0px;
+	left: -10px;
 	height: 20px;
 	border-bottom: 2px solid #000000;
 	background-color: #c2bebe;
@@ -161,19 +146,36 @@
 	left: 340px;
 }
 
-#showPitchRange{
+#showPitchRangeTop{
 	position: absolute;
-	top: 375px;
+	top: 372px;
+	left: 763px;
+	z-index: 1;
+	color: #1c1efe;
+	width: 100px;
+}
+#showPitchRangeBottom{
+	position: absolute;
+	top: 555px;
 	left: 763px;
 	z-index: 1;
 	color: #1c1efe;
 	width: 100px;
 }
 
-#showIntensityRange{
+#showIntensityRangeTop{
 	position: absolute;
-	top: 375px;
+	top: 372px;
 	left: 707px;
+	z-index: 1;
+	color: #0eca03;
+	width:  100px;
+	text-shadow: 0 0 1px #050505;
+}
+#showIntensityRangeBottom{
+	position: absolute;
+	top: 555px;
+	left: 724px;
 	z-index: 1;
 	color: #0eca03;
 	width:  100px;
@@ -183,29 +185,35 @@
 #showHz{
 	position: absolute;
 	color: #fe0909;
-	
-	left: 338px;
+	height: 25px;
+	left: 336px;
 	font-size: 13px;
 	font-weight: bold;
 	width: 5 px;
 	background-color: #ffffff;
+	padding-top: 10px;
+	padding-right: 2px;
 }
+
+
+
 
 .showHorizontal{
 	position: absolute;
-	left: 384px;
+	left: 385px;
 	border-bottom: 2px dotted #dc4040;
 	word-spacing: 100px 
 	z-index:  3;
 	color: #f90606;
+	width:  375px;
 }
 
 
 #blockTimes{
 	position:  absolute;
 	top: 339px;
-	left: 378px;
-	width: 400px;
+	left: 350px;
+	width: 440px;
 	background-color: #ffffff;
 	
 }
@@ -354,6 +362,7 @@
 	position: absolute;
 	top: 12px;
 	padding: 20px 1px 1px;
+	font-weight: bold;
 }
 .uploadFile input {
     position: absolute;
@@ -548,7 +557,7 @@ hr {
 	border-top: 3px solid #000000;
 	margin: 1em -8px;
 	padding: 0;
-	width:  1280px;
+	width:  1345px;
     
 }
 
@@ -565,7 +574,7 @@ div.split:after {
     content: "";
     display: block;
     width: 1px;
-    height: 720px;
+    height: 750px;
 	border-left: 2px solid #000000;
 	position: absolute;
     top: -20px;
@@ -573,3 +582,27 @@ div.split:after {
 	color: #000000;
 }
 
+
+
+.dumbBoxWrap { /* The div that shows/hides. */ display:none; /* starts out hidden */ z-index:40001; /* High z-index to ensure it appears above all content */ } 
+
+
+
+ 
+ .vertical-offset { /* Fixed position to provide the vertical offset */ position:fixed; top:30%; width:100%; z-index:40002; /* ensures box appears above overlay */ }
+ 
+ .dumbBox { /* The actual box, centered in the fixed-position div */ 
+   width:405px;
+   top: -160px;
+   left:-110px; 
+   height: 140px; 
+   
+    /* Whatever width you want the box to be */ 
+   position:relative;
+   margin:0 auto; /* Everything below is just visual styling */ 
+   background-color:white; 
+   padding:10px;
+ 	border: 2px solid black;
+ 	-moz-box-shadow: 1px 1px #b4adad;
+ 	box-shadow: 1px 1px #b4adad;
+ }

@@ -7,9 +7,8 @@ Dialog not supported in firefox
 
 
  DATE 
-test audio.load 
 
-
+upload-sound not working 
 
 Y range: 0~203 ,  237~439   237->236
 
@@ -22,8 +21,10 @@ change x position
 remove Jcrop.gif 
 
 
- 
- firefox problem
+SAFARI: play not working 
+
+
+
  ******************settings 
 -->
 
@@ -47,32 +48,36 @@ remove Jcrop.gif
 		           $('#myForm').ajaxForm({ 
 		           		success: showSoundInfo
 		           }); 
-		           
 		          
-		           	$("#upload").change(function(e){
+		           $("#upload").change(function(e){
 		           		document.getElementById('fileName').innerHTML = this.files[0].name;		     
 		           		document.getElementById('fileSize').innerHTML = formatSize(this.files[0].size, 2);
 		           		document.getElementById('lastModifyDate').innerHTML = this.files[0].lastModifiedDate;	
 		           		
-		           		
-		           		
-		           		/*var name = this.files[0].name;
-		           		obj.name = name;		     
-		           		var size = formatSize(this.files[0].size, 2);
-		           		obj.size = size;
-		           		var date = this.files[0].lastModifiedDate; 
-		           		obj.date = date;
-		           		*/
-		           	}); 
-		       });    
+		           }); 
+		           	
+      
+		           $('#close').click(function() {
+		              $('.dumbBoxWrap').hide();
+		              }         
+		           );
+		           
+		           $('#selectFromList').click(function() {
+		              displayList();
+		              }         
+		           );
+		          
+		           
+		           		       
+		        });    
 		</script> 
 		
 
 		<script type="text/javascript">
 				
-			//var getBound = "/getBounds/sp1.wav";
-			var drawSound = "/drawSound/"; 
-			var listSound  = "/listSounds";
+			
+			var drawSound = "/draw-sound/"; 
+			var listSound  = "/list-sounds";
 			var newURL = '';	
 			var obj = {
 				name : 0,
@@ -93,9 +98,9 @@ remove Jcrop.gif
 				maxIntensity: 100,
 				
 				checkFormant: 1,
-				checkHarmonicity: 0,
-				checkPointprocess: 0,
-				checkSpectogram: 0,
+				
+				checkPulse: 0,
+				checkSpectrogram: 1,
 				checkWaveform: 0,
 				selStart:0,
 				selEnd: 0,
@@ -108,18 +113,43 @@ remove Jcrop.gif
 			};	
 			var checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 			
-		
+			function checkStatuss(){
+			var status = '?';
+			if(obj.checkPitch == 1){
+				status += 'pitch&';
+			}
+			if(obj.checkIntensity == 1){
+				status += 'intensity&';
+			}
+			if(obj.checkFormant == 1){
+				status += 'formants&';
+			}
+			if(obj.checkPulse == 1){
+				status += 'pulses&';
+			}
+			if(obj.checkSpectrogram == 1){
+				status += 'spectrogram&';
+			}
+			
+			
+			return status;
+			}
+			
+			
+			
+			
 			<!-- Jcrop functions -->
 			
 			
 			function showSoundInfo(data){
+				alert('heremyFo');
 			 obj.name = data.sound;
 			 var status = data.status; 
 			 //alert(status);
 			 var success = "Success";
 			 
 			  if(status.localeCompare(success) == 0){
-			  	drawSound = "/drawSound/";
+			  	drawSound = "/draw-sound/";
 			  	document.getElementById('audio').src = '';
 			    getSoundInfo(); 
 			   	
@@ -131,7 +161,7 @@ remove Jcrop.gif
 			
 			function getSoundInfo(){
 				//alert('get Sound Info '+ obj.name);
-				var bound = "/getBounds/"+obj.name;
+				var bound = "/get-bounds/"+obj.name;
 			
 					$.get(bound,function(data, status){
 						obj.oriStart = data.start;
@@ -145,7 +175,11 @@ remove Jcrop.gif
 					    				
 						document.getElementById('timeDuration').innerHTML = formatTime(obj.totalTime);
 						drawSound  = drawSound + obj.name +'/';
-						 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+						alert('test status');
+						
+						
+						newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
+						alert(newURL);
 						document.getElementById('selectNewFile').innerHTML='';
 						// display new image!!!!!!!!!!!!!!!!!!!!!!!!!!!
 						$('.jcrop-holder img').attr('src',newURL);
@@ -176,30 +210,37 @@ remove Jcrop.gif
 			function displayLimitRange(){			
 				displayFrequency();	
 						if((obj.checkPitch + obj.checkIntensity) == 0){
-							document.getElementById('showIntensityRange').innerHTML= '';
-							document.getElementById('showPitchRange').innerHTML= '';
+							document.getElementById('showIntensityRangeTop').innerHTML= '';
+							document.getElementById('showIntensityRangeBottom').innerHTML= '';
+							document.getElementById('showPitchRangeTop').innerHTML= '';
+							document.getElementById('showPitchRangeBottom').innerHTML= '';
 							return;
 						}else {
 							if(obj.checkPitch == 1){
-							document.getElementById('showPitchRange').innerHTML= obj.maxPitch +' Hz<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n'+obj.minPitch+' Hz';
+							document.getElementById('showPitchRangeTop').innerHTML= obj.maxPitch +' Hz';
+							document.getElementById('showPitchRangeBottom').innerHTML= +obj.minPitch+' Hz';
 							
 							}
 							else{
-							document.getElementById('showPitchRange').innerHTML= '';
+							document.getElementById('showPitchRangeTop').innerHTML= '';
+							document.getElementById('showPitchRangeBottom').innerHTML= '';
 							}
 							
 							if(obj.checkIntensity == 1){
-							document.getElementById('showIntensityRange').innerHTML= obj.maxIntensity +' dB<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n<br>\n&nbsp;&nbsp;&nbsp;&nbsp;'+obj.minIntensity+' dB';
+							document.getElementById('showIntensityRangeTop').innerHTML= obj.maxIntensity +' dB';
+							document.getElementById('showIntensityRangeBottom').innerHTML=+obj.minIntensity+' dB';
 							}
 							else{
-							document.getElementById('showIntensityRange').innerHTML= '';
+							document.getElementById('showIntensityRangeTop').innerHTML= '';
+							document.getElementById('showIntensityRangeBottom').innerHTML= '';
+							
 							}	
 						}
 
 			}
 			
 			function displayFrequency(){
-				 	if((obj.checkFormant+obj.checkSpectogram) == 0){
+				 	if((obj.checkFormant+obj.checkSpectrogram) == 0){
 				 		document.getElementById('showHz').innerHTML= '';
 						//disable the line
 						
@@ -210,7 +251,7 @@ remove Jcrop.gif
 				 	if(obj.selY1 >=236 && obj.selY1 <=439 ){
 				 	
 				 		document.getElementById('showHz').innerHTML= (5000-(obj.selY1-236)/202*5000).toFixed(0)+' Hz' ;
-				 		$("#showHz").css({top: (126 + obj.selY1) , position: 'absolute'});
+				 		$("#showHz").css({top: (116 + obj.selY1) , position: 'absolute'});
 				 		$("#hzLine").addClass('showHorizontal');
 				 		$("#hzLine").css({top:(116 +obj.selY1) , position :'absolute'});
 				 	}
@@ -257,7 +298,7 @@ remove Jcrop.gif
 				
 				}
 				else if(obj.absoluteT2 > obj.selEnd){
-					transt2 = 758;
+					transt2 = 759;
 					$("#line2").removeClass('afterClick');
 					if(obj.absoluteT1 > obj.selEnd){
 						$("#line1").removeClass('afterClick');
@@ -267,7 +308,7 @@ remove Jcrop.gif
 					}
 				}
 				
-				$("#transBox").css({left: transt1+1, width: transt2-transt1 + 0.5});
+				$("#transBox").css({left: transt1+1, width: transt2-transt1 + 1});
 				showTimes();
 			}
 			
@@ -276,7 +317,9 @@ remove Jcrop.gif
 			    var start = obj.selStart; 
 				obj.selStart = (start +obj.visuTime/2)-obj.visuTime/2*2;
 				obj.selEnd = (start +obj.visuTime/2)+obj.visuTime/2*2 ;
-				 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				
+	
+				 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatuss();
 				obj.visuTime = obj.visuTime*2;
 				$('.jcrop-holder img').attr('src',newURL);
 				
@@ -298,7 +341,7 @@ remove Jcrop.gif
 				    	obj.selStart = ((start +obj.visuTime/2)-(obj.visuTime/4));
 				    	obj.selEnd = ((start+obj.visuTime/2) +(obj.visuTime/4));
 				    	
-				    	 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				    	 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatuss();
 				    	
 				    	
 				    	changeSelectionBar();
@@ -323,7 +366,7 @@ remove Jcrop.gif
 				    	obj.selEnd = obj.oriEnd;
 				    	obj.visuTime = obj.totalTime;
 				    	changeSelectionBar();
-				    	 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    	 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    	
 				    	}
@@ -337,7 +380,7 @@ remove Jcrop.gif
 				    		//spare the space
 				    		obj.selEnd = obj.oriEnd;
 				    		obj.selStart = obj.oriEnd - obj.visuTime*2;
-				    		 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatuss();
 				    		obj.visuTime = obj.visuTime*2;
 				    		$('.jcrop-holder img').attr('src',newURL);
 				    		changeSelectionBar();
@@ -351,7 +394,7 @@ remove Jcrop.gif
 				    		//spare the space 
 				    		obj.selStart = obj.oriStart;
 				    		obj.selEnd = obj.oriStart + obj.visuTime*2;
-				    		 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatuss();
 				    		obj.visuTime = obj.visuTime*2;
 				    		$('.jcrop-holder img').attr('src',newURL);
 				    		changeSelectionBar();
@@ -364,8 +407,7 @@ remove Jcrop.gif
 				    	}
 				    });
 				    
-	
-				    //change selectino bar
+					//change selection bar 
 				    $("#all").click(function(){
 				    	if(obj.name == 0) return;
 				    	if(obj.name == 0) return;
@@ -374,7 +416,7 @@ remove Jcrop.gif
 
 				    	obj.visuTime = obj.totalTime;
 				    	changeSelectionBar();
-				    	 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus ;
+				    	 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss() ;
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    });
 				    
@@ -390,9 +432,9 @@ remove Jcrop.gif
 				    	if(obj.name == 0) return;
 				    	displayLimitRange();
 				    	if(obj.visuTime == obj.totalTime){
-				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
 				    	}else if(obj.visuTime != obj.totalTime){
-				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
+				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatuss();
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);
 				    				    			    	
@@ -409,9 +451,9 @@ remove Jcrop.gif
 				    	displayLimitRange();
 				    	
 				    	if(obj.visuTime == obj.totalTime){
-				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
 				    	}else if(obj.visuTime != obj.totalTime){
-				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
+				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatuss();
 				    	}	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
@@ -433,28 +475,61 @@ remove Jcrop.gif
 				    	displayLimitRange();
 				    	
 				    	if(obj.visuTime == obj.totalTime){
-				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatus;
+				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
 				    	}else if(obj.visuTime != obj.totalTime){
-				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatus;
+				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatuss();
 				    	}	
 				    	
 				    	$('.jcrop-holder img').attr('src',newURL);			    			    	
 				    });
 				    
-				    $("#spectogram").click(function(){
-				    	if(obj.checkSpectogram== 1){
-				    	obj.checkSpectogram = 0;
+				    $("#spectrogram").click(function(){
+				    	
+				    	if(obj.checkSpectrogram== 1){
+				    	obj.checkSpectrogram = 0;
 				    	}else{
-				    	obj.checkSpectogram = 1;
+				    	obj.checkSpectrogram = 1;
 				    	}
 				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				    	if(obj.name == 0) return;
-				    	displayLimitRange();
 				    	
-				    	//change display images 
-				    		    			    	
+				    	displayLimitRange();
+				    	if(obj.visuTime == obj.totalTime){
+				    		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
+				    		 
+				    	}else if(obj.visuTime != obj.totalTime){
+				    		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatuss();
+				    	}	
+				    	
+				    	$('.jcrop-holder img').attr('src',newURL);	
+		    			    	
 				    });
-				   
+				    
+				    $("#pulse").click(function(){
+				     	
+				     	if(obj.checkPulse == 1){
+				     	obj.checkPulse = 0;
+				     	}else{
+				     	obj.checkPulse = 1;
+				     	}
+				     	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
+				     	if(obj.name == 0) return;
+				     	
+				     	displayLimitRange();
+				     	if(obj.visuTime == obj.totalTime){
+				     		 newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
+				     		 
+				     	}else if(obj.visuTime != obj.totalTime){
+				     		 newURL = drawSound + obj.selStart+"/"+(obj.selStart+obj.visuTime)+"/"+checkStatuss();
+				     	}	
+				     	
+				     	$('.jcrop-holder img').attr('src',newURL);	
+				     	
+				     	
+				     		    			    	
+				     });
+				    
+				    
 			<!-- for JCROP -->
 			
 		    var api;
@@ -494,7 +569,7 @@ remove Jcrop.gif
 		    		document.getElementById('info').innerHTML='Selected time duration too small.';
 		    	}else{
 		    	<!-- show display --> 
-		    		 newURL = drawSound+obj.absoluteT1+"/"+obj.absoluteT2+"/"+checkStatus ;
+		    		 newURL = drawSound+obj.absoluteT1+"/"+obj.absoluteT2+"/"+checkStatuss() ;
 		    		obj.selStart = obj.absoluteT1;
 		    		obj.selEnd = obj.absoluteT2;
 		    		obj.visuTime = (obj.selT2-obj.selT1)/375 * obj.visuTime;
@@ -503,7 +578,7 @@ remove Jcrop.gif
 		    		$("#line1").css({left: 384, position:'absolute'});
 		    		$("#line2").css({left: 759, position:'absolute'});
 		    		
-		    		$("#transBox").css({left: 385.5, width: 373});
+		    		$("#transBox").css({left: 385.5, width: 374});
 		    		
 		    		if(obj.selStart == 0 ){
 		    		document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp0';
@@ -620,8 +695,7 @@ remove Jcrop.gif
 		  			changeTransBox();
 		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ ((obj.selT2-obj.selT1)/375*obj.visuTime).toFixed(6) ;
 		  			document.getElementById('info').innerHTML='Start time : '+( obj.selStart +obj.selT1/375*obj.visuTime).toFixed(6) +'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +obj.selT2/375*obj.visuTime).toFixed(6) ;
-		  			
-		  			
+
 		  		}
 		  		
 		  		displayFrequency();
@@ -670,12 +744,12 @@ remove Jcrop.gif
 		}
 				
 	    function play(){
-	        //alert('Start playing')
+	        alert('Start playing')
 	        document.getElementById('audio').play();     
 	    }
 	    function getEnergy(){
 	    	
-	    	var energy = '/getEnergy/'+obj.name;
+	    	var energy = '/get-energy/'+obj.name;
 	    	$.get(energy,function(data, status){
 	    		
 	    		if(status.localeCompare('success') == 0){
@@ -731,7 +805,7 @@ remove Jcrop.gif
 	        }
 	    }
 	    
-	   	    
+	   	  
 	    
 	    function displayList(){
 	    // retrieve the list 
@@ -747,23 +821,23 @@ remove Jcrop.gif
 				});
      	
 			});
-	    
-	    	showDialog();
+	    	$('.dumbBoxWrap').show();
 	    }
 	    
 	    function selectFile(){
+	    
 	    var selectedFile = document.getElementById("fileSelection");
 	    var selectedValue = selectedFile.options[selectedFile.selectedIndex].value;
-	    
+	   
 	    	if(selectedValue.localeCompare('noSelection') == 0){
 	        
 	    	}
 	    	else{
 	    	//alert('file selected!');
-	    	document.getElementById("myDialog").close();
+	    	$('.dumbBoxWrap').hide();
 	    	
 	    	obj.name = selectedValue; 
-	    	drawSound = "/drawSound/";
+	    	drawSound = "/draw-sound/";
 	    	document.getElementById('audio').src = '';
 	    	document.getElementById('fileName').innerHTML = obj.name;
 	    	
@@ -772,14 +846,14 @@ remove Jcrop.gif
 	    	//audio.load();
 	        
 	    	$.get(audio.src,function(data, status){
-	    		//alert('get');
-	     	    //alert(data.lastDate);
+
 	     		
 	    	document.getElementById('fileSize').innerHTML = formatSize(Number(data.length), 2);
 	    	});
-	    	document.getElementById('lastModifyDate').innerHTML = '';	
-	
 	    	
+	    	//lastModifyDateText    	
+	    	document.getElementById('lastModifyDate').innerHTML = '';	
+	        	        
 	    	getSoundInfo(); 
 
 	    	}	
@@ -817,7 +891,7 @@ remove Jcrop.gif
 			<!-- the upload button -->	
 			<div class="uploadFile" data-toggle = "tooltip" title = "Upload a new sound file to start the analysis.">
 			    <span  >Upload sound file </span>
-			    <form id="myForm" enctype="multipart/form-data" method="post" action="/uploadSound">
+			    <form id="myForm" enctype="multipart/form-data" method="post" action="upload-sound">
 			    <input id="upload" type="file" name="sound" accept="audio/*" />
 			    </form>
 			</div>
@@ -825,7 +899,7 @@ remove Jcrop.gif
 			
 						
 			
-			<button class= "selectFromList" id = "selectFromList" onclick = "displayList()" data-toggle = "tooltip" title = "Select a sound file from the list.">Select from list</button>
+			<button class= "selectFromList" id = "selectFromList"  data-toggle = "tooltip" title = "Select a sound file from the list.">Select from list</button>
 			
 				<!-- javascript for the upload button -->	
 				<script>
@@ -845,7 +919,7 @@ remove Jcrop.gif
 			
 			
 		 	
-		    <button  type = "button" onclick="alert('Add Script!')" class= "Script" data-toggle = "tooltip" title = "Upload own Script.">Open Script </button>
+		    <!-- <button  type = "button" onclick="alert('Add Script!')" class= "Script" data-toggle = "tooltip" title = "Upload own Script.">Open Script </button>--> 
 		 	
 		 	
 		 	<p id = "fileNameText">File name : </p>
@@ -948,16 +1022,16 @@ remove Jcrop.gif
 		<p id = "selectNewFile"> Select a new file to start the analysis. </p>
 		<div class = "interactSection">
 		    
-			<img  src="img/0.png"  onmousedown="return false" alt="spectrum image" width="427" height="487"id = "target" />
+			<img  src="img/0.png"  onmousedown="return false" alt="Spectrum Image" width="427" height="487" id = "target" />
 			
 			
 		</div>
 		
-		<div  id = "showPitchRange"></div>
+		<div  id = "showPitchRangeTop"></div>
+		<div  id = "showPitchRangeBottom"></div>
 		
-		
-		<div  id = "showIntensityRange"></div>
-		
+		<div  id = "showIntensityRangeTop"></div>
+		<div  id = "showIntensityRangeBottom"></div>
 		<div id = "blockTimes">
 		&nbsp;
 		</div>
@@ -968,7 +1042,7 @@ remove Jcrop.gif
 		
 		<div id = "showHz"></div>
 		
-		<div id = "hzLine">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </div>
+		<div id = "hzLine">&nbsp; </div>
 		
 			<br><br>
 	<Span id='below'>
@@ -985,7 +1059,7 @@ remove Jcrop.gif
 			<input  id="pitch" type="checkbox" value = "Pitch" checked> Pitch<br>
 			<input  id="intensity" type="checkbox" value = "intensity" checked> Intensity<br>
 			<input  id="formant" type="checkbox" value = "formant" checked> Formant<br>
-			<input  id="pointprocess" type="checkbox" value = "pointprocess"> Pulses<br>
+			<input  id="pulse" type="checkbox" value = "pointprocess"> Pulses<br>
 			
 	    </div>
 			
@@ -1003,7 +1077,7 @@ remove Jcrop.gif
 		</div>
 		
 		<div id = "otherSource">
-		<p> Other Sources: </p>
+		<p> Other PELDA Sources: </p>
 		</div>
 		
 		<div id ="sourceLink">
@@ -1019,30 +1093,28 @@ remove Jcrop.gif
 			<p id = "selectedInfo"></p>
 		</div> 
 		
-		<dialog id="myDialog"  >
-		<h2 id = "selectAFile"> &nbsp;&nbsp;Select a file:</h2>
-			<br>
-			<select id = "fileSelection" style="font-size: 24px;"  >
-				 
-			</select>
-			<button  id = "close" onclick="closeDialog()" >Close</button>
-			<button  id = "select" onclick = "selectFile()" >Select</button>
-		</dialog>
-		<script>
-		var x = document.getElementById("myDialog"); 
-		
-		function showDialog(){
-		    x.show();
-		}
-		function closeDialog(){ 
-		    x.close(); 
-		}
-		</script>
 		
 		
+		<div class="dumbBoxWrap"> 
+	
+				<div class="vertical-offset">
+			 		<div class="dumbBox">  
+			 		    <h2 id = "selectAFile"> &nbsp;&nbsp;Select a file:</h2>
+			 			<br>
+			 			<select id = "fileSelection" style="font-size: 24px;"  >
+			 				 
+			 			</select>
+			 			
+			 			<button  id = "close"  >Close</button>
+			 			<button  id = "select" onclick = "selectFile()" >Select</button>
+			 		</div>
+			 	</div>
+		</div>		
+		
+		
+				
 	</Span>
 		
-	
-				
+			
 	</body>
 </html>

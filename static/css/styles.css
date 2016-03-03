@@ -106,7 +106,8 @@
 	left: 15px;
 	top: 43px;
 	max-width:90%;
-	
+	font-size: 12px;
+	width: 200px;
 }
 #select{
 	border-radius: 5px;
@@ -192,7 +193,6 @@
 	width: 5 px;
 	background-color: #ffffff;
 	padding-top: 10px;
-	padding-right: 2px;
 }
 
 
@@ -260,7 +260,7 @@
  
  #leftMenuBar{
  	position : relative;
- 	top:  10px ;
+ 	top:  25px ;
  	left:  50px;
  	
  }
@@ -332,7 +332,7 @@
 
 .menu:hover .mainmenu{
     background-color: #aaa8a6;
-    height: 33px ;
+    height: 35px ;
     width: 90px;
     text-align: center;
 	font-size: 12px;
@@ -494,10 +494,11 @@
 	left: 410px;
 	top: 593px;
 	width: 500px;
+	height:  35px;
 }
 #selTimeLabel{
 	position: absolute;
-	left: 470px;
+	left: 450px;
 	top: 99px;
 	width: 500px;
 }
@@ -583,13 +584,19 @@ div.split:after {
 }
 
 
+.dumbBoxWrap { /* The div that shows/hides. */ 
+	 
+	display:none ; /* starts out hidden */ 
+	z-index:40001; /* High z-index to ensure it appears above all content */ 
+} 
 
-.dumbBoxWrap { /* The div that shows/hides. */ display:none; /* starts out hidden */ z-index:40001; /* High z-index to ensure it appears above all content */ } 
 
-
-
- 
- .vertical-offset { /* Fixed position to provide the vertical offset */ position:fixed; top:30%; width:100%; z-index:40002; /* ensures box appears above overlay */ }
+.vertical-offset { /* Fixed position to provide the vertical offset */ 
+	position:fixed; 
+	top:30%; 
+	width:100%; 
+	z-index:40002; /* ensures box appears above overlay */ 
+ }
  
  .dumbBox { /* The actual box, centered in the fixed-position div */ 
    width:405px;
@@ -606,3 +613,5 @@ div.split:after {
  	-moz-box-shadow: 1px 1px #b4adad;
  	box-shadow: 1px 1px #b4adad;
  }
+ 
+ 

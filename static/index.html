@@ -3,30 +3,30 @@
 <!-- 
 http://peldaws.westus.cloudapp.azure.com/
 
-Dialog not supported in firefox 
-
-
- DATE 
-
-upload-sound not working 
-
 Y range: 0~203 ,  237~439   237->236
 
- 
-
-if select out of bound,  should not able to crop!!!!!!!!!!
-
 change x position 
- 
+
+FIX VALUE IN FRAME 
+  
 remove Jcrop.gif 
 
+specify upload-able formats 
 
-SAFARI: play not working 
+implement downlaod for safari, use a dummy box to determine 
+
+DATE
+
+change font of frequency, time 
 
 
+check past query, cancel , on showing ?
+
+Test the @media
 
  ******************settings 
 -->
+
 
 
 <html>
@@ -65,17 +65,17 @@ SAFARI: play not working
 		           $('#selectFromList').click(function() {
 		              displayList();
 		              }         
-		           );
-		          
-		           
-		           		       
-		        });    
+		           );   
+		        });
+		        
+		        
+		            
 		</script> 
 		
 
 		<script type="text/javascript">
-				
-			
+		    //var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+
 			var drawSound = "/draw-sound/"; 
 			var listSound  = "/list-sounds";
 			var newURL = '';	
@@ -142,13 +142,13 @@ SAFARI: play not working
 			
 			
 			function showSoundInfo(data){
-				alert('heremyFo');
+				//alert('heremyFo');
 			 obj.name = data.sound;
 			 var status = data.status; 
 			 //alert(status);
-			 var success = "Success";
 			 
-			  if(status.localeCompare(success) == 0){
+			 
+			  if(status.localeCompare('Success') == 0){
 			  	drawSound = "/draw-sound/";
 			  	document.getElementById('audio').src = '';
 			    getSoundInfo(); 
@@ -175,11 +175,11 @@ SAFARI: play not working
 					    				
 						document.getElementById('timeDuration').innerHTML = formatTime(obj.totalTime);
 						drawSound  = drawSound + obj.name +'/';
-						alert('test status');
+						//alert('test status');
 						
 						
 						newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
-						alert(newURL);
+						//alert(newURL);
 						document.getElementById('selectNewFile').innerHTML='';
 						// display new image!!!!!!!!!!!!!!!!!!!!!!!!!!!
 						$('.jcrop-holder img').attr('src',newURL);
@@ -190,7 +190,7 @@ SAFARI: play not working
 						//upload the sound file 
 						var audio = document.getElementById('audio');
 						audio.src='/play/'+obj.name;
-						audio.load();
+						//audio.load();
 					});
 			}
 			
@@ -528,7 +528,8 @@ SAFARI: play not working
 				     	
 				     		    			    	
 				     });
-				    
+				     
+				     
 				    
 			<!-- for JCROP -->
 			
@@ -664,7 +665,27 @@ SAFARI: play not working
 		  			}
 		  			
 		  		}else if (c.x != c.x2){
-		  			if((c.x < c.x2) && (c.x < 44)){
+		  			
+		  			if(c.x2 < 44){
+		  			   
+		  			    	  			    
+		  				api.release();
+		  				$("#line2").removeclass('afterClick');
+		  				$("#line1").css({left: 384, position:'absolute'});
+		  				document.getElementById('selectedInfo').innerHTML='';
+		  				document.getElementById('info').innerHTML='';
+		  				return;	
+		  			}
+		  			if(c.x > 419){
+		  				api.release();
+		  				$("#line2").removeclass('afterClick');
+		  				$("#line1").css({left: 384, position:'absolute'});
+		  				document.getElementById('selectedInfo').innerHTML='';
+		  				document.getElementById('info').innerHTML='';
+		  				return;	
+		  			}
+		  			
+		  			if((c.x < c.x2) && (c.x < 44) ){
 		  			
 		  			api.release();
 		  			$("#line2").addClass('afterClick');
@@ -672,9 +693,10 @@ SAFARI: play not working
 		  			$("#line1").css({left:384, position:'absolute'});
 		  			obj.selT1 = 0;
 		  			obj.absoluteT1 = obj.selStart ;	
-		  			changeTransBox();
+		  			//changeTransBox();
 		  				
-		  			}else if((c.x < c.x2) && (c.x2 > 419)){
+		  			}
+		  			if((c.x < c.x2) && (c.x2 > 419)){
 		  			
 		  			api.release();
 		  			$("#line2").addClass('afterClick');
@@ -682,7 +704,7 @@ SAFARI: play not working
 		  			$("#line1").css({left:obj.selT1+384, position:'absolute'});
 		  			obj.selT2 = 375;
 		  			obj.absoluteT2 = obj.selEnd;
-		  			changeTransBox();
+		  			//changeTransBox();
 		  				
 		  			}
 		  			else{
@@ -743,58 +765,190 @@ SAFARI: play not working
 		   return (bytes / Math.pow(k, si)).toPrecision(de) + ' ' + sizes[si];
 		}
 				
-	    function play(){
-	        alert('Start playing')
-	        document.getElementById('audio').play();     
-	    }
+	   /* var play = function(){
+	    	audio.muted = false;
+	    	//alert(audio.muted);
+	       //alert('Start playing')
+	       //document.getElementById('audio').load();
+	       var audio1 =  document.getElementById('audio');
+	       audio1.play();
+	             
+	    }*/
+	    
+	    
+	    
+	    
+	    
 	    function getEnergy(){
+	    	if(obj.name.localeCompare('0') == 0){
 	    	
-	    	var energy = '/get-energy/'+obj.name;
-	    	$.get(energy,function(data, status){
+	    	
+	    	}else{
+	    		var energy = '/get-energy/'+obj.name;
+	    		$.get(energy,function(data, status){
 	    		
-	    		if(status.localeCompare('success') == 0){
-	    		alert(data);
-	    		
-	    		
-	    		}
-	    	});
+	    			if(status.localeCompare('success') == 0){
+	    			alert(data);
+	    			}
+	    		});
+	    	}
 	    
 	    }
 	    
 	    function getPitch(){
 	    	<!-- may use prompt -->
-	    	alert('show pitch, if selected time-> show pitch,  range-> show mean ')
+	    	//alert('show pitch, if selected time-> show pitch,  range-> show mean ')
+	    	
+	    	if(obj.absoluteT1 == obj.absoluteT2){
+	    		var p  = "/pitch/value-at-time/"+obj.name+'/'+obj.absoluteT1;
+	    		$.get(p ,function(data,status){
+	    		alert(data);
+	    		});
+	    	}
+	    	
+	    	
 	    }
 	    
 	    function countvf(){
-	    	alert('display total voice frames')
+	    	if(obj.name.localeCompare('0') != 0){
+	    	
+	    		var cvf = "/pitch/count-voiced-frames/"+obj.name;
+	    	
+	    		$.get(cvf,function(data,status){
+	    		alert(data);
+	    	});
+	    	}
 	    }
 	    
 	    
 	    
 	    function getvat(){
-	    	var time = prompt("Time(s)", "0.5");
-	    	    
-	    	    if (time != null) {
-	    	        alert('show value at time , drop down?');
-	    	    }
+	    	var time = prompt("Time(s): ", "0.5");
+	    	   
+	    	if ((time != null)&&(obj.name.localeCompare('0') != 0)){
+	    	 
+	    		var vat = "/pitch/value-at-time/"+obj.name+'/'+time;
+	    		$.get(vat,function(data,status){
+	    		alert(data);
+	    		});
+	    	}
 	    }
 	    function getvif(){
-	    	var frame = prompt("Frame number", "10");
+	    	var frame = prompt("Frame Number: ", "10");
 	    	    
-	    	    if (frame != null) {
-	    	        alert('show value at time, drop down? ');
-	    	    }
+	    	if ((frame != null) &&(obj.name.localeCompare('0')!= 0) ) {
+	    		var vif = "/pitch/value-in-frame/"+obj.name+'/'+frame;
+	    		$.get(vif,function(data,status){
+	    			if(status.localeCompare("success") == 0){
+	    				alert(data);
+	    			}else{
+	    				
+	    			
+	    			}
+	    		});
+	    	}
 	    }
 	    
 	    function getlf(){
-	    	alert('lowest f');
+	    	
+	    	if(obj.name.localeCompare('0') != 0){
+	    	
+	    		var lf  = "/spectrum/get-bounds/"+obj.name;
+	    		$.get(lf ,function(data,status){
+	    		alert(data.low +' hertz');
+	    		});
+	    	}
 	    }
 	    
 	    function gethf(){
-	    	alert('higest f')
-	    
+	    	if(obj.name.localeCompare('0') != 0){
+	    		
+	    		var lf  = "/spectrum/get-bounds/"+obj.name;
+	    		$.get(lf ,function(data,status){
+	    		alert(data.high +' hertz');
+	    		});
+	    	}
 	    }
+	    
+	    function getIntensity(){
+	    	alert('implement get intensity ');
+	    }
+	    
+	    function getmiI(){
+	    	if(obj.name.localeCompare('0') != 0){
+	    		
+	    		var miI  = "/intensity/get-bounds/"+obj.name;
+	    		$.get(miI ,function(data,status){
+	    		alert(data.min + ' dB');
+	    		});
+	    	}
+	    }
+	    function getmaI(){
+	    	if(obj.name.localeCompare('0') != 0){
+	    		
+	    		var maI  = "/intensity/get-bounds/"+obj.name;
+	    		$.get(maI ,function(data,status){
+	    		alert(data.max + ' dB');
+	    		});
+	    	}
+	    }
+	    function getmeanI(){
+	    	if(obj.name.localeCompare('0') != 0){
+	    		
+	    		var meanI  = "/intensity/get-bounds/"+obj.name;
+	    		$.get(meanI ,function(data,status){
+	    		alert(data.mean + ' dB');
+	    		});
+	    	}
+	    }
+	    
+	    function getFormant(){
+	   	 alert('Implement get formant ');
+	    }
+	    
+	    function getnof(){
+	    	if(obj.name.localeCompare('0') != 0){
+	    	
+	    		var nof = "/formant/number-of-frames/"+obj.name;
+	    	
+	    		$.get(nof,function(data,status){
+	    		alert(data);
+	    	});
+	    	}
+	    	
+	    }	 
+	    function getnoformant(){
+	    var frame = prompt("Frame Number: ", "10");
+	        
+	    	if ((frame != null) &&(obj.name.localeCompare('0')!= 0) ) {
+	    		var nofor = "/formant/number-of-formants/"+obj.name+'/'+frame;
+	    		$.get(nofor,function(data,status){
+	    			if(status.localeCompare("success") == 0){
+	    				alert(data );
+	    			}else{
+	    			
+	    		
+	    			}	
+	    		});
+	    	}
+	    }
+	    
+	    function getfat(){
+	    	var formant = prompt("Formant number: ", "1");
+	    	
+	    	var time = prompt("Time(s): ", "0.5");
+	    	   
+	    	if ((time != null)&&(obj.name.localeCompare('0') != 0)){
+	    	 
+	    		var fat = "/formant/value-at-time/"+obj.name+'/'+formant+'/'+time;
+	    		$.get(fat,function(data,status){
+	    		alert(data );
+	    		});
+	    	}
+	    }
+	    
+	    
+	    
 	    
 	    function save() {
 	    	
@@ -815,13 +969,14 @@ SAFARI: play not working
 				var $soundList = $('#fileSelection');
 			
 				$soundList.empty();
-				$soundList.append('<option value ="noSelection"> Select from below : </option>');
+				$soundList.append('<option value ="noSelection"> Select from below :&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;   </option>');
 				$.each(vals, function (index, value){
 					$soundList.append('<option value ='+value+'>' + value + '</option>');
 				});
      	
 			});
 	    	$('.dumbBoxWrap').show();
+	    		    	
 	    }
 	    
 	    function selectFile(){
@@ -830,8 +985,9 @@ SAFARI: play not working
 	    var selectedValue = selectedFile.options[selectedFile.selectedIndex].value;
 	   
 	    	if(selectedValue.localeCompare('noSelection') == 0){
-	        
+	    		
 	    	}
+	    	
 	    	else{
 	    	//alert('file selected!');
 	    	$('.dumbBoxWrap').hide();
@@ -842,8 +998,12 @@ SAFARI: play not working
 	    	document.getElementById('fileName').innerHTML = obj.name;
 	    	
 	    	var audio = document.getElementById('audio');
+	    	 audio.muted = true;
+	    	 //alert(audio.muted);
 	    	audio.src='/play/'+ obj.name;
+	    	
 	    	//audio.load();
+	        
 	        
 	    	$.get(audio.src,function(data, status){
 
@@ -859,6 +1019,9 @@ SAFARI: play not working
 	    	}	
 	    }
 	    
+	    function checkIfSafari(){
+	    alert('check if safari ');
+	    }
 	    </script>
 	</head>
 
@@ -876,8 +1039,10 @@ SAFARI: play not working
      
               
 	<Span id='above'>
-	
-			<audio id="audio" src="" preload="auto"></audio>
+						<audio id="audio" preload="auto"  controls style="position: absolute;top: 114px; left: 20px;" >
+			<p>Your browser does not support the <code>audio</code> element.</p> 
+		    </audio>
+			
 			
 		    
 			<!-- the vertical split line -->
@@ -937,10 +1102,9 @@ SAFARI: play not working
 		<div id = "leftMenuBar" >
 			<!-- the side menus -->	
 			<div  class = "menu">
-			    <!--<button class= "play" onclick="play()" data-toggle = "tooltip" title = "Play the selected sound file."> Play </button>-->
 			    <button class= "mainmenu">Sound</button>
 			    	<div class = "drop-content">
-			    		<a href = "javascript:void(0)"  onclick = "play()" >&nbsp; Play </a>
+			    		<!--<a href = "javascript:void(0)"  onclick = "play();" >&nbsp; Play </a>-->
 			    		<a href = "javascript:void(0)" onclick = "getEnergy()">&nbsp; Get energy...  </a>
 			    		
 			    	</div>
@@ -971,10 +1135,10 @@ SAFARI: play not working
 			<div  class = "menu">	
 			 	<button class= "mainmenu"> Intensity  </button>
 			 	<div class = "drop-content">
-			 		<a href = "javascript:void(0)" >&nbsp; Get intensity </a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get minimum intensity </a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get maximum intensity</a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get mean intensity </a>
+			 		<a href = "javascript:void(0)" onclick = "getIntensity()" >&nbsp; Get intensity </a>
+			 		<a href = "javascript:void(0)" onclick = "getmiI()">&nbsp; Get minimum intensity </a>
+			 		<a href = "javascript:void(0)" onclick = "getmaI()">&nbsp; Get maximum intensity</a>
+			 		<a href = "javascript:void(0)" onclick = "getmeanI()">&nbsp; Get mean intensity </a>
 			 	</div>
 			</div>
 			<br><br>
@@ -983,10 +1147,10 @@ SAFARI: play not working
 			<div  class = "menu" >	
 			 	<button class= "mainmenu"> Formant </button>
 			 	<div class = "drop-content">
-			 		<a href = "javascript:void(0)" >&nbsp; Get formant </a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get number of frames</a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get numbers of formants...</a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get value at time... </a>
+			 		<a href = "javascript:void(0)" onclick = "getFormant()" >&nbsp; Get formant </a>
+			 		<a href = "javascript:void(0)" onclick = "getnof()">&nbsp; Get number of frames</a>
+			 		<a href = "javascript:void(0)" onclick = "getnoformant()">&nbsp; Get numbers of formants...</a>
+			 		<a href = "javascript:void(0)" onclick = "getfat()">&nbsp; Get value at time... </a>
 			 	</div>
 			</div>
 			<br><br>
@@ -1095,18 +1259,18 @@ SAFARI: play not working
 		
 		
 		
-		<div class="dumbBoxWrap"> 
+		<div  id ="box" class="dumbBoxWrap"> 
 	
 				<div class="vertical-offset">
 			 		<div class="dumbBox">  
 			 		    <h2 id = "selectAFile"> &nbsp;&nbsp;Select a file:</h2>
 			 			<br>
-			 			<select id = "fileSelection" style="font-size: 24px;"  >
+			 			<select   id = "fileSelection" style="font-size: 16px;"  >
 			 				 
 			 			</select>
 			 			
 			 			<button  id = "close"  >Close</button>
-			 			<button  id = "select" onclick = "selectFile()" >Select</button>
+			 						 			<button  id = "select" onclick = "selectFile()" >Select</button>
 			 		</div>
 			 	</div>
 		</div>		

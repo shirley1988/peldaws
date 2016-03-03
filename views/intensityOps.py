@@ -14,4 +14,8 @@ def intensityBounds(sound):
     }
 
     return jsonify(bounds)
-
+    
+@app.route('/intensity/get-mean/<sound>/<start>/<end>')
+def intensityMean(sound, start, end):
+    script = praat._scripts_dir + "intensityMean";
+    return praat.runScript(script, [sound, start, end, praat._sounds_dir])

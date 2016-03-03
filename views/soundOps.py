@@ -1,5 +1,6 @@
 from flask import jsonify, request
 import os
+import time
 
 import praat
 import utils
@@ -42,11 +43,14 @@ def getBounds(sound):
     script = praat._scripts_dir + "getBounds";
     output = praat.runScript(script, [sound, praat._sounds_dir])
     res = output.split()
+
+    lastModifiedTime = time.ctime(os.path.getctime(os.path.join(praat._sounds_dir, sound)))
     bounds = {
         "start": float(res[0]),
         "end": float(res[2]),
         "min": float(res[4]),
-        "max": float(res[6])
+        "max": float(res[6]),
+        "lastModified": lastModifiedTime
     };
     return jsonify(bounds);
 

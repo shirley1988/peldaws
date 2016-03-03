@@ -13,7 +13,7 @@ def pitchValueAtTime(sound, time):
 
 @app.route('/pitch/value-in-frame/<sound>/<frame>')
 def pitchValueInFrame(sound, frame):
-    script = praat_scripts_dir + "pitchValueInFrame";
+    script = praat._scripts_dir + "pitchValueInFrame";
     return praat.runScript(script, [sound, frame, praat._sounds_dir])
 
 

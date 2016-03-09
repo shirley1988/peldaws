@@ -1,5 +1,4 @@
 import unittest
-from praat import app
 import json
 from StringIO import StringIO
 
@@ -7,57 +6,43 @@ from flask import Request
 from werkzeug import FileStorage
 from werkzeug.datastructures import MultiDict
 
-class TestPraatWS(unittest.TestCase):
+from praat import app
+
+class TestSoundsDB(unittest.TestCase):
    def setUp(self):
-      app.config['TESTING'] = True
-      app.config['CSRF_ENABLED'] = False
-
-      self.app = app;
-      self.test_client = self.app.test_client()
-
-   def test_index(self):
-       result = self.test_client.get("/")
-       assert "<html>" in result.data
-
-   def test_drawSound(self):
-      result = self.test_client.get("/draw-sound/sp1.wav/0/4/?pitch&pulse&formants&spectrogram&pulses")
-      self.assertEqual(result.content_type, "image/png")
-
-   def test_getBounds(self):
-      result = self.test_client.get("/get-bounds/sp1.wav")
-      bounds = json.loads(result.data)
-
-      self.assertEquals(bounds["start"], 0.0)
-      self.assertEquals(bounds["end"], 4.0)
-
-   def test_getEnergy(self):
-      result = self.test_client.get("/get-energy/sp1.wav")
-      assert "0.002112626523245126 Pa2 sec" in result.data
-
-   def test_playSound(self):
-      result = self.test_client.get("/play/sp1.wav")
-      self.assertEqual(result.content_type, "audio/wav")
-
+        app.config['TESTING'] = True
+        app.config['CSRF_ENABLED'] = False
+        
+        self.flaskApp = app;
+        self.app = app.test_client();
+      
    def test_uploadSound(self):
-      self.app.request_class = TestingRequest
-      testClient = self.app.test_client()
+      backupReq = self.flaskApp.request_class
+      self.flaskApp.request_class = TestingRequest
+      
+      testClient = self.flaskApp.test_client()
       data = {
          'file': (StringIO("test file"), "test.wav")
       }
 
-      #TypeError: constructor takes no arguments. Needs degugging.
+      #Bad request 400. Needs debugging
       #response = testClient.post("/upload-sound",data=data)
+      
+      #Change req class back
+      self.flaskApp.request_class = backupReq
+      
       #result = json.loads(response.data)
 
       #self.assertEquals(result["status"], "Success")
       self.assertTrue(True)
-
+      
    def test_listSounds(self):
-      result = self.test_client.get("/list-sounds")
+      result = self.app.get("/list-sounds")
       files = json.loads(result.data)
       assert "sp1.wav" in files["files"]
 
-class TestingRequest:
+
+class TestingRequest(Request):
    """A testing request to use that will return a
    TestingFileStorage to test the uploading."""
    @property
@@ -107,6 +92,3 @@ class TestingFileStorage(FileStorage):
             self.saved = dst
         else:
             self.saved = dst.name
-
-if __name__ == "__main__":
-   unittest.main()

@@ -12,7 +12,7 @@ def harmonicityGetMax(sound, start, end):
     return praat.runScript(script, [sound, start, end, praat._sounds_dir])
 
 @app.route('/harmonicity/value-at-time/<sound>/<time>')
-def harmonicityGetMax(sound, time):
+def harmonicityValueAtTime(sound, time):
     script = praat._scripts_dir + "harmonicityGetValueAtTime";
     return praat.runScript(script, [sound, time, praat._sounds_dir])
 

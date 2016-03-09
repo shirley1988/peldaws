@@ -7,7 +7,7 @@ def pointProcessGetNumPeriods(sound, start, end):
     return praat.runScript(script, [sound, start, end, praat._sounds_dir])
 
 @app.route('/pointprocess/get-number-of-points/<sound>')
-def pointProcessGetNumPeriods(sound):
+def pointProcessGetNumPoints(sound):
     script = praat._scripts_dir + "pointProcessGetNumPoints";
     return praat.runScript(script, [sound, praat._sounds_dir])
 

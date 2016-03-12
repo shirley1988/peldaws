@@ -368,7 +368,49 @@
        <h4>Response</h4>
        Mean value of intensity over specified interval
        
-       <h3>9. Pitch - Count voiced frames</h3>
+       <h3>9. Intensity - Get Value at Time</h3>
+       Get the value of intensity at specified time
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/intensity/get-mean/&lt;sound&gt;/&lt;time&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>time</td>
+          <td>Number</td>
+          <td>Time in seconds</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Value of intensity at specified time
+       
+       <h3>10. Pitch - Count voiced frames</h3>
        Count voiced frames
        <h4>Request</h4>
        <table border>
@@ -405,7 +447,7 @@
        <h4>Response</h4>
        Number of voiced frames
 
-	   <h3>10. Pitch - Get value at time</h3>
+	   <h3>11. Pitch - Get value at time</h3>
        Get value of pitch at specified time
        <h4>Request</h4>
        <table border>
@@ -447,7 +489,7 @@
        <h4>Response</h4>
        Value of pitch at specified time
        
-       <h3>11. Pitch - Get value in frame</h3>
+       <h3>12. Pitch - Get value in frame</h3>
        Get value of pitch in specified frame
        <h4>Request</h4>
        <table border>
@@ -489,7 +531,7 @@
        <h4>Response</h4>
        Value of pitch in specified frame
        
-       <h3>12. Spectrum - Get Bounds</h3>
+       <h3>13. Spectrum - Get Bounds</h3>
        Get low and high values in the spectrum
        <h4>Request</h4>
        <table border>
@@ -530,7 +572,7 @@
        &nbsp;&nbsp;&nbsp;"high": Higher bound in the spectrum<br/>
        }<br/>
        
-       <h3>13. Formants - Get number of frames</h3>
+       <h3>14. Formants - Get number of frames</h3>
        Count number of frames
        <h4>Request</h4>
        <table border>
@@ -567,7 +609,7 @@
        <h4>Response</h4>
        Number of frames
        
-       <h3>14. Formants - Count number of formants in a frame</h3>
+       <h3>15. Formants - Count number of formants in a frame</h3>
        Count number of formants in a frame
        <h4>Request</h4>
        <table border>
@@ -609,7 +651,7 @@
        <h4>Response</h4>
        Number of formants in the frame
        
-       <h3>15. Formants - Get value at time</h3>
+       <h3>16. Formants - Get value at time</h3>
        Get value of a formant at a specified time
        <h4>Request</h4>
        <table border>
@@ -656,7 +698,7 @@
        <h4>Response</h4>
        Value of formant at specified time
        
-       <h3>16. Harmonicity - Get minimum</h3>
+       <h3>17. Harmonicity - Get minimum</h3>
        Get minimum value over an interval
        <h4>Request</h4>
        <table border>
@@ -703,7 +745,7 @@
        <h4>Response</h4>
        Minimum value of harmonicity
        
-       <h3>17. Harmonicity - Get maximum</h3>
+       <h3>18. Harmonicity - Get maximum</h3>
        Get maximum value over an interval
        <h4>Request</h4>
        <table border>
@@ -750,7 +792,7 @@
        <h4>Response</h4>
        Maximum value of harmonicity
        
-       <h3>18. Harmonicity - Get value at time</h3>
+       <h3>19. Harmonicity - Get value at time</h3>
        Get value of harmonicity at specified time
        <h4>Request</h4>
        <table border>
@@ -792,7 +834,7 @@
        <h4>Response</h4>
        Value of harmonicity
        
-       <h3>19. PointProcess - Get number of periods</h3>
+       <h3>20. PointProcess - Get number of periods</h3>
        Get number of periods in interval
        <h4>Request</h4>
        <table border>
@@ -839,7 +881,7 @@
        <h4>Response</h4>
        Number of periods
        
-       <h3>20. PointProcess - Get number of points</h3>
+       <h3>21. PointProcess - Get number of points</h3>
        Get number of points
        <h4>Request</h4>
        <table border>
@@ -876,7 +918,7 @@
        <h4>Response</h4>
        Number of points
        
-       <h3>21. PointProcess - Get jitter</h3>
+       <h3>22. PointProcess - Get jitter</h3>
        Get jitter over an interval
        <h4>Request</h4>
        <table border>

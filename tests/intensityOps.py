@@ -21,3 +21,9 @@ class TestIntensityOps(unittest.TestCase):
         result = self.app.get("/intensity/get-mean/sp1.wav/1/2")
         data = str.strip(result.data)
         self.assertEqual(data, "60.95423608453416 dB")
+
+    def test_intensityValueAtTime(self):
+        result = self.app.get("intensity/value-at-time/sp1.wav/0.5")
+        data = str.strip(result.data)
+        self.assertEqual(data, "58.592944196529174 dB")
+

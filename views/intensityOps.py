@@ -19,3 +19,9 @@ def intensityBounds(sound):
 def intensityMean(sound, start, end):
     script = praat._scripts_dir + "intensityMean";
     return praat.runScript(script, [sound, start, end, praat._sounds_dir])
+
+@app.route('/intensity/value-at-time/<sound>/<time>')
+def intensityValueAtTime(sound, time):
+    script = praat._scripts_dir + "intensityValueAtTime";
+    return praat.runScript(script, [sound, time, praat._sounds_dir])
+

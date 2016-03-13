@@ -33,7 +33,7 @@
 	color: #000000;
 	text-align: left;
 	top: 15px;
-	width: 100px;
+	width: 230px;
 }
 
 #lastModifyDateText{
@@ -208,8 +208,16 @@
 	width:  375px;
 }
 
+#blockTimes1{
+	position:  absolute;
+	top: 330px;
+	left: 762px;
+	width: 20px;
+	background-color: #ffffff;
+	
+}
 
-#blockTimes{
+#blockTimes2{
 	position:  absolute;
 	top: 339px;
 	left: 350px;
@@ -262,7 +270,6 @@
  	position : relative;
  	top:  25px ;
  	left:  50px;
- 	
  }
  
 .menu{
@@ -362,7 +369,6 @@
 	position: absolute;
 	top: 12px;
 	padding: 20px 1px 1px;
-	font-weight: bold;
 }
 .uploadFile input {
     position: absolute;
@@ -503,10 +509,26 @@
 	width: 500px;
 }
 
+#sourceCode{
+	position: absolute;
+	top: 540px;
+	left: 40px;
+	display: inline-block;
+	z-index: -2;
+}
+#sourceLink{
+    display: inline;
+	position: absolute;
+	left: 40px;
+	top: 575px;
+	font-size: 14 px;
+	float: right;
+}
+
 #otherSource{
 
 	position: absolute;
-	top: 560px;
+	top: 580px;
 	left: 40px;
 }
 
@@ -515,7 +537,7 @@
     display: inline;
 	position: absolute;
 	left: 40px;
-	top: 595px;
+	top: 615px;
 	font-size: 14 px;
 	float: right;
 }
@@ -523,18 +545,11 @@
     display: inline;
 	position: absolute;
 	left: 40px;
-	top: 615px;
-	font-size: 14 px;
-	float: right;
-}
-#sourceLink{
-    display: inline;
-	position: absolute;
-	left: 40px;
 	top: 635px;
 	font-size: 14 px;
 	float: right;
 }
+
 /* unvisited link */
 a.source:link {
     color: blue;

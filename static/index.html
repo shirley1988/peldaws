@@ -7,22 +7,10 @@ Y range: 0~203 ,  237~439   237->236
 
 change x position 
 
-FIX VALUE IN FRAME 
-  
-remove Jcrop.gif 
-
-specify upload-able formats 
-
-implement downlaod for safari, use a dummy box to determine 
-
-DATE
+implement download for un-support
 
 change font of frequency, time 
 
-
-check past query, cancel , on showing ?
-
-Test the @media
 
  ******************settings 
 -->
@@ -42,19 +30,22 @@ Test the @media
 		<link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
 		
 		<script> 
+		
+		
 		       $(document).ready(function() { 
 		       	   
 		           // bind 'myForm' and provide a simple callback function 
 		           $('#myForm').ajaxForm({ 
 		           		success: showSoundInfo
 		           }); 
-		          
-		           $("#upload").change(function(e){
-		           		document.getElementById('fileName').innerHTML = this.files[0].name;		     
-		           		document.getElementById('fileSize').innerHTML = formatSize(this.files[0].size, 2);
-		           		document.getElementById('lastModifyDate').innerHTML = this.files[0].lastModifiedDate;	
+		           
+		           
+		           //$("#upload").change(function(e){
+		           		//document.getElementById('fileName').innerHTML = this.files[0].name;		     
+		           		//document.getElementById('fileSize').innerHTML = formatSize(this.files[0].size, 2);
+		           		//document.getElementById('lastModifyDate').innerHTML = this.files[0].lastModifiedDate;	
 		           		
-		           }); 
+		           //}); 
 		           	
       
 		           $('#close').click(function() {
@@ -65,24 +56,30 @@ Test the @media
 		           $('#selectFromList').click(function() {
 		              displayList();
 		              }         
-		           );   
+		           );  
+		           
+		           if(isSafari == true){
+		           	  $("#audio").css({left: 40,top:530}); 
+		           }; 
+		           
+		           
 		        });
-		        
-		        
-		            
+		        		         
 		</script> 
 		
 
 		<script type="text/javascript">
-		    //var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+		
+		
+		
+		
+		    var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
 
 			var drawSound = "/draw-sound/"; 
 			var listSound  = "/list-sounds";
 			var newURL = '';	
 			var obj = {
-				name : 0,
-				//date:0,
-				//size:0,
+				name : 0,				
 				oriStart: 0,
 				oriEnd: 0,
 				   
@@ -111,7 +108,6 @@ Test the @media
 				selY1:0,
 				selY2:0
 			};	
-			var checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 			
 			function checkStatuss(){
 			var status = '?';
@@ -139,16 +135,12 @@ Test the @media
 			
 			
 			<!-- Jcrop functions -->
-			
-			
 			function showSoundInfo(data){
-				//alert('heremyFo');
-			 obj.name = data.sound;
-			 var status = data.status; 
-			 //alert(status);
-			 
-			 
-			  if(status.localeCompare('Success') == 0){
+
+			  if(data.status.localeCompare('Success') == 0){
+			  
+			  		
+			  	obj.name = data.sound;
 			  	drawSound = "/draw-sound/";
 			  	document.getElementById('audio').src = '';
 			    getSoundInfo(); 
@@ -156,14 +148,22 @@ Test the @media
 			  }
 			  else{
 			  	obj.name = '0';
+			  	alert('The format of the selected sound file is not supported, please choose another file.');
 			  }
 			}
 			
 			function getSoundInfo(){
-				//alert('get Sound Info '+ obj.name);
 				var bound = "/get-bounds/"+obj.name;
-			
+				
+				document.getElementById('fileName').innerHTML = obj.name;
+					$.get(audio.src,function(data, status){
+					
+						     		
+					document.getElementById('fileSize').innerHTML = formatSize(Number(data.length), 2);
+					});
+					
 					$.get(bound,function(data, status){
+					if(status.localeCompare('success')== 0 ){
 						obj.oriStart = data.start;
 						obj.oriEnd = data.end;
 						
@@ -171,16 +171,18 @@ Test the @media
 						obj.visuTime = obj.totalTime;
 						obj.selStart = obj.oriStart;
 						obj.selEnd = obj.oriEnd;
-								
+						
+						
+						
+					    document.getElementById('lastModifyDate').innerHTML = data.lastModified;	
 					    				
 						document.getElementById('timeDuration').innerHTML = formatTime(obj.totalTime);
 						drawSound  = drawSound + obj.name +'/';
-						//alert('test status');
 						
 						
 						newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
-						//alert(newURL);
 						document.getElementById('selectNewFile').innerHTML='';
+						
 						// display new image!!!!!!!!!!!!!!!!!!!!!!!!!!!
 						$('.jcrop-holder img').attr('src',newURL);
 						
@@ -190,19 +192,31 @@ Test the @media
 						//upload the sound file 
 						var audio = document.getElementById('audio');
 						audio.src='/play/'+obj.name;
-						//audio.load();
+						audio.load();
+						
+						if(isSafari == true){
+						    var fileType = obj.name.split('.');
+						    var end = fileType[fileType.length - 1];
+						    
+							if ( end.localeCompare('wav') == 0 ) {
+							 alert('Selected audio file may not be playable since it is not supported by the browser.');
+							  
+							}
+						}
+						
+					}	
 					});
 			}
 			
 			
 			function showTimes(){
-				
 				if(obj.selStart == 0 ){
 				document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp0';
 				}
 				else{
 				document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp'+ (obj.selStart).toFixed(6);
 				}
+				
 				document.getElementById('showTimesRight').innerHTML= (obj.selEnd).toFixed(6);
 			}
 			
@@ -325,14 +339,10 @@ Test the @media
 				
 			}
 			
-	
 			
-					
 	jQuery(function($){
 				 
 				    $("#in").click(function(){
-				         //alert(obj.absoluteT1);
-				         //alert(obj.visuTime);
 				        if(obj.name == 0) return;
 				        if(obj.visuTime/2 < 0.0009){
 				    	
@@ -351,12 +361,8 @@ Test the @media
 				    	}
 				    });
 				    
-				    //check if absoluet t1 == t2 
 				    $("#out").click(function(){
-				        //alert(obj.absoluteT1);
-				        //alert(obj.visuTime);
-				        
-				       
+
 				        if(obj.name == 0) return;
 				    	if(obj.visuTime == obj.totalTime){
 				    	
@@ -428,7 +434,6 @@ Test the @media
 				    	}else{
 				    	obj.checkPitch = 1;
 				    	}
-				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				    	if(obj.name == 0) return;
 				    	displayLimitRange();
 				    	if(obj.visuTime == obj.totalTime){
@@ -446,7 +451,6 @@ Test the @media
 				    	}else{
 				    	obj.checkIntensity = 1;
 				    	}
-				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				    	if(obj.name == 0) return;
 				    	displayLimitRange();
 				    	
@@ -467,8 +471,6 @@ Test the @media
 				    	obj.checkFormant = 1;
 				    	
 				    	}
-				    	
-				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				    	if(obj.name == 0) return;
 				    	
 				    	
@@ -490,7 +492,6 @@ Test the @media
 				    	}else{
 				    	obj.checkSpectrogram = 1;
 				    	}
-				    	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				    	if(obj.name == 0) return;
 				    	
 				    	displayLimitRange();
@@ -512,7 +513,6 @@ Test the @media
 				     	}else{
 				     	obj.checkPulse = 1;
 				     	}
-				     	checkStatus = obj.checkPitch+"/"+obj.checkIntensity+"/"+obj.checkFormant;
 				     	if(obj.name == 0) return;
 				     	
 				     	displayLimitRange();
@@ -532,7 +532,6 @@ Test the @media
 				     
 				    
 			<!-- for JCROP -->
-			
 		    var api;
 
 		    $('#target').Jcrop({
@@ -560,13 +559,11 @@ Test the @media
 		    api.setSelect([x1,x2,y1,y2]);
 		    });
 		     
-		    $("#sel").click(function(){
-		    	//alert(obj.visuTime);
-		    	
+		    $("#sel").click(function(){		    	
 		    	if(obj.selT2 == obj.selT1){
 		    	
 		    	}
-		    	else if( ((obj.selT2-obj.selT1)/375*obj.visuTime) < 0.0009 ){
+		    	else if( ((obj.absulteT2-obj.absoluteT1)/375*obj.visuTime) < 0.0009 ){
 		    		document.getElementById('info').innerHTML='Selected time duration too small.';
 		    	}else{
 		    	<!-- show display --> 
@@ -603,10 +600,6 @@ Test the @media
 		    	 		$("#transBox").removeClass('afterDisplay');
 		    		}
 		    		else{
-		    			//alert(obj.selY1);
-		    			//alert(obj.selY2);
-		    			
-		    		//fixed bug: transBox go out of bound
 		    		if(obj.selT2 == 375){
 		    		$("#transBox").addClass('afterDisplay');
 		    		$("#transBox").css({left: obj.selT1+385.5, width: (375 -obj.selT1 - 2)});
@@ -640,7 +633,6 @@ Test the @media
 		  		
 		  		obj.absoluteT1 = obj.selStart +obj.selT1/375*obj.visuTime;
 		  		obj.absoluteT2 = obj.selStart +obj.selT2/375*obj.visuTime;
-		  		
 		  		$("#line1").addClass('afterClick');
 		  	
 		  		if(c.x === c.x2){
@@ -727,13 +719,13 @@ Test the @media
 		  	//remove c!!!!!!!!!!!!! 
 		  	function displayCoords(){	
 		  		api.release();
-		  		changeTransBox();
-		  		
+		  		changeTransBox();		  		
 		  	};
 		  	
 		  	
 		  	function clearCoords(){
-		   		$('#coords input').val('');		   		
+		   		$('#coords input').val('');	
+		   			 		  				   			   		
 		  	};	
 		  	
 		  	
@@ -753,7 +745,6 @@ Test the @media
 		}
 		<!-- function that convert the file size -->
 		function formatSize(bytes,decimals) {
-			//alert('start format size '+bytes);
 		   if(bytes == 0){
 			return '0 Byte';
 		   }
@@ -765,20 +756,9 @@ Test the @media
 		   return (bytes / Math.pow(k, si)).toPrecision(de) + ' ' + sizes[si];
 		}
 				
-	   /* var play = function(){
-	    	audio.muted = false;
-	    	//alert(audio.muted);
-	       //alert('Start playing')
-	       //document.getElementById('audio').load();
-	       var audio1 =  document.getElementById('audio');
-	       audio1.play();
-	             
-	    }*/
-	    
-	    
-	    
-	    
-	    
+
+
+
 	    function getEnergy(){
 	    	if(obj.name.localeCompare('0') == 0){
 	    	
@@ -796,18 +776,17 @@ Test the @media
 	    }
 	    
 	    function getPitch(){
-	    	<!-- may use prompt -->
-	    	//alert('show pitch, if selected time-> show pitch,  range-> show mean ')
+	    	if(obj.absoluteT2){
 	    	
-	    	if(obj.absoluteT1 == obj.absoluteT2){
-	    		var p  = "/pitch/value-at-time/"+obj.name+'/'+obj.absoluteT1;
-	    		$.get(p ,function(data,status){
-	    		alert(data);
-	    		});
+	    		if(obj.absoluteT1 == obj.absoluteT2){
+	    			var p  = "/pitch/value-at-time/"+obj.name+'/'+obj.absoluteT1;
+	    			$.get(p ,function(data,status){
+	    				alert(data);
+	    			});
+	    		}
 	    	}
-	    	
-	    	
 	    }
+	    
 	    
 	    function countvf(){
 	    	if(obj.name.localeCompare('0') != 0){
@@ -823,29 +802,34 @@ Test the @media
 	    
 	    
 	    function getvat(){
-	    	var time = prompt("Time(s): ", "0.5");
+	    	
 	    	   
-	    	if ((time != null)&&(obj.name.localeCompare('0') != 0)){
-	    	 
-	    		var vat = "/pitch/value-at-time/"+obj.name+'/'+time;
-	    		$.get(vat,function(data,status){
-	    		alert(data);
-	    		});
+	    	if ((obj.name.localeCompare('0') != 0)){
+	    	 	var time = prompt("Time(s): ", "0.5");
+	    	 	if(time != null){
+	    			var vat = "/pitch/value-at-time/"+obj.name+'/'+time;
+	    			$.get(vat,function(data,status){
+	    				alert(data);
+	    			});
+	    		}
 	    	}
 	    }
 	    function getvif(){
-	    	var frame = prompt("Frame Number: ", "10");
+	    	
 	    	    
-	    	if ((frame != null) &&(obj.name.localeCompare('0')!= 0) ) {
-	    		var vif = "/pitch/value-in-frame/"+obj.name+'/'+frame;
-	    		$.get(vif,function(data,status){
-	    			if(status.localeCompare("success") == 0){
-	    				alert(data);
-	    			}else{
-	    				
-	    			
-	    			}
-	    		});
+	    	if ((obj.name.localeCompare('0')!= 0) ) {
+	    		var frame = prompt("Frame Number: ", "10");
+	    		if(frame != null){
+		    		var vif = "/pitch/value-in-frame/"+obj.name+'/'+frame;
+		    		$.get(vif,function(data,status){
+		    			if(status.localeCompare("success") == 0){
+		    				alert(data);
+		    			}else{
+		    				
+		    			
+		    			}
+		    		});
+	    		}
 	    	}
 	    }
 	    
@@ -855,7 +839,7 @@ Test the @media
 	    	
 	    		var lf  = "/spectrum/get-bounds/"+obj.name;
 	    		$.get(lf ,function(data,status){
-	    		alert(data.low +' hertz');
+	    			alert(data.low +' hertz');
 	    		});
 	    	}
 	    }
@@ -865,30 +849,49 @@ Test the @media
 	    		
 	    		var lf  = "/spectrum/get-bounds/"+obj.name;
 	    		$.get(lf ,function(data,status){
-	    		alert(data.high +' hertz');
+	    			alert(data.high +' hertz');
 	    		});
 	    	}
 	    }
 	    
 	    function getIntensity(){
-	    	alert('implement get intensity ');
+	    
+	    	if(obj.absoluteT2){
+	    	
+	    		if(obj.absoluteT1 == obj.absoluteT2){ 
+	    			var i  = '/intensity/value-at-time/'+obj.name + '/' + obj.absoluteT1;
+	    		}
+	    		else{
+	    			var i  = "/intensity/get-mean/"+obj.name+'/'+obj.absoluteT1 + '/' + obj.absoluteT2;
+	    		}
+
+	    		$.get(i ,function(data,status){
+	    			alert(data);
+	    		});
+	    	
+	    	}
+	    	else{
+	    	
+	    	}
+	    	
+	    	
 	    }
 	    
-	    function getmiI(){
+	    function getminI(){
 	    	if(obj.name.localeCompare('0') != 0){
 	    		
 	    		var miI  = "/intensity/get-bounds/"+obj.name;
 	    		$.get(miI ,function(data,status){
-	    		alert(data.min + ' dB');
+	    			alert(data.min + ' dB');
 	    		});
 	    	}
 	    }
-	    function getmaI(){
+	    function getmaxI(){
 	    	if(obj.name.localeCompare('0') != 0){
 	    		
 	    		var maI  = "/intensity/get-bounds/"+obj.name;
 	    		$.get(maI ,function(data,status){
-	    		alert(data.max + ' dB');
+	    			alert(data.max + ' dB');
 	    		});
 	    	}
 	    }
@@ -897,14 +900,12 @@ Test the @media
 	    		
 	    		var meanI  = "/intensity/get-bounds/"+obj.name;
 	    		$.get(meanI ,function(data,status){
-	    		alert(data.mean + ' dB');
+	    			alert(data.mean + ' dB');
 	    		});
 	    	}
 	    }
 	    
-	    function getFormant(){
-	   	 alert('Implement get formant ');
-	    }
+	    
 	    
 	    function getnof(){
 	    	if(obj.name.localeCompare('0') != 0){
@@ -912,50 +913,130 @@ Test the @media
 	    		var nof = "/formant/number-of-frames/"+obj.name;
 	    	
 	    		$.get(nof,function(data,status){
-	    		alert(data);
-	    	});
+	    			alert(data);
+	    		});
 	    	}
 	    	
 	    }	 
 	    function getnoformant(){
-	    var frame = prompt("Frame Number: ", "10");
-	        
-	    	if ((frame != null) &&(obj.name.localeCompare('0')!= 0) ) {
-	    		var nofor = "/formant/number-of-formants/"+obj.name+'/'+frame;
-	    		$.get(nofor,function(data,status){
-	    			if(status.localeCompare("success") == 0){
-	    				alert(data );
-	    			}else{
+	    
+	    	if ((obj.name.localeCompare('0')!= 0) ) {
+	    		var frame = prompt("Frame Number: ", "10");
+	    	    if(frame != null ){
+	    	
+	    			var nofor = "/formant/number-of-formants/"+obj.name+'/'+frame;
+	    			$.get(nofor,function(data,status){
+	    				if(status.localeCompare("success") == 0){
+	    					alert(data );
+	    				}else{
 	    			
-	    		
-	    			}	
-	    		});
+	    				}	
+	    			});
+	    		}
 	    	}
 	    }
 	    
 	    function getfat(){
-	    	var formant = prompt("Formant number: ", "1");
 	    	
-	    	var time = prompt("Time(s): ", "0.5");
 	    	   
-	    	if ((time != null)&&(obj.name.localeCompare('0') != 0)){
-	    	 
-	    		var fat = "/formant/value-at-time/"+obj.name+'/'+formant+'/'+time;
-	    		$.get(fat,function(data,status){
-	    		alert(data );
+	    	if ((obj.name.localeCompare('0') != 0)){
+	    	 	
+	    	 	var formant = prompt("Formant number: ", "1");
+	    	 	
+	    	 	var time = prompt("Time(s): ", "0.5");
+	    	 	if((formant != null) && (time != null)){
+	    			var fat = "/formant/value-at-time/"+obj.name+'/'+formant+'/'+time;
+	    			$.get(fat,function(data,status){
+	    				alert(data );
+	    			});
+	    		}
+	    	}
+	    }
+	    
+	    function getminH(){
+	    	if(obj.name.localeCompare('0') != 0){
+	    		var startT= prompt("Start of Time Range: ", "0.0");
+	    		var endT = prompt("End of Time Range: ", "0.0");
+	    		if((startT != null) && (endT != null)){
+	    			var minH  = '/harmonicity/get-min/'+obj.name+'/'+startT  +'/'+endT ;
+	    			$.get(minH ,function(data,status){
+	    				alert(data);
+	    			});
+	    		}
+	    	}
+	    	
+	    }
+	    
+	    function getmaxH(){
+	    	if(obj.name.localeCompare('0') != 0){
+	    		var startT= prompt("Start of Time Range: ", "0.0");
+	    		var endT = prompt("End of Time Range: ", "0.0");
+	    		if((startT != null) && (endT != null)){
+	    			var maxH  = '/harmonicity/get-max/'+obj.name+'/'+startT  +'/'+endT ;
+	    			$.get(maxH ,function(data,status){
+	    				alert(data);
+	    			});
+	    		}
+	    	}
+	    
+	    }
+	    
+	    function getH(){
+	    	if ((obj.name.localeCompare('0') != 0)){
+	    	 	var time = prompt("Time(s): ", "0.5");
+	    	 	if(time != null){
+	    			var h  = "/harmonicity/value-at-time/"+obj.name+'/'+time;
+	    			$.get(h ,function(data,status){
+	    				alert(data);
+	    			});
+	    		}
+	    	}
+	    }
+	    
+	    function getnofPeriod(){
+	    	if(obj.name.localeCompare('0') != 0){
+	    		var startT= prompt("Start of Time Range: ", "0.0");
+	    		var endT = prompt("End of Time Range: ", "0.0");
+	    		if((startT != null) && (endT != null)){
+	    			
+	    			var Period  = '/pointprocess/number-of-periods/'+obj.name+'/'+startT  +'/'+endT ;
+	    			$.get(Period ,function(data,status){
+	    				alert(data);
+	    			});
+	    		}
+	    	}
+	    }
+	    
+	    function getnofPoint(){
+	    	if(obj.name.localeCompare('0') != 0){
+	    	
+	    		var nofP = "/pointprocess/number-of-points/"+obj.name;
+	    		$.get(nofP,function(data,status){
+	    			alert(data);
 	    		});
 	    	}
+	    }
+	    
+	    function getJitter(){
+	    	if(obj.name.localeCompare('0') != 0){
+	    		var startT= prompt("Start of Time Range: ", "0.0");
+	    		var endT = prompt("End of Time Range: ", "0.0");
+	    		if((startT != null) && (endT != null)){
+	    			var J  = '/pointprocess/get-jitter/'+obj.name+'/'+startT  +'/'+endT ;
+	    			$.get(J ,function(data,status){
+	    				alert(data);
+	    			});
+	    		}
+	    	}
+	    
 	    }
 	    
 	    
 	    
 	    
 	    function save() {
-	    	
-	    	if(obj.name.localeCompare(0)==0){
-	    	
-	    	}else{
-	        window.open(newURL);
+	    	if(obj.name.localeCompare(0)!=0){
+	        	window.open(newURL);
 	        }
 	    }
 	    
@@ -989,7 +1070,6 @@ Test the @media
 	    	}
 	    	
 	    	else{
-	    	//alert('file selected!');
 	    	$('.dumbBoxWrap').hide();
 	    	
 	    	obj.name = selectedValue; 
@@ -999,29 +1079,22 @@ Test the @media
 	    	
 	    	var audio = document.getElementById('audio');
 	    	 audio.muted = true;
-	    	 //alert(audio.muted);
+	    	
 	    	audio.src='/play/'+ obj.name;
 	    	
-	    	//audio.load();
-	        
-	        
+	    	
 	    	$.get(audio.src,function(data, status){
 
 	     		
 	    	document.getElementById('fileSize').innerHTML = formatSize(Number(data.length), 2);
 	    	});
-	    	
-	    	//lastModifyDateText    	
-	    	document.getElementById('lastModifyDate').innerHTML = '';	
 	        	        
 	    	getSoundInfo(); 
 
 	    	}	
 	    }
 	    
-	    function checkIfSafari(){
-	    alert('check if safari ');
-	    }
+	    
 	    </script>
 	</head>
 
@@ -1039,7 +1112,7 @@ Test the @media
      
               
 	<Span id='above'>
-						<audio id="audio" preload="auto"  controls style="position: absolute;top: 114px; left: 20px;" >
+			<audio id="audio" preload="auto"  muted controls style="position: absolute;top: 114px; left: 20px;">
 			<p>Your browser does not support the <code>audio</code> element.</p> 
 		    </audio>
 			
@@ -1079,13 +1152,8 @@ Test the @media
 				});
 			
 				
-			
-				</script>
-			
-			
-		 	
-		    <!-- <button  type = "button" onclick="alert('Add Script!')" class= "Script" data-toggle = "tooltip" title = "Upload own Script.">Open Script </button>--> 
-		 	
+				
+				</script>		 	
 		 	
 		 	<p id = "fileNameText">File name : </p>
 		 	<p id = "fileName"></p>
@@ -1136,8 +1204,8 @@ Test the @media
 			 	<button class= "mainmenu"> Intensity  </button>
 			 	<div class = "drop-content">
 			 		<a href = "javascript:void(0)" onclick = "getIntensity()" >&nbsp; Get intensity </a>
-			 		<a href = "javascript:void(0)" onclick = "getmiI()">&nbsp; Get minimum intensity </a>
-			 		<a href = "javascript:void(0)" onclick = "getmaI()">&nbsp; Get maximum intensity</a>
+			 		<a href = "javascript:void(0)" onclick = "getminI()">&nbsp; Get minimum intensity </a>
+			 		<a href = "javascript:void(0)" onclick = "getmaxI()">&nbsp; Get maximum intensity</a>
 			 		<a href = "javascript:void(0)" onclick = "getmeanI()">&nbsp; Get mean intensity </a>
 			 	</div>
 			</div>
@@ -1147,7 +1215,6 @@ Test the @media
 			<div  class = "menu" >	
 			 	<button class= "mainmenu"> Formant </button>
 			 	<div class = "drop-content">
-			 		<a href = "javascript:void(0)" onclick = "getFormant()" >&nbsp; Get formant </a>
 			 		<a href = "javascript:void(0)" onclick = "getnof()">&nbsp; Get number of frames</a>
 			 		<a href = "javascript:void(0)" onclick = "getnoformant()">&nbsp; Get numbers of formants...</a>
 			 		<a href = "javascript:void(0)" onclick = "getfat()">&nbsp; Get value at time... </a>
@@ -1159,9 +1226,9 @@ Test the @media
 			<div  class = "menu" >	
 			 	<button class= "mainmenu"> Harmonicity  </button>
 			 	<div class = "drop-content">
-			 		<a href = "javascript:void(0)" >&nbsp; Get minimum... </a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get maximum...</a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get value at time... </a>
+			 		<a href = "javascript:void(0)" onclick = "getminH()" >&nbsp; Get minimum... </a>
+			 		<a href = "javascript:void(0)" onclick = "getmaxH()">&nbsp; Get maximum...</a>
+			 		<a href = "javascript:void(0)" onclick = "getH()">&nbsp; Get value at time... </a>
 			 	</div>
 			</div>
 			<br><br>
@@ -1170,9 +1237,9 @@ Test the @media
 			<div  class = "menu" >	
 			 	<button class= "mainmenu"> PointProcess </button>
 			 	<div class = "drop-content">
-			 		<a href = "javascript:void(0)" >&nbsp; Get number of periods...  </a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get number of points...</a>
-			 		<a href = "javascript:void(0)" >&nbsp; Get jitter (local)... </a>
+			 		<a href = "javascript:void(0)" onclick = "getnofPeriod()">&nbsp; Get number of periods...  </a>
+			 		<a href = "javascript:void(0)" onclick = "getnofPoint()">&nbsp; Get number of points...</a>
+			 		<a href = "javascript:void(0)" onclick = "getJitter()">&nbsp; Get jitter (local)... </a>
 			 	</div>
 			</div>
 		</div>
@@ -1196,7 +1263,10 @@ Test the @media
 		
 		<div  id = "showIntensityRangeTop"></div>
 		<div  id = "showIntensityRangeBottom"></div>
-		<div id = "blockTimes">
+		<div id = "blockTimes1">
+		&nbsp;
+		</div>
+		<div id = "blockTimes2">
 		&nbsp;
 		</div>
 		
@@ -1240,6 +1310,10 @@ Test the @media
 			<p id = "info"></p>
 		</div>
 		
+		<div id = "sourceCode">
+		<p> Source Code: </p>
+		</div>
+		
 		<div id = "otherSource">
 		<p> Other PELDA Sources: </p>
 		</div>
@@ -1251,7 +1325,7 @@ Test the @media
 		<a  class = "source" href = "#">Audio Retrieval and Version Control </a>
 		</div>
 		<div id ="deeplearningLink">
-		<a  class = "source" href = "#">Deep learning </a>
+		<a  class = "source" href = "https://github.com/rash-s13/DeepAudioFind">Deep learning </a>
 		</div>
 		<div id = "selTimeLabel">
 			<p id = "selectedInfo"></p>
@@ -1270,7 +1344,7 @@ Test the @media
 			 			</select>
 			 			
 			 			<button  id = "close"  >Close</button>
-			 						 			<button  id = "select" onclick = "selectFile()" >Select</button>
+			 			<button  id = "select" onclick = "selectFile()" >Select</button>
 			 		</div>
 			 	</div>
 		</div>		

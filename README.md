@@ -28,3 +28,6 @@ link to the praat executable inside the praat folder.
 cd praat
 ln -s /path/to/praat praat
 ```
+
+### API Documentation ###
+The API documentation is provided in static/apidocs.html. If you are running the server, visit /apidocs

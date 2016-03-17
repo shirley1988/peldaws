@@ -47,7 +47,7 @@ class TestSoundsDB(unittest.TestCase):
       files = json.loads(result.data)
 
       # Check if sp1.wav is one of the files returned
-      assert "sp1.wav" in files["files"]
+      assert "Part1.mp3" in files["files"]
 
 
 class TestingRequest(Request):

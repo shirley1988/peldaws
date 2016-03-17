@@ -15,6 +15,8 @@ class TestSoundOps(unittest.TestCase):
 
     def test_getBounds(self):
         result = self.app.get("/get-bounds/sp1.wav")
+
+        # Load json string as a dictionary
         bounds = json.loads(result.data)
 
         self.assertEquals(bounds["start"], 0.0)
@@ -26,4 +28,5 @@ class TestSoundOps(unittest.TestCase):
 
     def test_playSound(self):
         result = self.app.get("/play/sp1.wav")
+        # Check if file being downloaded is a wav audio
         self.assertEqual(result.content_type, "audio/wav")

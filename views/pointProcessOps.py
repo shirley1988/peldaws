@@ -16,4 +16,3 @@ def pointProcessGetJitter(sound, start, end):
     script = praat._scripts_dir + "pointProcessGetJitter";
     return praat.runScript(script, [sound, start, end, praat._sounds_dir])
 
-

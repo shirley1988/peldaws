@@ -20,7 +20,10 @@ class TestSoundsDB(unittest.TestCase):
       backupReq = self.flaskApp.request_class
       self.flaskApp.request_class = TestingRequest
       
+      # Get test client with the mocked objects
       testClient = self.flaskApp.test_client()
+
+      # Data to be sent via POST
       data = {
          'file': (StringIO("test file"), "test.wav")
       }
@@ -28,9 +31,10 @@ class TestSoundsDB(unittest.TestCase):
       #Bad request 400. Needs debugging
       #response = testClient.post("/upload-sound",data=data)
       
-      #Change req class back
+      #Change req class back so that remaining tests can be run
       self.flaskApp.request_class = backupReq
       
+      # Load json string as a dictionary
       #result = json.loads(response.data)
 
       #self.assertEquals(result["status"], "Success")
@@ -38,7 +42,11 @@ class TestSoundsDB(unittest.TestCase):
       
    def test_listSounds(self):
       result = self.app.get("/list-sounds")
+
+      # Load json string as a dictionary
       files = json.loads(result.data)
+
+      # Check if sp1.wav is one of the files returned
       assert "sp1.wav" in files["files"]
 
 

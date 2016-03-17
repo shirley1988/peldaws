@@ -16,4 +16,3 @@ def pitchValueInFrame(sound, frame):
     script = praat._scripts_dir + "pitchValueInFrame";
     return praat.runScript(script, [sound, frame, praat._sounds_dir])
 
-

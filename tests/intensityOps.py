@@ -11,6 +11,8 @@ class TestIntensityOps(unittest.TestCase):
         
     def test_intensityBounds(self):
         result = self.app.get("/intensity/get-bounds/sp1.wav")
+
+        # Load json string as a dictionary
         bounds = json.loads(result.data)
         
         self.assertEqual(bounds["min"], 37.36793761863101)
@@ -19,7 +21,7 @@ class TestIntensityOps(unittest.TestCase):
         
     def test_intensityMean(self):
         result = self.app.get("/intensity/get-mean/sp1.wav/1/2")
-        data = str.strip(result.data)
+        data = str.strip(result.data) # Remove trailing spaces or newlines
         self.assertEqual(data, "60.95423608453416 dB")
 
     def test_intensityValueAtTime(self):

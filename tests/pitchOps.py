@@ -11,7 +11,7 @@ class TestPitchOps(unittest.TestCase):
 
     def test_countVoicedFrames(self):
         result = self.app.get("/pitch/count-voiced-frames/sp1.wav");
-        data = str.strip(result.data)
+        data = str.strip(result.data)  # Remove trailing newlines
         self.assertEqual(data, "226 voiced frames")
         
     def test_pitchValueAtTime(self):

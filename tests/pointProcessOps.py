@@ -11,7 +11,7 @@ class TestPointProcessOps(unittest.TestCase):
 
     def test_pointProcessGetNumPeriods(self):
         result = self.app.get("/pointprocess/number-of-periods/sp1.wav/0/4");
-        data = str.strip(result.data)
+        data = str.strip(result.data) # Remove trailing newlines
         self.assertEqual(data, "422")
 
     def test_pointProcessGetNumPoints(self):

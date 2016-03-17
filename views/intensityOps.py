@@ -4,9 +4,16 @@ from praat import app
 
 @app.route('/intensity/get-bounds/<sound>')
 def intensityBounds(sound):
+    # Patht to script
     script = praat._scripts_dir + "intensityBounds";
+
+    # Run script
     output = praat.runScript(script, [sound, praat._sounds_dir])
+
+    # Split output into an array
     res = output.split()
+
+    # Create JSON object to return
     bounds = {
        "min": float(res[0]),
        "max": float(res[2]),

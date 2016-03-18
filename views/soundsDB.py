@@ -23,6 +23,12 @@ def uploadSound():
         # Remove path modifiers or unsafe characters from filename
         filename = secure_filename(sound.filename)
 
+        # Before saving, check if we are replacing an existing sound
+        existingSounds = getSoundArray()
+        if filename in existingSounds:
+            # If sound changes, cached images become invalid
+            utils.deleteCachedImages(praat._images_dir, filename)             
+
         # Save file to disk
         sound.save(os.path.join(praat._sounds_dir, filename))
 
@@ -37,11 +43,15 @@ def uploadSound():
     }
     return jsonify(result)
 
+def getSoundArray():
+    """ Return list of available sounds as an array """
+    return os.listdir(praat._sounds_dir)
+
 @app.route('/list-sounds')
 def listSounds():
-    # Get a list of sound files available, as a JSON String
+    """ Get a list of sound files available, as a JSON String """
     response = {
-            "files": os.listdir(praat._sounds_dir)
+            "files": getSoundArray()
     }
     return jsonify(response)
 

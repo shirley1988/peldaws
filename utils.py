@@ -1,4 +1,5 @@
 from PIL import Image
+import os, re
 
 # Supported audio types. 
 # To add a format already supported by praat, just add the extension here
@@ -18,4 +19,11 @@ def resizeImage(image):
    img = Image.open(image)
    img.thumbnail((500,500), Image.ANTIALIAS)
    img.save(image, "PNG", quality=88)
+
+def deleteCachedImages(directory, prefix):
+   """ Delete cached images starting with prefix """
+   pattern = "^" + prefix + ".*"
+   for f in os.listdir(directory):
+       if re.search(pattern, f):
+           os.remove(os.path.join(directory, f))
 

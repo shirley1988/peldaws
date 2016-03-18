@@ -10,16 +10,16 @@ class TestPitchOps(unittest.TestCase):
         self.app = app.test_client()
 
     def test_countVoicedFrames(self):
-        result = self.app.get("/pitch/count-voiced-frames/sp1.wav");
+        result = self.app.get("/pitch/count-voiced-frames/Part1.mp3");
         data = str.strip(result.data)  # Remove trailing newlines
-        self.assertEqual(data, "226 voiced frames")
+        self.assertEqual(data, "1109 voiced frames")
         
     def test_pitchValueAtTime(self):
-        result = self.app.get("/pitch/value-at-time/sp1.wav/0.5");
+        result = self.app.get("/pitch/value-at-time/Part1.mp3/0.5");
         data = str.strip(result.data)
-        self.assertEqual(data, "168.02776306737476 Hz")
+        self.assertEqual(data, "209.77767831353125 Hz")
         
     def test_pitchValueInFrame(self):
-        result = self.app.get("/pitch/value-in-frame/sp1.wav/50");
+        result = self.app.get("/pitch/value-in-frame/Part1.mp3/50");
         data = str.strip(result.data)
-        self.assertEqual(data, "166.0978621084084 Hz")
+        self.assertEqual(data, "209.10986129338275 Hz")

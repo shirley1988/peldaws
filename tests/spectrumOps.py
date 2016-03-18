@@ -10,10 +10,10 @@ class TestSpectrumOps(unittest.TestCase):
 		self.app = app.test_client()
       
 	def test_spectrumFrequencyBounds(self):
-		result = self.app.get("/spectrum/get-bounds/sp1.wav");
+		result = self.app.get("/spectrum/get-bounds/Part1.mp3");
 
                 # Load json string as a dictionary
 		bounds = json.loads(result.data)
 
 		self.assertEqual(bounds["low"], 0)
-		self.assertEqual(bounds["high"], 8000)
+		self.assertEqual(bounds["high"], 22050)

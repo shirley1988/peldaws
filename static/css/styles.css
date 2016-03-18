@@ -1,3 +1,14 @@
+/*Author: Kevin Wu. 
+CSS497 Faculty Research Project: Introducing Praat as Web-Services for Endangered Language Analysis
+Winter 2016 
+
+Access the website : http://peldaws.westus.cloudapp.azure.com/
+
+The styles.css serve as the main css file for the web UI design. Most of the styling css
+are within this file besides few are direcly in-text styled. You can search for in-text styled
+object by simply search: "style" in the html file.  
+*/
+
 /************************************
  CSS for the whole content structure
  ************************************/
@@ -9,7 +20,6 @@
     height:  98px;
 	border-bottom: 5px solid #0c0000;
 }
-
 
 #checkboxes{
 	position: absolute;
@@ -500,8 +510,9 @@
 	position: absolute;
 	left: 410px;
 	top: 593px;
-	width: 500px;
+	width: 400px;
 	height:  35px;
+	background-color: #832626;
 }
 #selTimeLabel{
 	position: absolute;
@@ -564,8 +575,9 @@ a.source:visited {
 a.source:hover {
     color: #e10c76;
 }
-/****************************
-The lines*************/
+/******************************************************
+The lines that seperated the overall area 
+*******************************************************/
 
 hr {
     display: block;
@@ -574,10 +586,8 @@ hr {
 	border-top: 3px solid #000000;
 	margin: 1em -8px;
 	padding: 0;
-	width:  1345px;
-    
+	width:  1345px;   
 }
-
 
 div.split {
     position: relative;
@@ -599,7 +609,9 @@ div.split:after {
 	color: #000000;
 }
 
-
+/******************************************************
+The pop up box for selecting file from list 
+*******************************************************/
 .dumbBoxWrap { /* The div that shows/hides. */ 
 	 
 	display:none ; /* starts out hidden */ 
@@ -620,7 +632,7 @@ div.split:after {
    left:-110px; 
    height: 140px; 
    
-    /* Whatever width you want the box to be */ 
+   
    position:relative;
    margin:0 auto; /* Everything below is just visual styling */ 
    background-color:white; 

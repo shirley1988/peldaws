@@ -1,21 +1,12 @@
 <!DOCTYPE html>
 
 <!-- 
-http://peldaws.westus.cloudapp.azure.com/
+Author: Kevin Wu. 
+CSS497 Faculty Research Project: Introducing Praat as Web-Services for Endangered Language Analysis
+Winter 2016 
 
-Y range: 0~203 ,  237~439   237->236
-
-change x position 
-
-implement download for un-support
-
-change font of frequency, time 
-
-
- ******************settings 
+Access the website : http://peldaws.westus.cloudapp.azure.com/
 -->
-
-
 
 <html>
 	<head>
@@ -34,20 +25,11 @@ change font of frequency, time
 		
 		       $(document).ready(function() { 
 		       	   
-		           // bind 'myForm' and provide a simple callback function 
+		           // bind 'myForm' and provide a simple callback function while success 
 		           $('#myForm').ajaxForm({ 
 		           		success: showSoundInfo
 		           }); 
 		           
-		           
-		           //$("#upload").change(function(e){
-		           		//document.getElementById('fileName').innerHTML = this.files[0].name;		     
-		           		//document.getElementById('fileSize').innerHTML = formatSize(this.files[0].size, 2);
-		           		//document.getElementById('lastModifyDate').innerHTML = this.files[0].lastModifiedDate;	
-		           		
-		           //}); 
-		           	
-      
 		           $('#close').click(function() {
 		              $('.dumbBoxWrap').hide();
 		              }         
@@ -58,6 +40,7 @@ change font of frequency, time
 		              }         
 		           );  
 		           
+		           //detect if browser is safari 
 		           if(isSafari == true){
 		           	  $("#audio").css({left: 40,top:530}); 
 		           }; 
@@ -70,14 +53,13 @@ change font of frequency, time
 
 		<script type="text/javascript">
 		
-		
-		
-		
 		    var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
 
 			var drawSound = "/draw-sound/"; 
 			var listSound  = "/list-sounds";
 			var newURL = '';	
+			
+			//the selected sound object
 			var obj = {
 				name : 0,				
 				oriStart: 0,
@@ -126,15 +108,10 @@ change font of frequency, time
 			if(obj.checkSpectrogram == 1){
 				status += 'spectrogram&';
 			}
-			
-			
+	
 			return status;
 			}
 			
-			
-			
-			
-			<!-- Jcrop functions -->
 			function showSoundInfo(data){
 
 			  if(data.status.localeCompare('Success') == 0){
@@ -183,7 +160,7 @@ change font of frequency, time
 						newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
 						document.getElementById('selectNewFile').innerHTML='';
 						
-						// display new image!!!!!!!!!!!!!!!!!!!!!!!!!!!
+						// display new image
 						$('.jcrop-holder img').attr('src',newURL);
 						
 					    showTimes();
@@ -208,7 +185,7 @@ change font of frequency, time
 					});
 			}
 			
-			
+			//show the corresponding time the user has selected 
 			function showTimes(){
 				if(obj.selStart == 0 ){
 				document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp0';
@@ -272,6 +249,7 @@ change font of frequency, time
 				 	
 			}
 			
+			//change the position of the selection bar 
 			function changeSelectionBar(){
 			
 				if(obj.absoluteT1 == obj.absoluteT2){
@@ -333,7 +311,7 @@ change font of frequency, time
 				obj.selEnd = (start +obj.visuTime/2)+obj.visuTime/2*2 ;
 				
 	
-				 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatuss();
+				newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatuss();
 				obj.visuTime = obj.visuTime*2;
 				$('.jcrop-holder img').attr('src',newURL);
 				
@@ -524,14 +502,15 @@ change font of frequency, time
 				     	}	
 				     	
 				     	$('.jcrop-holder img').attr('src',newURL);	
-				     	
-				     	
+
 				     		    			    	
 				     });
 				     
 				     
-				    
-			<!-- for JCROP -->
+//******************************************************	
+//functions for the user interaction, the uploaded image		    
+<!-- Jcrop functions -->
+
 		    var api;
 
 		    $('#target').Jcrop({
@@ -559,6 +538,7 @@ change font of frequency, time
 		    api.setSelect([x1,x2,y1,y2]);
 		    });
 		     
+		     
 		    $("#sel").click(function(){		    	
 		    	if(obj.selT2 == obj.selT1){
 		    	
@@ -584,37 +564,30 @@ change font of frequency, time
 		    		else{
 		    		document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp'+ (obj.selStart).toFixed(6);
 		    		}
-		    		document.getElementById('showTimesRight').innerHTML= (obj.selEnd).toFixed(6);
-		    				    		
-		    		
+		    		document.getElementById('showTimesRight').innerHTML= (obj.selEnd).toFixed(6);		
 		    	}
-		    	
-		    	
-		    	
-		    	
 		    });
 		   
+		    //change the position of the selected area 
 		    function changeTransBox(){
 		    				  		
 		    		if(obj.selT1 == obj.selT2){
 		    	 		$("#transBox").removeClass('afterDisplay');
 		    		}
 		    		else{
-		    		if(obj.selT2 == 375){
-		    		$("#transBox").addClass('afterDisplay');
-		    		$("#transBox").css({left: obj.selT1+385.5, width: (375 -obj.selT1 - 2)});
-		    		return; 			
-		    		}
+		    			if(obj.selT2 == 375){
+		    				$("#transBox").addClass('afterDisplay');
+		    				$("#transBox").css({left: obj.selT1+385.5, width: (375 -obj.selT1 - 2)});
+		    				return; 			
+		    			}
 		    			$("#transBox").addClass('afterDisplay');
 		    			$("#transBox").css({left: obj.selT1+385.5, width: (obj.selT2-obj.selT1 - 2)});
 		    		
-		    		}
-		    		
+		    		}	
 		    		
 		    };	  	
 		   	
-		   
-		   	 	
+		    //function for onChange
 		  	function showCoords(c){
 		  	
 		  	if(obj.name.localeCompare(0) == 0){
@@ -716,13 +689,13 @@ change font of frequency, time
 		  	
 		  	};
 		  	
-		  	//remove c!!!!!!!!!!!!! 
+		  	//function for onSelect
 		  	function displayCoords(){	
 		  		api.release();
 		  		changeTransBox();		  		
 		  	};
 		  	
-		  	
+		  	//function for onRelease
 		  	function clearCoords(){
 		   		$('#coords input').val('');	
 		   			 		  				   			   		
@@ -732,7 +705,7 @@ change font of frequency, time
 		});
 		
 		
-		
+
 		function formatTime(s){
 			if(s == 0){
 		  	 return '0 s'; 
@@ -758,7 +731,8 @@ change font of frequency, time
 				
 
 
-
+//**********************************************************
+//functions for the left submenus 
 	    function getEnergy(){
 	    	if(obj.name.localeCompare('0') == 0){
 	    	
@@ -802,8 +776,6 @@ change font of frequency, time
 	    
 	    
 	    function getvat(){
-	    	
-	    	   
 	    	if ((obj.name.localeCompare('0') != 0)){
 	    	 	var time = prompt("Time(s): ", "0.5");
 	    	 	if(time != null){
@@ -815,8 +787,6 @@ change font of frequency, time
 	    	}
 	    }
 	    function getvif(){
-	    	
-	    	    
 	    	if ((obj.name.localeCompare('0')!= 0) ) {
 	    		var frame = prompt("Frame Number: ", "10");
 	    		if(frame != null){
@@ -824,17 +794,13 @@ change font of frequency, time
 		    		$.get(vif,function(data,status){
 		    			if(status.localeCompare("success") == 0){
 		    				alert(data);
-		    			}else{
-		    				
-		    			
-		    			}
+		    			}else{ }
 		    		});
 	    		}
 	    	}
 	    }
 	    
 	    function getlf(){
-	    	
 	    	if(obj.name.localeCompare('0') != 0){
 	    	
 	    		var lf  = "/spectrum/get-bounds/"+obj.name;
@@ -855,7 +821,6 @@ change font of frequency, time
 	    }
 	    
 	    function getIntensity(){
-	    
 	    	if(obj.absoluteT2){
 	    	
 	    		if(obj.absoluteT1 == obj.absoluteT2){ 
@@ -870,11 +835,7 @@ change font of frequency, time
 	    		});
 	    	
 	    	}
-	    	else{
-	    	
-	    	}
-	    	
-	    	
+	    	else{}
 	    }
 	    
 	    function getminI(){
@@ -905,8 +866,6 @@ change font of frequency, time
 	    	}
 	    }
 	    
-	    
-	    
 	    function getnof(){
 	    	if(obj.name.localeCompare('0') != 0){
 	    	
@@ -917,7 +876,8 @@ change font of frequency, time
 	    		});
 	    	}
 	    	
-	    }	 
+	    }
+	    	 
 	    function getnoformant(){
 	    
 	    	if ((obj.name.localeCompare('0')!= 0) ) {
@@ -928,17 +888,13 @@ change font of frequency, time
 	    			$.get(nofor,function(data,status){
 	    				if(status.localeCompare("success") == 0){
 	    					alert(data );
-	    				}else{
-	    			
-	    				}	
+	    				}else{}	
 	    			});
 	    		}
 	    	}
 	    }
 	    
-	    function getfat(){
-	    	
-	    	   
+	    function getfat(){ 
 	    	if ((obj.name.localeCompare('0') != 0)){
 	    	 	
 	    	 	var formant = prompt("Formant number: ", "1");
@@ -1028,11 +984,7 @@ change font of frequency, time
 	    			});
 	    		}
 	    	}
-	    
 	    }
-	    
-	    
-	    
 	    
 	    function save() {
 	    	if(obj.name.localeCompare(0)!=0){
@@ -1101,13 +1053,6 @@ change font of frequency, time
 
 
 
-
-
-
-
-
-
-
 	<body>
      
               
@@ -1134,8 +1079,6 @@ change font of frequency, time
 			    </form>
 			</div>
 			
-			
-						
 			
 			<button class= "selectFromList" id = "selectFromList"  data-toggle = "tooltip" title = "Select a sound file from the list.">Select from list</button>
 			
@@ -1172,9 +1115,7 @@ change font of frequency, time
 			<div  class = "menu">
 			    <button class= "mainmenu">Sound</button>
 			    	<div class = "drop-content">
-			    		<!--<a href = "javascript:void(0)"  onclick = "play();" >&nbsp; Play </a>-->
 			    		<a href = "javascript:void(0)" onclick = "getEnergy()">&nbsp; Get energy...  </a>
-			    		
 			    	</div>
 			</div>
 			<br><br>
@@ -1243,6 +1184,7 @@ change font of frequency, time
 			 	</div>
 			</div>
 		</div>
+		
 			<!-- IMAGE DISPLAY::  vertical lines and transbox inside the image   -->
 			<div class="verticalLine" id = "line1"></div> 
 			<div class="verticalLine" id = "line2"></div>
@@ -1263,6 +1205,7 @@ change font of frequency, time
 		
 		<div  id = "showIntensityRangeTop"></div>
 		<div  id = "showIntensityRangeBottom"></div>
+		
 		<div id = "blockTimes1">
 		&nbsp;
 		</div>
@@ -1284,7 +1227,7 @@ change font of frequency, time
 		<br><br>
 		
 		
-		
+		<!-- the print button -->
 		<input type='button' value='Print'  class = "printbox" onclick="window.print()"data-toggle = "tooltip" title = "Print the analyzed outcome.">
 					    
 		<!-- the checkboxes --> 
@@ -1297,7 +1240,7 @@ change font of frequency, time
 			
 	    </div>
 			
-		<!-- the buttons -->
+		<!-- the default buttons in Praat and the save button  -->
 		<button type = "button" onclick="save()" id = "Save" data-toggle = "tooltip" title = "Save the result of your analysis.">Save </button>
 		<button type = "button"  class = "bottomButton" id = "all" data-toggle = "tooltip" data-placement="auto top" title = "Display the whole spectrogram.">all </button>
 		<button type = "button"  class = "bottomButton" id = "in" data-toggle = "tooltip" data-placement="top" title = "Zoom in the spectrogram.">zoom in </button>

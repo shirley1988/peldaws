@@ -1,3 +1,14 @@
+/*Author: Kevin Wu. 
+CSS497 Faculty Research Project: Introducing Praat as Web-Services for Endangered Language Analysis
+Winter 2016 
+
+Access the website : http://peldaws.westus.cloudapp.azure.com/
+
+Print.css provides the application the ability tp print the analysis
+by only displaying the analyzed image on the printing screen. Other parts 
+inside the UI will be set to : display: none. 
+*/
+
 #above {
 display : none;
 }
@@ -6,7 +17,7 @@ display : none;
 }
 
 
-/* need modify */
+
 html, body{
     height:100%; 
     overflow: hidden;

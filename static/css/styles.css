@@ -12,6 +12,14 @@ object by simply search: "style" in the html file.
 /************************************
  CSS for the whole content structure
  ************************************/
+body
+{
+padding:0px;
+margin:0px;
+width:100%;
+height:100%;
+}
+
 #header {
     background-color: #ffffff;
     color:white;
@@ -19,6 +27,10 @@ object by simply search: "style" in the html file.
     padding:5px;
     height:  98px;
 	border-bottom: 5px solid #0c0000;
+	
+	
+	width:100%;
+	height:100%;
 }
 
 #checkboxes{
@@ -378,7 +390,7 @@ object by simply search: "style" in the html file.
 	margin: 0;
 	opacity: 1;
 	position: absolute;
-	top: 12px;
+	top: 7px;
 	padding: 20px 1px 1px;
 }
 .uploadFile input {
@@ -401,7 +413,7 @@ object by simply search: "style" in the html file.
 	text-align: center;
 	position:absolute;
 	left: 50px;
-	top:  60px;
+	top:  55px;
 	border-radius: 5px;
 	
 	
@@ -627,12 +639,12 @@ The pop up box for selecting file from list
  
  .dumbBox { /* The actual box, centered in the fixed-position div */ 
    width:405px;
-   top: -160px;
-   left:-110px; 
+   top: -150px;
+   left:330px; 
    height: 140px; 
    
    
-   position:relative;
+   position:absolute;
    margin:0 auto; /* Everything below is just visual styling */ 
    background-color:white; 
    padding:10px;

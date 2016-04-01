@@ -12,12 +12,12 @@ object by simply search: "style" in the html file.
 /************************************
  CSS for the whole content structure
  ************************************/
-body
+html,body
 {
 padding:0px;
 margin:0px;
-width:100%;
 height:100%;
+
 }
 
 #header {
@@ -25,12 +25,8 @@ height:100%;
     color:white;
     text-align:center;
     padding:5px;
-    height:  98px;
-	border-bottom: 5px solid #0c0000;
-	
-	
-	width:100%;
-	height:100%;
+    
+	border-bottom: 5px solid #0c0000;	
 }
 
 #checkboxes{
@@ -242,7 +238,7 @@ height:100%;
 
 #blockTimes2{
 	position:  absolute;
-	top: 338.5px;
+	top: 337.5px;
 	left: 350px;
 	width: 440px;
 	background-color: #ffffff;
@@ -290,8 +286,8 @@ height:100%;
  ***************************/
  
  #leftMenuBar{
- 	position : relative;
- 	top:  25px ;
+ 	position : absolute;
+ 	top: 145px ;
  	left:  50px;
  }
  
@@ -482,24 +478,24 @@ height:100%;
 #all{
 	position: absolute;
 	top: 630px;
-	left: 400px;
-	width: 70px;
+	left: 372px;
+	width: 80px;
 	border: 1px solid #000000;
 	border-radius: 5px;
 }
 #in{
 	position: absolute;
 	top: 630px;
-	left: 490px;
-	width: 70px;
+	left: 472px;
+	width: 80px;
 	border: 1px solid #000000;
 	border-radius: 5px;
 }
 #out{
 	position: absolute;
 	top: 630px;
-	left: 580px;
-	width: 70px;
+	left: 572px;
+	width: 80px;
 	border: 1px solid #000000;
 	border-radius: 5px;
 }
@@ -507,8 +503,8 @@ height:100%;
 #sel{
 	position: absolute;
 	top: 630px;
-	left: 670px;
-	width: 70px;
+	left: 672px;
+	width: 80px;
 	border: 1px solid #000000;
 	border-radius: 5px;
 }
@@ -592,12 +588,17 @@ The lines that seperated the overall area
 
 hr {
     display: block;
+
     height: 1px;
     border: 0;
 	border-top: 3px solid #000000;
 	margin: 1em -8px;
 	padding: 0;
 	width:  1345px;   
+}
+div.hori{
+	position: relative;
+	height: 50%;
 }
 
 div.split {

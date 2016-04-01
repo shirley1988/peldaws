@@ -40,6 +40,14 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		              }         
 		           );  
 		           
+		           var isIE = /*@cc_on!@*/false;
+		           if(isIE){
+		               //The browser is IE.
+		             alert('Dear user\nThe website is currently not supported in IE.Please consider using other browsers such as Firefox, Safari, or Chrome.\nSorry for the inconvenience!');
+		           }else{
+		               
+		           }   
+		           
 		           //detect if browser is safari 
 		           if(isSafari == true){
 		           	  $("#audio").css({left: 40,top:530}); 
@@ -1066,7 +1074,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			<!-- the vertical split line -->
 			<div class="split"></div>
 			<!-- the horizontal split line -->
-			<div ><br> <br> </div> <hr >
+			<div class = "hori"><br><br> <hr > </div> 
 			
 			
 			

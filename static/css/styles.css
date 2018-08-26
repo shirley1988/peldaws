@@ -2,7 +2,11 @@
 CSS497 Faculty Research Project: Introducing Praat as Web-Services for Endangered Language Analysis
 Winter 2016 
 
-Access the website : http://peldaws.westus.cloudapp.azure.com/
+Co-author: Archana Dhere
+CSS595 CSSE Capstone Project: Cloud-based web services using ELAN
+
+Access the website for only Praat: http://peldaws.westus.cloudapp.azure.com/ 
+Access the website for ELAN and Praat: http://peldaws2.westus.cloudapp.azure.com/
 
 The styles.css serve as the main css file for the web UI design. Most of the styling css
 are within this file besides few are direcly in-text styled. You can search for in-text styled
@@ -31,7 +35,7 @@ height:100%;
 
 #checkboxes{
 	position: absolute;
-	left: 830px;
+	left: 1150px;
 	top: 140px;
 	line-height: 35px;
 	width:  300px;
@@ -127,6 +131,14 @@ height:100%;
 	font-size: 12px;
 	width: 200px;
 }
+#eaffileSelection{
+	position: absolute;
+	left: 15px;
+	top: 43px;
+	max-width:90%;
+	font-size: 12px;
+	width: 200px;
+}
 #select{
 	border-radius: 5px;
 	position: absolute;
@@ -145,6 +157,14 @@ height:100%;
 	font-size: 14px;
 }
 
+#closeeaf{
+	border-radius: 5px;
+	position: absolute;
+	right: 20px;
+	top: 43px;
+	background-color: #d1cccc;
+	font-size: 14px;
+}
 
 /**************************
  CSS for the Images 
@@ -165,10 +185,32 @@ height:100%;
 	left: 340px;
 }
 
+#interactImage{
+	z-index: 1;
+}
+
+#animation{
+	position: absolute;
+	top: 10px;
+	left: 77px;
+	width: 2px;
+	height: 202px;
+	background-color: red;	
+}
+
+.hidden{
+    display:none;
+}
+
+.unhidden{
+    display:block;
+}
+/**/
+
 #showPitchRangeTop{
 	position: absolute;
 	top: 372px;
-	left: 763px;
+	left: 1080px;
 	z-index: 1;
 	color: #1c1efe;
 	width: 100px;
@@ -176,7 +218,7 @@ height:100%;
 #showPitchRangeBottom{
 	position: absolute;
 	top: 555px;
-	left: 763px;
+	left: 1080px;
 	z-index: 1;
 	color: #1c1efe;
 	width: 50px;
@@ -185,7 +227,7 @@ height:100%;
 #showIntensityRangeTop{
 	position: absolute;
 	top: 372px;
-	left: 707px;
+	left: 1020px;
 	z-index: 1;
 	color: #0eca03;
 	width:  100px;
@@ -194,7 +236,7 @@ height:100%;
 #showIntensityRangeBottom{
 	position: absolute;
 	top: 555px;
-	left: 724px;
+	left: 1037px;
 	z-index: 1;
 	color: #0eca03;
 	width:  100px;
@@ -224,7 +266,7 @@ height:100%;
 	word-spacing: 100px 
 	z-index:  3;
 	color: #f90606;
-	width:  375px;
+	width:  695px;
 }
 
 #blockTimes1{
@@ -256,7 +298,7 @@ height:100%;
 #showTimesRight{
 	position:  absolute;
 	top: 575px;
-	left: 756px;
+	left: 1070px;
 	font-size: 11px;
 }
 
@@ -265,7 +307,8 @@ height:100%;
 	position: absolute;
 	top: 131px;
 	border-left: 2px dotted #fe0909;
-	height:  440px;
+	/*height:  440px;*/
+	height:  200px;
 	left: 0;
 	z-index: 3;
 }
@@ -273,7 +316,8 @@ height:100%;
 .afterDisplay{
 	position: absolute;
 	top: 133px;
-	height:  438px;
+	/*height:  438px;*/
+	height:  200px;
 	
 	z-index: 5;
 	opacity: 0.6;
@@ -321,6 +365,21 @@ height:100%;
 	border: 1px solid #131212;
 	
 	text-align: center;
+	position: relative;
+	border-radius: 5px;
+}
+
+.mainmenu_ann{
+	background-color: white;
+	
+	color: black;
+	font-size: 14px;
+	cursor: pointer;
+	height: 35px;
+	width: 130px;
+	border: 1px solid #131212;
+	
+	text-align: left;
 	position: relative;
 	border-radius: 5px;
 }
@@ -447,7 +506,7 @@ height:100%;
 	float: right;
 	display: block;
 	position: absolute;
-	left: 830px;
+	left: 1150px;
 	top: 548px;
 	width: 110px;
 	height: 25px;
@@ -464,7 +523,7 @@ height:100%;
 	float: right;
 	display: block;
 	position: absolute;
-	left: 830px;
+	left: 1150px;
 	top: 580px;
 	width: 110px;
 	height: 25px;
@@ -475,10 +534,284 @@ height:100%;
 	background-color: #aaa5a5;
 }
 
+/*style added on 1/9 for play button*/
+.playbox{
+	border: 1px solid #0a0000;
+	font-size: 16px;
+	float: right;
+	display: block;
+	position: absolute;
+	left: 1150px;
+	top: 510px;
+	width: 110px;
+	height: 25px;
+	border-radius: 5px;
+}
+
+.playbox:hover{
+	background-color: #aaa5a5;
+}
+
+/*
+.fileinput{
+	border: 1px solid #0a0000;
+	font-size: 16px;
+	float: right;
+	display: block;
+	position: absolute;
+	left: 1150px;
+	top: 478px;
+	width: 105px;
+	height: 27px;
+	border-radius: 5px;
+}
+
+.fileinput:hover{
+	background-color: #aaa5a5;
+}
+
+*/
+.choosebox{
+	border: 1px solid #0a0000;
+	font-size: 16px;
+	float: right;
+	display: block;
+	position: absolute;
+	left: 1150px;
+	top: 480px;
+	width: 110px;
+	height: 25px;
+	border-radius: 5px;
+}
+
+.choosebox:hover{
+	background-color: #aaa5a5;
+}
+
+/*
+.viewWaveform{
+	border: 1px solid #0a0000;
+	font-size: 16px;
+	float: right;
+	display: block;
+	position: absolute;
+	left: 1150px;
+	top: 350px;
+	width: 125px;
+	height: 25px;
+	border-radius: 5px;
+}
+
+.viewWaveform:hover{
+	background-color: #aaa5a5;
+}
+
+.addtier{
+	border: 1px solid #0a0000;
+	font-size: 16px;
+	float: right;
+	display: block;
+	position: absolute;
+	left: 1150px;
+	top: 380px;
+	width: 110px;
+	height: 25px;
+	border-radius: 5px;
+}
+
+.addtier:hover{
+	background-color: #aaa5a5;
+}
+
+.removetier{
+	border: 1px solid #0a0000;
+	font-size: 16px;
+	float: right;
+	display: block;
+	position: absolute;
+	left: 1270px;
+	top: 380px;
+	width: 110px;
+	height: 25px;
+	border-radius: 5px;
+}
+
+.removetier:hover{
+	background-color: #aaa5a5;
+}
+
+.saveannotation{
+	border: 1px solid #0a0000;
+	font-size: 16px;
+	float: right;
+	display: block;
+	position: absolute;
+	left: 1150px;
+	top: 410px;
+	width: 130px;
+	height: 25px;
+	border-radius: 5px;
+}
+
+.saveannotation:hover{
+	background-color: #aaa5a5;
+}
+
+.getannotationvalue{
+	border: 1px solid #0a0000;
+	font-size: 16px;
+	float: right;
+	display: block;
+	position: absolute;
+	left: 1150px;
+	top: 440px;
+	width: 120px;
+	height: 25px;
+	border-radius: 5px;
+}
+
+.getannotationvalue:hover{
+	background-color: #aaa5a5;
+}
+
+*/
+
+
+#annotationRect{
+	position: absolute;
+	top: 250px;
+	left: 77px;
+	width:659px;
+	height:200px;
+	border:1px solid #000;
+	z-index:-1;
+}
+
+#tier1label{
+	position: absolute;
+	top: 15px;
+	left: -50px;
+	z-index:-1;
+}
+
+#tierRect1{
+	position: absolute;
+	top: 15px;
+	left: 0px;
+	width:659px;
+	height:50px;
+	border:1px solid lightgrey;
+	z-index:-1;
+}
+
+#tier2label{
+	position: absolute;
+	top: 70px;
+	left: -50px;
+	z-index:-1;
+}
+
+#tierRect2{
+	position: absolute;
+	top: 70px;
+	left: 0px;
+	width:659px;
+	height:50px;
+	border:1px solid lightgrey;
+	z-index:-1;
+}
+
+#tier3label{
+	position: absolute;
+	top: 125px;
+	left: -50px;
+	z-index:-1;
+}
+
+#tierRect3{
+	position: absolute;
+	top: 125px;
+	left: 0px;
+	width:659px;
+	height:50px;
+	border:1px solid lightgrey;
+	z-index:-1;
+}
+
+#TextBoxesGroup{
+	position: absolute;
+}
+
+#TextBoxDiv1{
+	position: absolute;
+	top: 120px;
+	left: 420px;
+	/*padding-left: 20px;*/
+}
+
+/*#textbox1{
+	position: absolute;
+	height: 25px;
+	width: 50px;
+}*/
+
+#TextBoxDiv2{
+	position: absolute;
+	top: 175px;
+	left: 420px;
+}
+
+#textbox2{
+	position: absolute;
+	height: 25px;
+	width: 50px;
+}
+
+#TextBoxDiv3{
+	position: absolute;
+	top: 230px;
+	left: 420px;
+}
+
+#textbox3{
+	position: absolute;
+	height: 25px;
+	width: 50px;
+}
+/*.textline1{
+	width = 250px;
+        outline: none;
+        outline-style: none;
+        outline-offset: 0;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: solid #FF0000 1px;
+        padding: 3px 10px;
+}*/
+/*
+#textbox2{
+	position: absolute;
+	top: 15px;
+	left: 48px;
+	height: 25px;
+	width: 656px;
+}
+
+#textbox3{
+	position: absolute;
+	top: 30px;
+	left: 48px;
+	height: 25px;
+	width: 656px;
+}*/
+
+/**/
+
 #all{
 	position: absolute;
 	top: 630px;
-	left: 372px;
+	left: 400px;
 	width: 80px;
 	border: 1px solid #000000;
 	border-radius: 5px;
@@ -486,7 +819,7 @@ height:100%;
 #in{
 	position: absolute;
 	top: 630px;
-	left: 472px;
+	left: 500px;
 	width: 80px;
 	border: 1px solid #000000;
 	border-radius: 5px;
@@ -494,7 +827,7 @@ height:100%;
 #out{
 	position: absolute;
 	top: 630px;
-	left: 572px;
+	left: 600px;
 	width: 80px;
 	border: 1px solid #000000;
 	border-radius: 5px;
@@ -503,7 +836,7 @@ height:100%;
 #sel{
 	position: absolute;
 	top: 630px;
-	left: 672px;
+	left: 700px;
 	width: 80px;
 	border: 1px solid #000000;
 	border-radius: 5px;
@@ -524,13 +857,13 @@ height:100%;
 #selTimeLabel{
 	position: absolute;
 	left: 450px;
-	top: 98px;
+	top: 90px;
 	width: 500px;
 }
 
 #sourceCode{
 	position: absolute;
-	top: 540px;
+	top: 560px;
 	left: 40px;
 	display: inline-block;
 	z-index: -2;
@@ -539,7 +872,16 @@ height:100%;
     display: inline;
 	position: absolute;
 	left: 40px;
-	top: 575px;
+	top: 595px;
+	font-size: 14 px;
+	float: right;
+}
+
+#sourceLinkElan{
+    display: inline;
+	position: absolute;
+	left: 40px;
+	top: 615px;
 	font-size: 14 px;
 	float: right;
 }
@@ -547,7 +889,7 @@ height:100%;
 #otherSource{
 
 	position: absolute;
-	top: 580px;
+	top: 630px;
 	left: 40px;
 }
 
@@ -556,7 +898,7 @@ height:100%;
     display: inline;
 	position: absolute;
 	left: 40px;
-	top: 615px;
+	top: 665px;
 	font-size: 14 px;
 	float: right;
 }
@@ -564,7 +906,7 @@ height:100%;
     display: inline;
 	position: absolute;
 	left: 40px;
-	top: 635px;
+	top: 685px;
 	font-size: 14 px;
 	float: right;
 }
@@ -630,6 +972,12 @@ The pop up box for selecting file from list
 	z-index:40001; /* High z-index to ensure it appears above all content */ 
 } 
 
+.eafBoxWrap { /* The div that shows/hides. */ 
+	 
+	display:none ; /* starts out hidden */ 
+	z-index:40001; /* High z-index to ensure it appears above all content */ 
+} 
+
 
 .vertical-offset { /* Fixed position to provide the vertical offset */ 
 	position:fixed; 
@@ -654,4 +1002,20 @@ The pop up box for selecting file from list
  	box-shadow: 1px 1px #b4adad;
  }
  
+ .eafBox { /* The actual box, centered in the fixed-position div */ 
+   width:405px;
+   top: -150px;
+   left:330px; 
+   height: 140px; 
+   
+   
+   position:absolute;
+   margin:0 auto; /* Everything below is just visual styling */ 
+   background-color:white; 
+   padding:10px;
+ 	border: 2px solid black;
+ 	-moz-box-shadow: 1px 1px #b4adad;
+ 	box-shadow: 1px 1px #b4adad;
+ }
  
+

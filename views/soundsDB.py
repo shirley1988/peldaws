@@ -54,4 +54,3 @@ def listSounds():
             "files": getSoundArray()
     }
     return jsonify(response)
-

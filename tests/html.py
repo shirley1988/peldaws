@@ -13,6 +13,10 @@ class TestHTML(unittest.TestCase):
         result = self.app.get("/")
         assert "<html>" in result.data
 
-    def test_apidocs(self):
-        result = self.app.get("/apidocs")
+    def test_Praatapidocs(self):
+        result = self.app.get("/Praatapidocs")
+        assert "<html>" in result.data
+
+    def test_ELANapidocs(self):
+        result = self.app.get("/ELANapidocs")
         assert "<html>" in result.data

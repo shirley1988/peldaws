@@ -1,0 +1,342 @@
+<html>
+   <head>
+      <title>ELAN Web-Services API Documentation</title>
+
+      <style>
+           table thead td {
+              font-weight: bold;
+           }
+           table, th, td {
+              border: 1px solid black;
+           }
+           table {
+              border-collapse: collapse;
+           }
+      </style>
+   </head>
+
+   <body>
+       <h2>ELAN Web-Services</h2>
+       <p>The web services described below will allow you to run commonly used annotation functions in ELAN over HTTP. To access them, use any HTTP capable client. Most platforms have REST client implementations.
+       In a web-application, you can use ajax to access these services. </p>
+       <p>The services are currently hosted at <a href="http://peldaws2.westus.cloudapp.azure.com/">http://peldaws2.westus.cloudapp.azure.com/</a>.
+       To access any of the services below, append the service URL to the server address.
+       For example, to get a list of sounds, query <a href="http://peldaws2.westus.cloudapp.azure.com/list-sounds">http://peldaws2.westus.cloudapp.azure.com/list-sounds</a> </p>
+       
+       <h3>1. Upload Sound</h3>
+       Upload a new sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>POST</td>
+          <td>upload-sound</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Response</h4>
+       JSON Object:<br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"status": Status Message,<br/>
+       &nbsp;&nbsp;&nbsp;"sound": fileName<br/>
+       }<br/>
+       The status message above will be "Success" if upload succeeded. <br/>
+       If no file was uploaded, status will be "No sound file"<br/>
+       If file does not have a recognized extension, status will be "Unknown file type"<br/>
+       The fileName will be the original filename of the uploaded file.
+
+       <h3>2. List Sounds</h3>
+       Return list of sound files
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/list-sounds</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Response</h4>
+       JSON Object:<br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"files": [list-of-files]<br/>
+       }<br/>
+       list-of-files is a python list of file-names as strings.
+ 
+       <h3>3. Draw ELAN Waveform</h3>
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/draw-elan/&lt;sound&gt;/&lt;startTime&gt;/&lt;endTime&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>startTime</td>
+          <td>Number</td>
+          <td>Location in seconds from which to start drawing</td>
+       </tr>
+       <tr>
+          <td>endTime</td>
+          <td>Number</td>
+          <td>Location in seconds at which the drawing ends. Use 0 to draw till the end of the file</td>
+       </tr>
+       </tbody>
+       </table>
+       
+       <h4>Response</h4>
+       A png image of the drawing
+
+       <h3> 4. Get Bounds</h3>
+       Get boundaries of a sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/get-bounds/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       A JSON object: <br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"start": Start Time (Almost always 0.0),<br/>
+       &nbsp;&nbsp;&nbsp;"end": End Time in seconds,<br/>
+       &nbsp;&nbsp;&nbsp;"min": Minimum amplitude,<br/>
+       &nbsp;&nbsp;&nbsp;"max": Maximum amplitude<br/>
+       }<br/>
+
+       <h3>5. Play Sound</h3>
+       Returns the sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/play/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Returns the sound file with content-type audio/wav or audio/mp3
+
+
+
+       <h3>6. List EAF files</h3>
+       Return list of EAF files
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/list-eafs</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Response</h4>
+       JSON Object:<br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"files": [list-of-files]<br/>
+       }<br/>
+       list-of-files is a python list of file-names as strings.
+
+
+
+       <h3>7. Read EAF files</h3>
+       Returns the string after reading an EAF file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/read-eaf/&lt;eaffilename&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>eaffilename</td>
+          <td>String</td>
+          <td>Name of an existing EAF file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Returns the EAF file content in a string
+
+
+       <h3>8. Add Annotation</h3>
+       Add annotation for a segment of audio file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/annotation/time-selection/&lt;sound&gt;/&lt;ltype&gt;/&lt;start&gt;/&lt;end&gt;/&lt;text0&gt;/?&lt;Optional_parameters&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+	<tr>
+          <td>ltype</td>
+          <td>String</td>
+          <td>Linguistic Type for audio files. Default value - TimeSubdivision-lt</td>
+       </tr>
+	<tr>
+          <td>start</td>
+          <td>Number</td>
+          <td>Location in seconds where annotation starts</td>
+       </tr>
+       <tr>
+          <td>end</td>
+          <td>Number</td>
+          <td>Location in seconds where annotation ends</td>
+       </tr>
+       <tr>
+          <td>text0</td>
+          <td>String</td>
+          <td>Text for default tier (Tier1)</td>
+       </tr>
+       <tr>
+          <td>text1</td>
+          <td>String</td>
+          <td>Text for second tier (Tier2)</td>
+       </tr>
+       <tr>
+          <td>text2</td>
+          <td>String</td>
+          <td>Text for third tier (Tier3)</td>
+       </tr>
+       </tbody>
+       </table>
+
+       <h4>Response</h4>
+       Returns the content of the EAF file created
+
+
+   </body>
+</html>

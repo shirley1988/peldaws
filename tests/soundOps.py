@@ -35,3 +35,11 @@ class TestSoundOps(unittest.TestCase):
         # Check if file being downloaded is an mp3 audio
         self.assertEqual(result.content_type, "audio/mp3")
 
+    def test_drawElan(self):
+        result = self.app.get("/draw-elan/sp1.wav/1/4/")
+        self.assertEqual(result.content_type, "image/png")
+
+    def test_annotationTimeSelection(self):
+        result = self.app.get("/annotation/time-selection/sp1.wav/TimeSubdivision-lt/1/4/tetst/test2/test3")
+        data = str.strip(result.data)
+        self.assertEqual(data, "sp1")

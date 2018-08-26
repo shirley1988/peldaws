@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 
 <!-- 
-Author: Kevin Wu. 
-CSS497 Faculty Research Project: Introducing Praat as Web-Services for Endangered Language Analysis
-Winter 2016 
+http://peldaws.westus.cloudapp.azure.com/ (Just Praat)
+http://peldaws2.westus.cloudapp.azure.com/ (ELAN + Praat)
 
-Access the website : http://peldaws.westus.cloudapp.azure.com/
+Y range: 0~203 ,  237~439   237->236
+
+change x position 
+
+implement download for un-support
+
+change font of frequency, time 
+
+
+ ******************settings 
 -->
+
+
 
 <html>
 	<head>
@@ -16,7 +26,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		
 		<script src="js/jquery.min.js"></script>
 		<script src="js/jquery.Jcrop.min.js"></script>
-		<script src="http://malsup.github.com/jquery.form.js"></script>
+		<script src="js/jquery.form.js"></script>
 		
 		<link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
 		
@@ -25,49 +35,152 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		
 		       $(document).ready(function() { 
 		       	   
-		           // bind 'myForm' and provide a simple callback function while success 
+		           // bind 'myForm' and provide a simple callback function 
 		           $('#myForm').ajaxForm({ 
 		           		success: showSoundInfo
 		           }); 
 		           
+		           
+		           //$("#upload").change(function(e){
+		           		//document.getElementById('fileName').innerHTML = this.files[0].name;		     
+		           		//document.getElementById('fileSize').innerHTML = formatSize(this.files[0].size, 2);
+		           		//document.getElementById('lastModifyDate').innerHTML = this.files[0].lastModifiedDate;	
+		           		
+		           //}); 
+		           	
+      
 		           $('#close').click(function() {
 		              $('.dumbBoxWrap').hide();
 		              }         
 		           );
 		           
+		           $('#closeeaf').click(function() {
+		              $('.eafBoxWrap').hide();
+		              }         
+		           );
+
 		           $('#selectFromList').click(function() {
 		              displayList();
 		              }         
 		           );  
-		           
-		           var isIE = /*@cc_on!@*/false;
-		           if(isIE){
-		               //The browser is IE.
-		             alert('Dear user\nThe website is currently not supported in IE.Please consider using other browsers such as Firefox, Safari, or Chrome.\nSorry for the inconvenience!');
-		           }else{
-		               
-		           }   
-		           
-		           //detect if browser is safari 
+  	           
+			   $('#choosebox').click(function() {
+		              displayEafList();
+		              }         
+		           ); 
+
 		           if(isSafari == true){
 		           	  $("#audio").css({left: 40,top:530}); 
 		           }; 
 		           
 		           
 		        });
+
+		
+
+			$(document).ready(function(){
+
+			    var counter = 1;
+
+			    $("#addButton").click(function () {
+
+				if(counter>3){
+				    alert("Only 3 tiers allowed");
+				    return false;
+				}
+
+
+				//previously, used to call addannotation function to retrive text for annotation
+				//var defAnnoText = addAnnotation();
+				//var startT = obj.annStart;
+				//var endT = prompt("Enter End Time (s): ", "1");
+				//var endT = obj.annEnd;
+				//var defAnnoText = prompt("Enter Annotation Text: ", "Sample Text");
+
+
+				/*newTextBoxDiv.after().html('<label>Tier'+ counter + ' </label>'+
+				      '<input type="text" name="textbox' + counter +
+				      '" id="textbox' + counter + '" class="textline' +counter+ '" value="" > ');*/
+				var totalT = getTotalTime();
+				var startT = getStartTime();
+				var endT = getEndTime();
+				var selectedT = getSelectedTime();
+
+				var pixelpersec = Math.floor(427/totalT);
+				//alert("pixel per sec"+pixelpersec);
+				var startpixel = Math.floor(startT*pixelpersec);
+				//alert("padding from start"+startpixel);
+				var endpixel = Math.floor(endT*pixelpersec);
+				//alert("end of textbox at"+endpixel);
+				var widthpixel =  Math.floor(selectedT*pixelpersec);
+				//endpixel-startpixel;
+				//alert("width of textbox"+widthpixel);
+				var actualwidth = widthpixel-10;
+
+
+				if(selectedT<1){
+					alert("Selected time window should be greater than 1sec!");
+					return false;	
+				}
+
+				var newTextBoxDiv = $(document.createElement('div'))
+				     .attr("id", 'TextBoxDiv' + counter);
+
+				//document.getElementById("TextBoxDiv"+counter.toString()).style.paddingLeft = startpixel.toString() + "px";
+
+				//styles.insertRule("#TextBoxDiv1 {padding-left = " + startpixel.toString() + "px }",3);
+
+				/*var css = document.createElement("style");
+				css.type = "text/css";
+				css.innerHTML = "TextBoxDiv1 { padding-left:"++ " }";
+				document.body.appendChild(css);*/
+
+				newTextBoxDiv.after().html('<input style="color:blue; position: absolute; height: 25px; width:'+ actualwidth+ 'px;" type="text" name="textbox' + counter + '" id="textbox' + counter + '" class="textline' +counter+ '" value="" > ');
+				
+				newTextBoxDiv.appendTo("#TextBoxesGroup");
+
+				counter++;
+			     });
+
+			     $("#removeButton").click(function () {
+				if(counter==1){
+				  alert("No tiers to remove");
+				  return false;
+			       }
+
+				counter--;
+
+				$("#TextBoxDiv" + counter).remove();
+
+			     });
+
+			     $("#getButtonValue").click(function () {
+
+				var msg = '';
+				for(i=1; i<counter; i++){
+			   	  msg += "\n Tier" + i + " : " + $('#textbox' + i).val();
+				}
+			    	  alert(msg);
+			     });
+			  });
+
 		        		         
 		</script> 
 		
 
 		<script type="text/javascript">
 		
+		
+		
+		
 		    var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
 
 			var drawSound = "/draw-sound/"; 
 			var listSound  = "/list-sounds";
-			var newURL = '';	
-			
-			//the selected sound object
+			var listEaf = "/list-eafs";
+			var newURL = '';
+			var annText = '';
+
 			var obj = {
 				name : 0,				
 				oriStart: 0,
@@ -75,6 +188,10 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 				   
 				totalTime: 0,
 				visuTime: 0,
+
+				annSelTime: 0,
+				annStart: 0,
+				annEnd: 0,
 				
 				checkPitch: 1,
 				minPitch:75,
@@ -116,10 +233,15 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			if(obj.checkSpectrogram == 1){
 				status += 'spectrogram&';
 			}
-	
+			
+			
 			return status;
 			}
 			
+			
+			
+			
+			<!-- Jcrop functions -->
 			function showSoundInfo(data){
 
 			  if(data.status.localeCompare('Success') == 0){
@@ -143,7 +265,6 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 				document.getElementById('fileName').innerHTML = obj.name;
 					$.get(audio.src,function(data, status){
 					
-						     		
 					document.getElementById('fileSize').innerHTML = formatSize(Number(data.length), 2);
 					});
 					
@@ -168,7 +289,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 						newURL = drawSound+obj.oriStart+"/"+obj.oriEnd+"/"+checkStatuss();
 						document.getElementById('selectNewFile').innerHTML='';
 						
-						// display new image
+						// display new image!!!!!!!!!!!!!!!!!!!!!!!!!!!
 						$('.jcrop-holder img').attr('src',newURL);
 						
 					    showTimes();
@@ -193,7 +314,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 					});
 			}
 			
-			//show the corresponding time the user has selected 
+			
 			function showTimes(){
 				if(obj.selStart == 0 ){
 				document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp0';
@@ -207,7 +328,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			
 			
 			function displayLimitRange(){			
-				displayFrequency();	
+				//displayFrequency();	
 						if((obj.checkPitch + obj.checkIntensity) == 0){
 							document.getElementById('showIntensityRangeTop').innerHTML= '';
 							document.getElementById('showIntensityRangeBottom').innerHTML= '';
@@ -257,27 +378,28 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 				 	
 			}
 			
-			//change the position of the selection bar 
 			function changeSelectionBar(){
 			
 				if(obj.absoluteT1 == obj.absoluteT2){
 				    $("#line2").removeClass('afterClick');
 				    $("#line1").removeClass('afterClick');
 				    
-					if((obj.absoluteT1 > obj.selStart) && (obj.absoluteT1 < obj.selEnd) ){
+				if((obj.absoluteT1 > obj.selStart) && (obj.absoluteT1 < obj.selEnd) ){
 					$("#line1").addClass('afterClick');
-					$("#line1").css({left: (384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart)),position:'absolute'});
-					}
+					//$("#line1").css({left: (384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart)),position:'absolute'});
+					$("#line1").css({left: (384+616/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart)),position:'absolute'});
+				}
 					showTimes();
 					return;
-			    }
+			    	}
 			    
 				var transt1;
 				var transt2;
 				
 				if(obj.absoluteT1 >= obj.selStart){
 					$("#line1").addClass('afterClick');
-					transt1 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart);
+					//transt1 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart);
+					transt1 = 384+616/(obj.selEnd-obj.selStart)*(obj.absoluteT1-obj.selStart);
 					$("#line1").css({left: transt1 ,position:'absolute'});
 				
 				}else if(obj.absoluteT1 < obj.selStart){
@@ -293,12 +415,14 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 				
 				if(obj.absoluteT2 <= obj.selEnd){
 					$("#line2").addClass('afterClick');
-					transt2 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT2-obj.selStart);
+					//transt2 = 384+375/(obj.selEnd-obj.selStart)*(obj.absoluteT2-obj.selStart);
+					transt2 = 384+616/(obj.selEnd-obj.selStart)*(obj.absoluteT2-obj.selStart);
 					$("#line2").css({left: transt2, position:'absolute'});
 				
 				}
 				else if(obj.absoluteT2 > obj.selEnd){
-					transt2 = 759;
+					//transt2 = 759;
+					transt2 = 1000;
 					$("#line2").removeClass('afterClick');
 					if(obj.absoluteT1 > obj.selEnd){
 						$("#line1").removeClass('afterClick');
@@ -319,7 +443,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 				obj.selEnd = (start +obj.visuTime/2)+obj.visuTime/2*2 ;
 				
 	
-				newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatuss();
+				 newURL = drawSound+obj.selStart+"/"+obj.selEnd+"/"+checkStatuss();
 				obj.visuTime = obj.visuTime*2;
 				$('.jcrop-holder img').attr('src',newURL);
 				
@@ -510,15 +634,14 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 				     	}	
 				     	
 				     	$('.jcrop-holder img').attr('src',newURL);	
-
+				     	
+				     	
 				     		    			    	
 				     });
 				     
 				     
-//******************************************************	
-//functions for the user interaction, the uploaded image		    
-<!-- Jcrop functions -->
-
+				    
+			/* for JCROP */
 		    var api;
 
 		    $('#target').Jcrop({
@@ -529,13 +652,16 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			  
 		    },function(){
 			  $('#target').Jcrop({ allowResize:false });
-			  $('#target').Jcrop({ allowMove:false });
-		      $('#cropbox').Jcrop({ trueSize: [427,487] });
+			  $('#target').Jcrop({ allowMove:true });
+		      //$('#cropbox').Jcrop({ trueSize: [427,487] });
+			$('#cropbox').Jcrop({ boxWidth: 750, boxHeight: 300 }); 
 		      $('#target').Jcrop({ bgOpacity:1});
 		      api = this;
 		      
 		    });
-    
+
+
+
 		    $('#coords').on('change','input',function(e){
 		       
 		      var x1 = $('#x1').val(),
@@ -545,7 +671,6 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		       
 		    api.setSelect([x1,x2,y1,y2]);
 		    });
-		     
 		     
 		    $("#sel").click(function(){		    	
 		    	if(obj.selT2 == obj.selT1){
@@ -562,9 +687,11 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		    		api.release();
 		    		$('.jcrop-holder img').attr('src',newURL);	
 		    		$("#line1").css({left: 384, position:'absolute'});
-		    		$("#line2").css({left: 759, position:'absolute'});
+		    		//$("#line2").css({left: 759, position:'absolute'});
+		    		$("#line2").css({left: 1000, position:'absolute'});
 		    		
 		    		$("#transBox").css({left: 385.5, width: 374});
+		    		//$("#transBox").css({left: 600, width: 374});
 		    		
 		    		if(obj.selStart == 0 ){
 		    		document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp0';
@@ -572,30 +699,38 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		    		else{
 		    		document.getElementById('showTimesLeft').innerHTML= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp'+ (obj.selStart).toFixed(6);
 		    		}
-		    		document.getElementById('showTimesRight').innerHTML= (obj.selEnd).toFixed(6);		
+		    		document.getElementById('showTimesRight').innerHTML= (obj.selEnd).toFixed(6);
+		    				    		
+		    		
 		    	}
+		    	
+		    	
+		    	
+		    	
 		    });
 		   
-		    //change the position of the selected area 
 		    function changeTransBox(){
 		    				  		
 		    		if(obj.selT1 == obj.selT2){
 		    	 		$("#transBox").removeClass('afterDisplay');
 		    		}
 		    		else{
-		    			if(obj.selT2 == 375){
-		    				$("#transBox").addClass('afterDisplay');
-		    				$("#transBox").css({left: obj.selT1+385.5, width: (375 -obj.selT1 - 2)});
-		    				return; 			
-		    			}
+		    		if(obj.selT2 == 375){
+		    		$("#transBox").addClass('afterDisplay');
+		    		//$("#transBox").css({left: obj.selT1+385.5, width: (375 -obj.selT1 - 2)});
+		    		$("#transBox").css({left: obj.selT1+385.5, width: (700 -obj.selT1 - 2)});		    		
+				return; 			
+		    		}
 		    			$("#transBox").addClass('afterDisplay');
 		    			$("#transBox").css({left: obj.selT1+385.5, width: (obj.selT2-obj.selT1 - 2)});
 		    		
-		    		}	
+		    		}
+		    		
 		    		
 		    };	  	
 		   	
-		    //function for onChange
+		   
+		   	 	
 		  	function showCoords(c){
 		  	
 		  	if(obj.name.localeCompare(0) == 0){
@@ -627,7 +762,8 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		  				
 		  			}else if(c.x > 419){
 		  				api.release();
-		  				$("#line1").css({left: 759, position:'absolute'});
+		  				//$("#line1").css({left: 759, position:'absolute'});
+		  				$("#line1").css({left: 1000, position:'absolute'});
 		  				document.getElementById('selectedInfo').innerHTML='';
 		  				document.getElementById('info').innerHTML='';		
 		  			}else{	 
@@ -673,7 +809,8 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		  			
 		  			api.release();
 		  			$("#line2").addClass('afterClick');
-		  			$("#line2").css({left: 759, position:'absolute'});
+		  			//$("#line2").css({left: 759, position:'absolute'});
+		  			$("#line2").css({left: 1000, position:'absolute'});
 		  			$("#line1").css({left:obj.selT1+384, position:'absolute'});
 		  			obj.selT2 = 375;
 		  			obj.absoluteT2 = obj.selEnd;
@@ -688,22 +825,31 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		  			}
 		  			api.release();
 		  			changeTransBox();
-		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ ((obj.selT2-obj.selT1)/375*obj.visuTime).toFixed(6) ;
-		  			document.getElementById('info').innerHTML='Start time : '+( obj.selStart +obj.selT1/375*obj.visuTime).toFixed(6) +'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +obj.selT2/375*obj.visuTime).toFixed(6) ;
+
+				    obj.annSelTime = ((obj.selT2-obj.selT1)/375*obj.visuTime).toFixed(6);
+				    obj.annStart = (obj.selStart +obj.selT1/375*obj.visuTime).toFixed(6);
+				    obj.annEnd = (obj.selStart +obj.selT2/375*obj.visuTime).toFixed(6);
+
+		  		    document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ Math.floor(obj.annSelTime) ;
+		  		    //document.getElementById('info').innerHTML='Start time : '+ obj.annStart +'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time : '+ obj.annEnd ;
+				    document.getElementById('info').innerHTML='Start time : '+ Math.floor(obj.annStart) +'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time : '+ Math.floor(obj.annEnd) ;
+				
+					//document.getElementById('selectedInfo').innerHTML='Selected time duration : '+ ((obj.selT2-obj.selT1)/375*obj.visuTime).toFixed(6) ;
+		  			//document.getElementById('info').innerHTML='Start time : '+ (obj.selStart +obj.selT1/375*obj.visuTime).toFixed(6) +'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End Time : '+ (obj.selStart +obj.selT2/375*obj.visuTime).toFixed(6) ;
 
 		  		}
 		  		
-		  		displayFrequency();
+		  		//displayFrequency();
 		  	
 		  	};
 		  	
-		  	//function for onSelect
+		  	//remove c!!!!!!!!!!!!! 
 		  	function displayCoords(){	
 		  		api.release();
 		  		changeTransBox();		  		
 		  	};
 		  	
-		  	//function for onRelease
+		  	
 		  	function clearCoords(){
 		   		$('#coords input').val('');	
 		   			 		  				   			   		
@@ -713,7 +859,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		});
 		
 		
-
+		
 		function formatTime(s){
 			if(s == 0){
 		  	 return '0 s'; 
@@ -739,8 +885,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 				
 
 
-//**********************************************************
-//functions for the left submenus 
+
 	    function getEnergy(){
 	    	if(obj.name.localeCompare('0') == 0){
 	    	
@@ -784,6 +929,8 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	    
 	    
 	    function getvat(){
+	    	
+	    	   
 	    	if ((obj.name.localeCompare('0') != 0)){
 	    	 	var time = prompt("Time(s): ", "0.5");
 	    	 	if(time != null){
@@ -795,6 +942,8 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	    	}
 	    }
 	    function getvif(){
+	    	
+	    	    
 	    	if ((obj.name.localeCompare('0')!= 0) ) {
 	    		var frame = prompt("Frame Number: ", "10");
 	    		if(frame != null){
@@ -802,13 +951,17 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		    		$.get(vif,function(data,status){
 		    			if(status.localeCompare("success") == 0){
 		    				alert(data);
-		    			}else{ }
+		    			}else{
+		    				
+		    			
+		    			}
 		    		});
 	    		}
 	    	}
 	    }
 	    
 	    function getlf(){
+	    	
 	    	if(obj.name.localeCompare('0') != 0){
 	    	
 	    		var lf  = "/spectrum/get-bounds/"+obj.name;
@@ -829,6 +982,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	    }
 	    
 	    function getIntensity(){
+	    
 	    	if(obj.absoluteT2){
 	    	
 	    		if(obj.absoluteT1 == obj.absoluteT2){ 
@@ -843,7 +997,11 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	    		});
 	    	
 	    	}
-	    	else{}
+	    	else{
+	    	
+	    	}
+	    	
+	    	
 	    }
 	    
 	    function getminI(){
@@ -874,6 +1032,8 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	    	}
 	    }
 	    
+	    
+	    
 	    function getnof(){
 	    	if(obj.name.localeCompare('0') != 0){
 	    	
@@ -884,8 +1044,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	    		});
 	    	}
 	    	
-	    }
-	    	 
+	    }	 
 	    function getnoformant(){
 	    
 	    	if ((obj.name.localeCompare('0')!= 0) ) {
@@ -896,13 +1055,17 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	    			$.get(nofor,function(data,status){
 	    				if(status.localeCompare("success") == 0){
 	    					alert(data );
-	    				}else{}	
+	    				}else{
+	    			
+	    				}	
 	    			});
 	    		}
 	    	}
 	    }
 	    
-	    function getfat(){ 
+	    function getfat(){
+	    	
+	    	   
 	    	if ((obj.name.localeCompare('0') != 0)){
 	    	 	
 	    	 	var formant = prompt("Formant number: ", "1");
@@ -992,7 +1155,11 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	    			});
 	    		}
 	    	}
+	    
 	    }
+	    
+	    
+	    
 	    
 	    function save() {
 	    	if(obj.name.localeCompare(0)!=0){
@@ -1018,6 +1185,25 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			});
 	    	$('.dumbBoxWrap').show();
 	    		    	
+	    }
+
+	    function displayEafList(){
+
+		$.get(listEaf,function(data,status){
+	    		var size1 = data.files.length;
+			//alert(size1);
+				var vals1 = data.files;
+				var $eafList = $('#eaffileSelection');
+			
+				$eafList.empty();
+				$eafList.append('<option value ="noSelection"> Select from below :&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </option>');
+				$.each(vals1, function (index, value){
+					$eafList.append('<option value ='+value+'>' + value + '</option>');
+				});
+     	
+			});
+	    	$('.eafBoxWrap').show();
+
 	    }
 	    
 	    function selectFile(){
@@ -1053,28 +1239,371 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 
 	    	}	
 	    }
-	    
-	    
+		
+		function selectEafFile(){
+
+	    		var selectedFile = document.getElementById("eaffileSelection");
+	    		var selectedValue = selectedFile.options[selectedFile.selectedIndex].value;
+
+			if(selectedValue.localeCompare('noSelection') == 0){
+	    		
+	    		}
+	    	
+		    	else{
+			    	$('.eafBoxWrap').hide();
+			    	
+				var selectedFile = selectedValue;
+	    			var readeaf  = '/read-eaf/'+selectedFile;
+
+				$.get(readeaf,function(data,status){
+	    				//alert(data);
+					showPopup(data);
+	    			});
+				
+				
+			}
+
+
+		}
+
+		function showPopup(data) {
+			//var newWin = window.open("", "PopUpTextbox",  "width=270,height=300,top=200,left=200,toolbars=no,scrollbars=no,status=no,resizable=no");
+			var newWin = window.open("about:blank", "XML", 'menubar=yes,toolbar=yes,resizable=yes,scrollbars=yes,status=no,location=yes');
+			newWin.document.open('content-type: text/xml');
+			newWin.document.write(data);
+			newWin.document.close();
+			//var oNewWin = window.open("about:blank", "newwindow", "height=150,width=300,top=10,left=10,resizable=yes");
+			//var oNewWin = window.open("data:text/xml;charset=utf-8,"+xml, "", "_blank");
+			//oNewWin.document.open();
+			//oNewWin.document.write(data);
+			//oNewWin.document.close();
+		}
+		
+		function addTier(){
+			if(obj.name.localeCompare('0') != 0){
+				var tier = prompt("Enter Tier Name: ", "default");
+				return tier;
+			}
+		}
+		
+		function addChildTier(){
+			if(obj.name.localeCompare('0') != 0){
+				var childTier = prompt("Enter Child Tier Name: ", "default");
+				return childTier;
+			}
+		}
+
+
+		function getTotalTime(){
+			return Math.floor(obj.totalTime);
+		}
+
+		function getStartTime(){
+			return Math.floor(obj.annStart);
+		}
+
+		function getEndTime(){
+			return Math.floor(obj.annEnd);
+		}
+
+		function getSelectedTime(){
+			return Math.floor(obj.annSelTime);
+		}
+		
+		function addAnnotation(){
+		
+			if(obj.name.localeCompare('0') != 0){
+				
+				//var tierName = addTier();
+				var tierName = "default";
+
+				if(tierName == "default"){
+					//var startT = prompt("Enter Start Time (s): ", "1");
+					var startT = obj.annStart;
+					//var endT = prompt("Enter End Time (s): ", "1");
+					var endT = obj.annEnd;
+					annText = prompt("Enter Annotation Text: ", "Sample Text");
+					//var textParent = prompt("Enter Annotation Text: ", "Sample Text");
+					
+					//var text = annText;
+					return annText;
+				}
+				else{
+					var dialog = prompt("Do you want to add a Child Tier: ", "yes/no");
+					if (dialog == "yes"){
+						var childTierName = addChildTier();
+						var ltype = "TimeSubdivision-lt";
+						var startT = prompt("Enter Start Time (s): ", "1");
+						var endT = prompt("Enter End Time (s): ", "1");
+						var textParent = prompt("Enter Annotation text for Parent Tier: ", "Sample text");
+						var textChild = prompt("Enter Annotation text for Child Tier: ", "Sample text");
+					}
+					else{
+						var childTierName = "default";
+						var startT = prompt("Enter Start Time (s): ", "1");
+						var endT = prompt("Enter End Time (s): ", "1");
+						var textParent = prompt("Enter Annotation Text: ", "Sample Text");
+					}
+					
+				}
+
+	    		if((startT != null) && (endT != null) && (tierName != null)){
+	    			var annotation  = '/annotation/time-selection/'+obj.name+'/'+tierName+'/'+childTierName+'/'+ltype+'/'+startT+'/'+endT+'/'+textParent+'/'+textChild;
+	    			$.get(annotation,function(data,status){
+	    				alert(data);
+	    			});
+
+	    		}
+				
+	    	    }
+		
+		}
+		
+		function saveAnnotation(){
+
+
+			if($('#textbox1').val() == null){
+				alert("Add at least one tier and annotation value!");	
+				return false;	
+			}
+			//alert("EAF file created: OldPart1_312527");
+			var eaffilename = prompt("Enter name for EAF: ", "testeaf");
+
+			var pixelpersec = Math.floor(427/obj.totalTime);
+			//alert("pixel per sec"+pixelpersec);
+			var startpixel = Math.floor(obj.annStart*pixelpersec);
+			//alert("padding from start"+startpixel);
+
+			var leftpadding = startpixel - 50;
+			//alert("leftpadding: "+leftpadding);
+
+	    		var textboxdiv1 = document.getElementById("TextBoxDiv1");
+			if(textboxdiv1 != null){
+				//textboxdiv.style.paddingLeft = startpixel.toString + "px";
+				textboxdiv1.style.paddingLeft = leftpadding.toString() + "px";
+			}
+
+	    		var textboxdiv2 = document.getElementById("TextBoxDiv2");
+			if(textboxdiv2 != null){
+				//textboxdiv.style.paddingLeft = startpixel.toString + "px";
+				textboxdiv2.style.paddingLeft = leftpadding.toString() + "px";
+			}
+
+	    		var textboxdiv3 = document.getElementById("TextBoxDiv3");
+			if(textboxdiv3 != null){
+				//textboxdiv.style.paddingLeft = startpixel.toString + "px";
+				textboxdiv3.style.paddingLeft = leftpadding.toString() + "px";
+			}
+
+			var startT = obj.annStart;
+			var endT = obj.annEnd;
+			var textParent = annText;
+
+			var ltype = "TimeSubdivision-lt";
+			
+			var msg = '';
+			var counter = 3;
+
+			var texttier0 = '';
+			var texttier1 = '';
+			var texttier2 = '';
+
+			var texts = [];
+
+			for(i=1; i<=counter; i++){
+			   	msg += $('#textbox' + i).val()+",";
+				texts.push($('#textbox' + i).val());
+				  
+			}
+
+			texttier0 = texts[0];
+			//alert(texttier0);
+
+			texttier1 = texts[1];
+			//alert(texttier1);
+
+			texttier2 = texts[2];
+			//alert(texttier2);
+			
+			if((startT != null) && (endT != null)){
+	    			var annotation  = '/annotation/'+eaffilename+'/'+obj.name+'/'+ltype+'/'+startT+'/'+endT+'/'+texttier0+'/'+texttier1+'/'+texttier2;
+	    			//$.get(annotation,function(data,status){	alert(data);});
+	    			$.get(annotation,function(data,status){	
+					if(confirm('To view contents of "' + eaffilename +'", hit View EAF.')){
+						//alert('Hi');
+						/// read from file
+
+						document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+						
+						//var txtFile = "/home/arch2706/peldaws/eaf/"+data+".eaf";
+						//var reader = new FileReader();
+						//reader.onload = function(e) { 
+						//      	var contents = e.target.result;
+						//	alert( "Got the file.n"
+						//	      + "starts with: " + contents
+						//	);  
+					      	//}
+
+
+						//alert(txtFile);
+					}
+				});
+
+			}
+		}
+
+
+
+		function readSingleFile(evt) {
+		    //Retrieve the first (and only!) File from the FileList object
+		    var f = evt.target.files[0]; 
+
+		    if (f) {
+		      var r = new FileReader();
+		      r.onload = function(e) { 
+			      var contents = e.target.result;
+			      alert(contents);
+			
+			/*alert( "Got the file.n" 
+			      +"name: " + f.name + "n"
+			      +"type: " + f.type + "n"
+			      +"size: " + f.size + " bytesn"
+			      + "starts with: " + contents.substr(1, contents.indexOf("n"))
+			);  */
+		      }
+		      r.readAsText(f);
+		    } else { 
+		      alert("Failed to load file");
+		    }
+		  }
+
+
+		function viewWaveform(){
+		
+			var drawElan = '/draw-elan/'+obj.name;
+			//drawSound = '/draw-sound/';
+			//drawSound = drawSound + obj.name + '/' + '0' + '/' + '0';
+			newURL = drawElan+'/'+obj.oriStart+"/"+obj.oriEnd;
+
+			document.getElementById('selectNewFile').innerHTML='';
+				
+			//Hide the default dialog displayed on the screen
+			var background_dialog = document.getElementById('selectNewFile');
+			background_dialog.style.display='none';
+					
+			// display new image!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			$('.jcrop-holder img').attr('src',newURL);	
+			
+			
+		}
+
+		
+/*Not used anymore as we are not generating the combined xml*/
+		/*function generateXML(){
+
+			var startT = "1";
+			var endT = "3";
+
+			var combination  = '/link-elan-praat/'+obj.name+'/'+startT+'/'+endT;
+	    			$.get(combination,function(data,status){
+	    				alert(data);
+						//alert("Data: " + data + "\nStatus: " + status);
+	    			});
+
+
+		}*/
+
+		/*function clickEvent() {
+			playaudio();
+			
+
+		}*/
+
+		function playaudio() {
+	    			
+		    	var audio = document.getElementById('audio');
+		    	audio.muted = false;
+			audio.play();
+
+		
+		    	/*audio.src='/play/'+ obj.name;
+		    	
+		    	$.get(audio.src,function(data, status){
+		     		
+		    	document.getElementById('fileSize').innerHTML = formatSize(Number(data.length), 2);
+		    	});*/
+
+			 var elem = document.getElementById("animation");  
+			 var pos = 77;
+			 
+			 /*Added this timer interval to fix the issue of animation on the screen. 
+				Got fixed after adding half of the time interval to total time*/
+			 var timer = obj.totalTime/2;
+
+			 var id = setInterval(frame, obj.totalTime+timer);
+			 function frame() {
+			   if (pos == 738) {
+			     clearInterval(id);
+			   }
+			   else {
+			     pos++;
+			     elem.style.left = pos + 'px';
+			   }
+			 }
+	    	
+		}
+
+
+		function bringToFront(){
+			document.getElementById("annotationRect").style.zIndex = "1";
+			document.getElementById("tier1label").style.zIndex = "1";
+			document.getElementById("tierRect1").style.zIndex = "1";
+			document.getElementById("tier2label").style.zIndex = "1";
+			document.getElementById("tierRect2").style.zIndex = "1";
+			document.getElementById("tier3label").style.zIndex = "1";
+			document.getElementById("tierRect3").style.zIndex = "1";
+			document.getElementById("interactImage").style.zIndex = "-1";
+		}
+
+
+		function unhide(clickedButton, divID) {
+			var item = document.getElementById(divID);
+			if(item){
+				item.className = 'unhidden' ;
+			}
+
+		}
+
+   
 	    </script>
 	</head>
 
 
 
 
+
+
+
+
+
+
+
 	<body>
-     
+  		<!--<div id='fileinput' class="hidden">
+			<input type = 'file' class="fileinput" title = "Browse an EAF file">
+		</div>-->
               
 	<Span id='above'>
-			<audio id="audio" preload="auto"  muted controls style="position: absolute;top: 110px; left: 20px;">
+		<audio id="audio" preload="auto"  onclick="playaudio(); unhide(this, 'animation');" muted controls style="position: absolute;top: 114px; left: 20px;">
 			<p>Your browser does not support the <code>audio</code> element.</p> 
-		    </audio>
+		</audio>
 			
 			
 		    
 			<!-- the vertical split line -->
 			<div class="split"></div>
 			<!-- the horizontal split line -->
-			<div class = "hori"><br><br> <hr > </div> 
+			<div ><br> <br> </div> <hr >
 			
 			
 			
@@ -1088,8 +1617,12 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			</div>
 			
 			
-			<button class= "selectFromList" id = "selectFromList"  data-toggle = "tooltip" title = "Select a sound file from the list.">Select from list</button>
+						
 			
+			<button class= "selectFromList" id = "selectFromList"  data-toggle = "tooltip" title = "Select a sound file from the list.">Select from list</button>
+  			<div id='fileinput' class="hidden">
+				<button class= "choosebox" id = "choosebox"  data-toggle = "tooltip" title = "Select an EAF file from the list.">View EAF</button>
+			</div>
 				<!-- javascript for the upload button -->	
 				<script>
 			
@@ -1123,7 +1656,9 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			<div  class = "menu">
 			    <button class= "mainmenu">Sound</button>
 			    	<div class = "drop-content">
+			    		<!--<a href = "javascript:void(0)"  onclick = "play();" >&nbsp; Play </a>-->
 			    		<a href = "javascript:void(0)" onclick = "getEnergy()">&nbsp; Get energy...  </a>
+			    		
 			    	</div>
 			</div>
 			<br><br>
@@ -1191,8 +1726,40 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			 		<a href = "javascript:void(0)" onclick = "getJitter()">&nbsp; Get jitter (local)... </a>
 			 	</div>
 			</div>
-		</div>
+			<br><br>
+			
 		
+
+			<div  class = "menu" >	
+			 	<button class= "mainmenu_ann">ELAN Annotation</button>
+			 	<div class = "drop-content">
+				    <a href = "javascript:void(0)"  class='viewWaveform' onclick = "viewWaveform(); unhide(this, 'TextBoxesGroup'); unhide(this, 'playbox');">&nbsp; View Waveform.. </a>
+				    <a href = "javascript:void(0)"  id='addButton' class='addtier' onclick = "bringToFront()">&nbsp; Add Tier </a>	
+				    <a href = "javascript:void(0)"  id='removeButton' class='removetier'>&nbsp; Remove Tier </a>				    			    		    					    <a href = "javascript:void(0)"  id='saveannotationbutton' class='saveannotation' onclick = "saveAnnotation(); unhide(this, 'fileinput');">&nbsp; Save Annotation </a>	
+		    		    <a href = "javascript:void(0)"  id='getButtonValue' class='getannotationvalue'>&nbsp; Get Annotation </a>	
+				
+				<!--These properties were added here as backup. Currently, properties from css are commented.
+				.addannotation{
+					border: 1px solid #0a0000;
+					font-size: 16px;
+					float: right;
+					display: block;
+					position: absolute;
+					left: 1150px;
+					top: 410px;
+					width: 125px;
+					height: 25px;
+					border-radius: 5px;
+				}
+
+				.addannotation:hover{
+					background-color: #aaa5a5;
+				}-->
+
+			 	</div>
+			</div>
+			
+		</div>
 			<!-- IMAGE DISPLAY::  vertical lines and transbox inside the image   -->
 			<div class="verticalLine" id = "line1"></div> 
 			<div class="verticalLine" id = "line2"></div>
@@ -1201,25 +1768,47 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	</Span>	
 		
 		<p id = "selectNewFile"> Select a new file to start the analysis. </p>
-		<div class = "interactSection">
+		<div class = "interactSection" id = "interactImage">
 		    
-			<img  src="img/0.png"  onmousedown="return false" alt="Spectrum Image" width="427" height="487" id = "target" />
-			
-			
+			<img  src="img/0.png"  onmousedown="return false" alt="Spectrum Image" width="750" height="487" id = "target"/>
+
+			<div id = "animation" class="hidden"> </div>	
+			<div id = "annotationRect" >
+
+				<div id = "tier1label">
+					<p>Tier1</p>
+				</div>
+				<div id = "tierRect1"></div>
+
+				<div id = "tier2label">
+					<p>Tier2</p>
+				</div>
+				<div id = "tierRect2"></div>
+
+				<div id = "tier3label">
+					<p>Tier3</p>
+				</div>
+				<div id = "tierRect3"></div>
+			</div> <!--unhide(this, 'annotationRect');	class="hidden"-->	
 		</div>
+
 		
 		<div  id = "showPitchRangeTop"></div>
 		<div  id = "showPitchRangeBottom"></div>
 		
 		<div  id = "showIntensityRangeTop"></div>
 		<div  id = "showIntensityRangeBottom"></div>
+
+		<!--Commenting this out as it was leaving a gap in the image-->
+		<!-- <div id = "blockTimes1">-->
+
+		&nbsp;
+		</div>
 		
-		<div id = "blockTimes1">
+		<!-- Commented this part since it was dividing the image into two parts-->
+		<!--<div id = "blockTimes2">
 		&nbsp;
-		</div>
-		<div id = "blockTimes2">
-		&nbsp;
-		</div>
+		</div>-->
 		
 		<div id = "showTimesLeft"></div>
 		
@@ -1235,9 +1824,49 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		<br><br>
 		
 		
-		<!-- the print button -->
 		<input type='button' value='Print'  class = "printbox" onclick="window.print()"data-toggle = "tooltip" title = "Print the analyzed outcome.">
-					    
+		<!-- Added play button to add functionality on this button from javascript-->
+		<!--<input type = 'button' value='Play'  class = "playbox" onclick="playaudio()" data-toggle = "tooltip"  title = "Play the sound.">-->    
+		<div id='playbox' class="hidden">
+			<input type = 'button' value='Play' class="playbox" onclick="playaudio(); unhide(this, 'animation');" data-toggle = "tooltip"  title = "Play the sound.">
+		</div>   
+		
+		<!--<div id='bringtofront'>
+			<input type = 'button' value='BringToFront' class="bringtofront" onclick = "bringToFront()" data-toggle = "tooltip"  title = "bring annotation area to front">
+
+
+		.bringtofront{
+			border: 1px solid #0a0000;
+			font-size: 16px;
+			float: right;
+			display: block;
+			position: absolute;
+			left: 1150px;
+			top: 440px;
+			width: 100px;
+			height: 28px;
+			border-radius: 5px;
+		}
+
+		.bringtofront:hover{
+			background-color: #aaa5a5;
+		}
+
+		</div>  --> 
+		
+		<div id='TextBoxesGroup' class="hidden">
+			<!--<div id="TextBoxDiv1">
+				<label>Tier1 <input type='textbox' id='textbox1' ></label>
+			</div>-->
+		</div>
+
+<!--		
+		<input type='button' value='View Waveform' class='viewWaveform' onclick = "viewWaveform(); unhide(this, 'annotationRect'); unhide(this, 'TextBoxesGroup'); unhide(this, 'playbox');">
+		<input type='button' value='Add Tier' id='addButton' class='addtier'>
+		<input type='button' value='Remove Tier' id='removeButton' class='removetier'>
+		<input type='button' value='Save Annotation' id='saveannotationbutton' class='saveannotation' onclick = "saveAnnotation()">
+		<input type='button' value='Get Annotation' id='getButtonValue' class='getannotationvalue'>
+-->
 		<!-- the checkboxes --> 
 		<div id = "checkboxes">	
 			<input  id="spectrogram" type="checkbox" value = "spectrogram" checked> Spectrogram<br>
@@ -1248,13 +1877,13 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			
 	    </div>
 			
-		<!-- the default buttons in Praat and the save button  -->
+		<!-- the buttons -->
 		<button type = "button" onclick="save()" id = "Save" data-toggle = "tooltip" title = "Save the result of your analysis.">Save </button>
 		<button type = "button"  class = "bottomButton" id = "all" data-toggle = "tooltip" data-placement="auto top" title = "Display the whole spectrogram.">all </button>
 		<button type = "button"  class = "bottomButton" id = "in" data-toggle = "tooltip" data-placement="top" title = "Zoom in the spectrogram.">zoom in </button>
 		<button type = "button"  class = "bottomButton" id = "out" data-toggle = "tooltip" data-placement="top" title = "Zoom out of the spectrogram.">zoom out </button>
 		<button type = "button"  class = "bottomButton" id = "sel" data-toggle = "tooltip" data-placement="top" title = "Display the specific selected time range.">selection </button>
-		
+	
 		
 		
 		<div id = "timeLabel">
@@ -1266,11 +1895,14 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 		</div>
 		
 		<div id = "otherSource">
-		<p> Other PELDA Resources: </p>
+		<p> Other PELDA Sources: </p>
 		</div>
 		
 		<div id ="sourceLink">
-		<a  class = "source" href = "https://bitbucket.org/ashiksmd/peldaws"> Source Code Access </a>
+		<a  class = "source" href = "https://bitbucket.org/ashiksmd/peldaws"> Praat Source Code Access </a>
+		</div>	
+		<div id ="sourceLinkElan">
+		<a  class = "source" href = "https://bitbucket.org/arch2706/peldawsforpraatelan/"> ELAN Source Code Access </a>
 		</div>	
 		<div id ="peldaLink">
 		<a  class = "source" href = "http://pelda.us/">Audio Retrieval and Version Control </a>
@@ -1288,7 +1920,7 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 	
 				<div class="vertical-offset">
 			 		<div class="dumbBox">  
-			 		    <h2 id = "selectAFile"> &nbsp;&nbsp;Select a file:</h2>
+			 		    <h2 id = "selectAFile"> &nbsp;&nbsp;Select a sound file:</h2>
 			 			<br>
 			 			<select   id = "fileSelection" style="font-size: 16px;"  >
 			 				 
@@ -1300,10 +1932,26 @@ Access the website : http://peldaws.westus.cloudapp.azure.com/
 			 	</div>
 		</div>		
 		
-		
+		<div  id ="box" class="eafBoxWrap"> 
+	
+				<div class="vertical-offset">
+			 		<div class="eafBox">  
+			 		    <h2 id = "selectAFile"> &nbsp;&nbsp;Select an EAF file:</h2>
+			 			<br>
+			 			<select   id = "eaffileSelection" style="font-size: 16px;"  >
+			 				 
+			 			</select>
+			 			
+			 			<button  id = "closeeaf"  >Close</button>
+			 			<button  id = "select" onclick = "selectEafFile()" >Select</button>
+			 		</div>
+			 	</div>
+		</div>	
 				
 	</Span>
 		
 			
 	</body>
 </html>
+
+

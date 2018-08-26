@@ -1,6 +1,8 @@
 from flask import jsonify, request
 
-from xml.etree import cElementTree as ET
+#from xml.etree import cElementTree as ET
+import xml.etree.ElementTree as ET
+import lxml.etree as etree
 #from lxml import etree
 from shutil import copyfile
 
@@ -30,87 +32,6 @@ import sys
 import pathlib
 ##
 
-
-
-@app.route('/draw-sound/<sound>/<startTime>/<endTime>/')
-def drawSound(sound, startTime, endTime):
-
-    # Get URL parameters
-    showSpectrogram = '0' if request.args.get("spectrogram") is None else '1'
-    showPitch = '0' if request.args.get("pitch") is None else '1'
-    showIntensity = '0' if request.args.get("intensity") is None else '1'
-    showFormants = '0' if request.args.get("formants") is None else '1'
-    showPulses = '0' if request.args.get("pulses") is None else '1'
-
-    # Script file
-    script = praat._scripts_dir + "drawSpectrogram";
-
-    # Parameters to the script
-    params = [sound, startTime, endTime,
-             showSpectrogram, showPitch, showIntensity, showFormants, showPulses, 
-             praat._sounds_dir, praat._images_dir];
-
-    # Image name will be a combination of relevant params joined by a period.
-    image = praat._images_dir + ".".join(params[:-2]) + ".png"
-
-    # Add image name to params list
-    params.append(image)
-
-    # If image does not exist, run script
-    if not os.path.isfile(image):
-       praat.runScript(script, params)
-       utils.resizeImage(image)
-
-    # Image should be available now, generated or cached
-    resp = app.make_response(open(image).read())
-    resp.content_type = "image/png"
-    return resp
-
-@app.route('/get-bounds/<sound>')
-def getBounds(sound):
-    script = praat._scripts_dir + "getBounds";
-    output = praat.runScript(script, [sound, praat._sounds_dir])
-    res = output.split() # Split output into an array
-
-    # Get last modified time of the sound file
-    # Should think about either changing the service name,
-    # or obtaining last modified time using a different service
-    lastModifiedTime = time.ctime(os.path.getctime(os.path.join(praat._sounds_dir, sound)))
-
-    # Create JSON object to return
-    bounds = {
-        "start": float(res[0]),
-        "end": float(res[2]),
-        "min": float(res[4]),
-        "max": float(res[6]),
-        "lastModified": lastModifiedTime
-    };
-    return jsonify(bounds);
-
-@app.route('/play/<sound>')
-def playSound(sound):
-    # Get the path to the sound file
-    fullpath = praat._sounds_dir + sound
-
-    ## added to test play functionality using praat script
-    #script = praat._scripts_dir + "test"
-    #params = [sound, praat._sounds_dir]
-    #praat.runScript(script, params)
-
-    # Open stream to file
-    resp = app.make_response(open(fullpath).read())
-
-    # Set file type like audio/mp3 or audio/wav     
-    resp.content_type = "audio/" + utils.fileType(sound)
-    #print str(resp.content_type)
-    #print str(resp)
-    return resp
-
-@app.route('/get-energy/<sound>')
-def getEnergy(sound):
-    script = praat._scripts_dir + "getEnergy";
-    return praat.runScript(script, [sound, praat._sounds_dir])
-'''
 
 #################################################################################################
 ## added to test elan waveform individually
@@ -150,14 +71,15 @@ def drawElan(sound, startTime, endTime):
     return resp
 
 ## Add a new annotation
-@app.route('/annotation/time-selection/<sound>/<ltype>/<start>/<end>/<text0>/<text1>/<text2>')
-def annotationTimeSelection(sound, ltype, start, end, text0, text1, text2):
+@app.route('/annotation/<eaffilename>/<sound>/<ltype>/<start>/<end>/<text0>/<text1>/<text2>')
+def annotationTimeSelection(eaffilename, sound, ltype, start, end, text0, text1, text2):
 
     #print("inside annotation function")
     #Strip off letters after dot
     x = sound.index('.')
-    nameoffile = sound[0:x] + "_" + str(datetime.datetime.now().microsecond)
+    #nameoffile = sound[0:x] + "_" + str(datetime.datetime.now().microsecond)
 
+    nameoffile = eaffilename
     #Create a new EAF file
     filepath = praat._eaf_dir + nameoffile + ".eaf"
     startTime = int(round(float(start)))
@@ -178,11 +100,11 @@ def annotationTimeSelection(sound, ltype, start, end, text0, text1, text2):
 
     #set media descriptor
     if(soundpath != ""):
-        eafob.add_linked_file(soundpath_url, relpath, mimetype) 
+        eafob.add_linked_file(soundpath_url, relpath, mimetype)
 
     defaulttier = "default"
     tier1 = "Tier1"
-    tier2 = "Tier2" 
+    tier2 = "Tier2"
 
     if (text0 != "undefined" and text1 != "undefined" and text2 != "undefined"):
         eafob.add_annotation(defaulttier, startTime, endTime, text0)
@@ -199,8 +121,6 @@ def annotationTimeSelection(sound, ltype, start, end, text0, text1, text2):
         eafob.add_annotation(tier1, startTime, endTime, text1)
     elif (text0 != "undefined" and text1 == "undefined" and text2 == "undefined"):
         eafob.add_annotation(defaulttier, startTime, endTime, text0)
-
-
 
     #Write the object to a file
     if(filepath != ""):
@@ -222,12 +142,40 @@ def annotationTimeSelection(sound, ltype, start, end, text0, text1, text2):
         #Call a function to print new ELAN image including annotation
         #resp = drawSound1(sound)
     #print("The name of file is: "+ nameoffile)
-    return nameoffile
+    #print("contents of filepath: " +filepath)
+    xmlObject = etree.parse(filepath)
+    eafstring = etree.tostring(xmlObject, pretty_print = True)
+    #x = etree.parse(filename)
+    #eafstring = etree.toString
+    #eafstring = str(open(filepath,'r').read())
+    #print("The eaf content is: "+ eafstring)
+    return eafstring
     #return resp
 
 #@app.route('/view-annotation/<sound>/<nameofeaf>')
 #def viewAnnotation(sound, nameofeaf):
 
+
+def getEafArray():
+    """ Return list of available eafs as an array """
+    return list(filter(lambda x : x.endswith('.eaf'),
+                       os.listdir(praat._eaf_dir) ))
+
+@app.route('/list-eafs')
+def listEafs():
+    """ Get a list of sound files available, as a JSON String """
+    response = {
+            "files": getEafArray()
+    }
+    return jsonify(response)
+
+@app.route('/read-eaf/<eaffilename>')
+def readEafs(eaffilename):
+    nameoffile = eaffilename
+    filepath = praat._eaf_dir + nameoffile
+    xmlObject = etree.parse(filepath)
+    eafstring = etree.tostring(xmlObject, pretty_print = True)
+    return eafstring
 
 ## Temporarily added to display ELAN image separately on clicking view waveform
 #@app.route('/draw-elan-sound/<sound>')
@@ -240,7 +188,7 @@ def drawSound1(sound):
     # Image should be available now, generated or cached
     resp = app.make_response(open(image).read())
     print(resp)
-    #resp.content_type = "image/png" 
+    #resp.content_type = "image/png"
     return send_file(image, mimetype='image/png')
     #return resp
 
@@ -256,7 +204,7 @@ def show_wave_n_spec(speech):
         spf = wave.open(speechfile,'r')
         f = spf.getframerate()
         imagefile = praat._images_dir + str(speech.replace("wav", "png"))
-  
+
     sound_info = spf.readframes(-1)
     sound_info = fromstring(sound_info, 'Int16')
     Time = linspace(0, len(sound_info)/f, num=len(sound_info))
@@ -265,7 +213,7 @@ def show_wave_n_spec(speech):
     print("length of sound: "+str(len(sound_info)))
     print("stop: "+str(len(sound_info)/f))
 
-    #subplot(211)    
+    #subplot(211)
     plot(Time, sound_info, 'k')
     title('Wave form of %s' % speech)
     #plot([0,4], [-5550,-5550], 'b', lw=1)
@@ -379,4 +327,3 @@ def indent(el, level=0):
             el.tail = i
 
 #####################################################################################################
-'''

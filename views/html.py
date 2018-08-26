@@ -5,9 +5,13 @@ from praat import app
 def index():
    return app.send_static_file("index.html")
 
-@app.route('/apidocs')
-def apidocs():
-   return app.send_static_file("apidocs.html")
+@app.route('/praatapidocs')
+def Praatapidocs():
+   return app.send_static_file("praatapidocs.html")
+
+@app.route('/elanapidocs')
+def ELANapidocs():
+   return app.send_static_file("elanapidocs.html")
 
 @app.route('/js/<jsfile>')
 def getJS(jsfile):

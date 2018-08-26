@@ -1,0 +1,970 @@
+<html>
+   <head>
+      <title>Praat Web-Services API Documentation</title>
+
+      <style>
+           table thead td {
+              font-weight: bold;
+           }
+           table, th, td {
+              border: 1px solid black;
+           }
+           table {
+              border-collapse: collapse;
+           }
+      </style>
+   </head>
+
+   <body>
+       <h2>Praat Web-Services</h2>
+       <p>The web services described below will allow you to run commonly used functions in Praat over HTTP. To access them, use any HTTP capable client. Most platforms have REST client implementations.
+       In a web-application, you can use ajax to access these services. </p>
+       <p>The services are currently hosted at <a href="http://peldaws.westus.cloudapp.azure.com/">http://peldaws.westus.cloudapp.azure.com/</a>.
+       To access any of the services below, append the service URL to the server address.
+       For example, to get a list of sounds, query <a href="http://peldaws.westus.cloudapp.azure.com/list-sounds">http://peldaws.westus.cloudapp.azure.com/list-sounds</a> </p>
+       
+       <h3>1. Upload Sound</h3>
+       Upload a new sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>POST</td>
+          <td>upload-sound</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Response</h4>
+       JSON Object:<br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"status": Status Message,<br/>
+       &nbsp;&nbsp;&nbsp;"sound": fileName<br/>
+       }<br/>
+       The status message above will be "Success" if upload succeeded. <br/>
+       If no file was uploaded, status will be "No sound file"<br/>
+       If file does not have a recognized extension, status will be "Unknown file type"<br/>
+       The fileName will be the original filename of the uploaded file.
+
+       <h3>2. List Sounds</h3>
+       Return list of sound files
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/list-sounds</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Response</h4>
+       JSON Object:<br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"files": [list-of-files]<br/>
+       }<br/>
+       list-of-files is a python list of file-names as strings.
+ 
+       <h3>3. Draw Sound</h3>
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/draw-sound/&lt;sound&gt;/&lt;startTime&gt;/&lt;endTime&gt;/?&lt;Optional_parameters&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>startTime</td>
+          <td>Number</td>
+          <td>Location in seconds from which to start drawing</td>
+       </tr>
+       <tr>
+          <td>endTime</td>
+          <td>Number</td>
+          <td>Location in seconds at which the drawing ends. Use 0 to draw till the end of the file</td>
+       </tr>
+       </tbody>
+       </table>
+       
+       <h4>Optional Parameters</h4> 
+       These parameters specify which optional components are drawn in the image. Combine multiple options using &amp; <br/>
+       For example: spectrogram&amp;pitch&amp;intensity will draw the spectrogram, and plot the pitch and intensity.
+       <table>
+	   <thead>
+		   <tr>
+			   <td>Name</td>
+			   <td>Type</td>
+			   <td>Description</td>
+		   </tr>
+	   </thead>
+       <tr>
+          <td>spectrogram</td>
+          <td>String</td>
+          <td>Draw the spectrogram</td>
+       </tr>
+       <tr>
+          <td>pitch</td>
+          <td>String</td>
+          <td>Plot the pitch</td>
+       </tr>
+       <tr>
+          <td>intensity</td>
+          <td>String</td>
+          <td>Draw intensity plot</td>
+       </tr>
+       <tr>
+          <td>formants</td>
+          <td>String</td>
+          <td>Draw formant contours</td>
+       </tr>
+       <tr>
+          <td>pulses</td>
+          <td>String</td>
+          <td>Show point-process (pulses)</td>
+       </tr>
+       </tbody>
+       </table>
+
+       <h4>Response</h4>
+       A png image of the drawing
+
+       <h3> 4. Get Bounds</h3>
+       Get boundaries of a sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/get-bounds/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       A JSON object: <br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"start": Start Time (Almost always 0.0),<br/>
+       &nbsp;&nbsp;&nbsp;"end": End Time in seconds,<br/>
+       &nbsp;&nbsp;&nbsp;"min": Minimum amplitude,<br/>
+       &nbsp;&nbsp;&nbsp;"max": Maximum amplitude<br/>
+       }<br/>
+
+       <h3>5. Play Sound</h3>
+       Returns the sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/play/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Returns the sound file with content-type audio/wav or audio/mp3
+
+       <h3>6. Get Energy</h3>
+       Query the energy of the sound file
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/get-energy/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Returns the value of energy of the sound file as a string
+
+	   <h3>7. Intensity - Get Bounds</h3>
+       Get the min, max and mean bounds of intensity. The mean is computed over the whole audio sample.
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/intensity/get-bounds/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       A JSON object: <br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"min": Minimum intensity,<br/>
+       &nbsp;&nbsp;&nbsp;"max": Maximum intensity,<br/>
+       &nbsp;&nbsp;&nbsp;"mean": Mean intensity<br/>
+       }<br/>
+       
+       <h3>8. Intensity - Get Mean</h3>
+       Get the mean intensity over an interval
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/intensity/get-mean/&lt;sound&gt;/&lt;start&gt;/&lt;end&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>start</td>
+          <td>Number</td>
+          <td>Start time of interval</td>
+       </tr>
+       <tr>
+          <td>end</td>
+          <td>Number</td>
+          <td>End time of interval</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Mean value of intensity over specified interval
+       
+       <h3>9. Intensity - Get Value at Time</h3>
+       Get the value of intensity at specified time
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/intensity/get-mean/&lt;sound&gt;/&lt;time&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>time</td>
+          <td>Number</td>
+          <td>Time in seconds</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Value of intensity at specified time
+       
+       <h3>10. Pitch - Count voiced frames</h3>
+       Count voiced frames
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/pitch/count-voiced-frames/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Number of voiced frames
+
+	   <h3>11. Pitch - Get value at time</h3>
+       Get value of pitch at specified time
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/pitch/value-at-time/&lt;sound&gt;/&lt;time&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>time</td>
+          <td>Number</td>
+          <td>Time in seconds</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Value of pitch at specified time
+       
+       <h3>12. Pitch - Get value in frame</h3>
+       Get value of pitch in specified frame
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/pitch/value-in-frame/&lt;sound&gt;/&lt;frame&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>frame</td>
+          <td>Number</td>
+          <td>Frame number in sound</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Value of pitch in specified frame
+       
+       <h3>13. Spectrum - Get Bounds</h3>
+       Get low and high values in the spectrum
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/spectrum/get-bounds/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       A JSON object: <br/>
+       {<br/>
+       &nbsp;&nbsp;&nbsp;"low": Lower bound in the spectrum,<br/>
+       &nbsp;&nbsp;&nbsp;"high": Higher bound in the spectrum<br/>
+       }<br/>
+       
+       <h3>14. Formants - Get number of frames</h3>
+       Count number of frames
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/formant/number-of-frames/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Number of frames
+       
+       <h3>15. Formants - Count number of formants in a frame</h3>
+       Count number of formants in a frame
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/formant/number-of-formants/&lt;sound&gt;/&lt;frame&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>frame</td>
+          <td>Number</td>
+          <td>Frame number</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Number of formants in the frame
+       
+       <h3>16. Formants - Get value at time</h3>
+       Get value of a formant at a specified time
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/formant/value-at-time/&lt;sound&gt;/&lt;formantNumber&gt;/&lt;time&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>formantNumber</td>
+          <td>Number</td>
+          <td>Formant number at the current frame</td>
+       </tr>
+       <tr>
+          <td>time</td>
+          <td>Number</td>
+          <td>Time in seconds</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Value of formant at specified time
+       
+       <h3>17. Harmonicity - Get minimum</h3>
+       Get minimum value over an interval
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/harmonicity/get-min/&lt;sound&gt;/&lt;start&gt;/&lt;end&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>start</td>
+          <td>Number</td>
+          <td>Start time of interval in seconds</td>
+       </tr>
+       <tr>
+          <td>end</td>
+          <td>Number</td>
+          <td>End time of interval in seconds</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Minimum value of harmonicity
+       
+       <h3>18. Harmonicity - Get maximum</h3>
+       Get maximum value over an interval
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/harmonicity/get-max/&lt;sound&gt;/&lt;start&gt;/&lt;end&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>start</td>
+          <td>Number</td>
+          <td>Start time of interval in seconds</td>
+       </tr>
+       <tr>
+          <td>end</td>
+          <td>Number</td>
+          <td>End time of interval in seconds</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Maximum value of harmonicity
+       
+       <h3>19. Harmonicity - Get value at time</h3>
+       Get value of harmonicity at specified time
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/harmonicity/value-at-time/&lt;sound&gt;/&lt;time&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>time</td>
+          <td>Number</td>
+          <td>Time in seconds</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Value of harmonicity
+       
+       <h3>20. PointProcess - Get number of periods</h3>
+       Get number of periods in interval
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/pointprocess/number-of-periods/&lt;sound&gt;/&lt;start&gt;/&lt;end&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>start</td>
+          <td>Number</td>
+          <td>Start time in seconds</td>
+       </tr>
+       <tr>
+          <td>end</td>
+          <td>Number</td>
+          <td>End time in seconds</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Number of periods
+       
+       <h3>21. PointProcess - Get number of points</h3>
+       Get number of points
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/pointprocess/number-of-points/&lt;sound&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Number of points
+       
+       <h3>22. PointProcess - Get jitter</h3>
+       Get jitter over an interval
+       <h4>Request</h4>
+       <table border>
+       <thead>
+          <tr>
+          <td>Method</td>
+          <td>URL</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>GET</td>
+          <td>/pointprocess/get-jitter/&lt;sound&gt;/&lt;start&gt;/&lt;end&gt;</td>
+       </tr>
+       </tbody>
+       </table>
+       <h4>Parameters</h4>
+      <table border>
+       <thead>
+          <tr>
+          <td>Name</td>
+          <td>Type</td>
+          <td>Description</td>
+          </tr>
+       </thead>
+       <tbody>
+       <tr>
+          <td>sound</td>
+          <td>String</td>
+          <td>Name of an existing sound file</td>
+       </tr>
+       <tr>
+          <td>start</td>
+          <td>Number</td>
+          <td>Start time in seconds</td>
+       </tr>
+       <tr>
+          <td>end</td>
+          <td>Number</td>
+          <td>End time in seconds</td>
+       </tr>
+       </table>
+
+       <h4>Response</h4>
+       Value of jitter over the specified interval
+   </body>
+
+
+</html>

@@ -2,7 +2,11 @@
 images/*.png
 
 # Locally save eaf files
-eaf/*.eaf
+eaf/*
+sounds/*
+
+# local db
+peldawsv1.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

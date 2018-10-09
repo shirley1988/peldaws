@@ -1,4 +1,5 @@
-from flask import jsonify, request
+from flask import jsonify, request, g
+from flask_login import login_required
 
 #from xml.etree import cElementTree as ET
 import xml.etree.ElementTree as ET
@@ -37,6 +38,7 @@ import pathlib
 ## added to test elan waveform individually
 
 @app.route('/draw-elan/<sound>/<startTime>/<endTime>/')
+@login_required
 def drawElan(sound, startTime, endTime):
 
     #if(endTime<0)
@@ -72,16 +74,17 @@ def drawElan(sound, startTime, endTime):
 
 ## Add a new annotation
 @app.route('/annotation/<eaffilename>/<sound>/<ltype>/<start>/<end>/<text0>/<text1>/<text2>')
+@login_required
 def annotationTimeSelection(eaffilename, sound, ltype, start, end, text0, text1, text2):
+    print "Saving annotation %s for sound %s" % (eaffilename, sound)
+    extension = sound.split('.')[-1]
 
-    #print("inside annotation function")
-    #Strip off letters after dot
-    x = sound.index('.')
-    #nameoffile = sound[0:x] + "_" + str(datetime.datetime.now().microsecond)
-
-    nameoffile = eaffilename
+    s_filename = secure_filename(eaffilename)
     #Create a new EAF file
-    filepath = praat._eaf_dir + nameoffile + ".eaf"
+    _eaf_dir = get_eaf_dir(g.user, sound)
+    utils.mkdir_p(_eaf_dir)
+    filepath = _eaf_dir + s_filename + ".eaf"
+
     startTime = int(round(float(start)))
     endTime = int(round(float(end)))
 
@@ -96,7 +99,7 @@ def annotationTimeSelection(eaffilename, sound, ltype, start, end, text0, text1,
     #soundpath_url = pathlib.Path(soundpath).as_uri()
     soundpath_url = pathlib.Path(soundpath)
     relpath = "./" + sound
-    mimetype = "audio/" + sound[x+1:len(sound)]
+    mimetype = "audio/" + extension
 
     #set media descriptor
     if(soundpath != ""):
@@ -123,7 +126,7 @@ def annotationTimeSelection(eaffilename, sound, ltype, start, end, text0, text1,
         eafob.add_annotation(defaulttier, startTime, endTime, text0)
 
     #Write the object to a file
-    if(filepath != ""):
+    #if(filepath != ""):
 
         #timeslot_list = list(eafob.timeslots.items())
         #indexes = [2,3]
@@ -133,7 +136,7 @@ def annotationTimeSelection(eaffilename, sound, ltype, start, end, text0, text1,
 
 
         #print("The eaf object looks like: " + str(t))
-        eafob.to_file(filepath)
+        #eafob.to_file(filepath)
         #src = filepath
         #dst =  praat._linkElanPraat_dir + nameoffile + ".xml"
         #copyfile(src, dst)
@@ -141,8 +144,7 @@ def annotationTimeSelection(eaffilename, sound, ltype, start, end, text0, text1,
 
         #Call a function to print new ELAN image including annotation
         #resp = drawSound1(sound)
-    #print("The name of file is: "+ nameoffile)
-    #print("contents of filepath: " +filepath)
+    eafob.to_file(filepath)
     xmlObject = etree.parse(filepath)
     eafstring = etree.tostring(xmlObject, pretty_print = True)
     #x = etree.parse(filename)
@@ -156,23 +158,43 @@ def annotationTimeSelection(eaffilename, sound, ltype, start, end, text0, text1,
 #def viewAnnotation(sound, nameofeaf):
 
 
-def getEafArray():
+def getEafArray(subdir=None):
     """ Return list of available eafs as an array """
-    return list(filter(lambda x : x.endswith('.eaf'),
-                       os.listdir(praat._eaf_dir) ))
+    if subdir is None:
+        subdir = praat._eaf_dir
+        #old_eaf = [f for f in os.listdir(praat._eaf_dir) if f.endswith('.eaf')]
+        #print "All old eaf: " + str(old_eaf)
+        #return old_eaf
+    try:
+        return [f for f in os.listdir(subdir) if f.endswith('.eaf')]
+    except OSError:
+        return []
+    #return os.listdir(subdir)
+    #return list(filter(lambda x : x.startswith(prefix), all_eaf))
 
-@app.route('/list-eafs')
-def listEafs():
+
+def get_eaf_dir(user, sound):
+    return os.path.join(praat._eaf_dir, user.current_group_id, utils.generate_id(str(sound)), '')
+
+
+@app.route('/list-eafs/<sound>')
+@login_required
+def listEafs(sound):
     """ Get a list of sound files available, as a JSON String """
+    print "List eafs for sound " + str(sound)
+    subdir = get_eaf_dir(g.user, sound)
+    print "List all eafs in " + subdir
     response = {
-            "files": getEafArray()
+            "files": getEafArray(subdir)
     }
     return jsonify(response)
 
-@app.route('/read-eaf/<eaffilename>')
-def readEafs(eaffilename):
+@app.route('/read-eaf/<sound>/<eaffilename>')
+@login_required
+def readEafs(sound, eaffilename):
+    eaf_dir = get_eaf_dir(g.user, sound)
     nameoffile = eaffilename
-    filepath = praat._eaf_dir + nameoffile
+    filepath = os.path.join(eaf_dir, nameoffile)
     xmlObject = etree.parse(filepath)
     eafstring = etree.tostring(xmlObject, pretty_print = True)
     return eafstring

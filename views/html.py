@@ -1,9 +1,15 @@
 from flask import send_from_directory
 from praat import app
+from flask_login import login_required
 
 @app.route('/')
+@login_required
 def index():
    return app.send_static_file("index.html")
+
+@app.route('/googleb4aacaa01acbdce3.html')
+def goog_verify():
+    return app.send_static_file('googleb4aacaa01acbdce3.html')
 
 @app.route('/praatapidocs')
 def Praatapidocs():

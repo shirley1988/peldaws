@@ -59,10 +59,10 @@ change font of frequency, time
 		              }         
 		           );
 
-		           $('#selectFromList').click(function() {
-		              displayList();
-		              }         
-		           );  
+		           //$('#selectFromList').click(function() {
+		           //   displayList();
+		           //   }         
+		           //);  
   	           
 			   $('#choosebox').click(function() {
 		              displayEafList();
@@ -197,14 +197,14 @@ change font of frequency, time
 				minPitch:75,
 				maxPitch:500,
 				
-				checkIntensity: 1,
+				checkIntensity: 0,
 				minIntensity:0,
 				maxIntensity: 100,
 				
-				checkFormant: 1,
+				checkFormant: 0,
 				
 				checkPulse: 0,
-				checkSpectrogram: 1,
+				checkSpectrogram: 0,
 				checkWaveform: 0,
 				selStart:0,
 				selEnd: 0,
@@ -281,6 +281,8 @@ change font of frequency, time
 						
 						
 					    document.getElementById('lastModifyDate').innerHTML = data.lastModified;	
+                        //document.getElementById('authUser').innerHTML = 'tUser';
+                        //document.getElementbyId('authGroup').innerHTML = 'tGroup';
 					    				
 						document.getElementById('timeDuration').innerHTML = formatTime(obj.totalTime);
 						drawSound  = drawSound + obj.name +'/';
@@ -538,12 +540,12 @@ change font of frequency, time
 				    
 				   
 				    $("#pitch").click(function(){
-				    	if(obj.checkPitch == 1){
-				    	obj.checkPitch = 0;
-				    	
-				    	}else{
-				    	obj.checkPitch = 1;
-				    	}
+				        var ele = document.getElementById('pitch');	
+                        if(ele.checked) {
+				    	    obj.checkPitch = 1;
+                        } else {
+				    	  obj.checkPitch = 0;
+                        }
 				    	if(obj.name == 0) return;
 				    	displayLimitRange();
 				    	if(obj.visuTime == obj.totalTime){
@@ -556,11 +558,12 @@ change font of frequency, time
 				    });
 				    
 				    $("#intensity").click(function(){
-				    	if(obj.checkIntensity == 1){
-				    	obj.checkIntensity = 0;
-				    	}else{
-				    	obj.checkIntensity = 1;
-				    	}
+				        var ele = document.getElementById('intensity');	
+                        if(ele.checked) {
+				    	    obj.checkIntensity = 1;
+                        } else {
+				    	  obj.checkIntensity = 0;
+                        }
 				    	if(obj.name == 0) return;
 				    	displayLimitRange();
 				    	
@@ -573,14 +576,13 @@ change font of frequency, time
 				    });
 				    
 				    $("#formant").click(function(){
+				        var ele = document.getElementById('formant');	
+                        if(ele.checked) {
+				    	    obj.checkFormant = 1;
+                        } else {
+				    	  obj.checkFormant = 0;
+                        }
 				    	
-				    	if(obj.checkFormant == 1){
-				    	obj.checkFormant = 0;
-				    	
-				    	}else{
-				    	obj.checkFormant = 1;
-				    	
-				    	}
 				    	if(obj.name == 0) return;
 				    	
 				    	
@@ -596,12 +598,13 @@ change font of frequency, time
 				    });
 				    
 				    $("#spectrogram").click(function(){
-				    	
-				    	if(obj.checkSpectrogram== 1){
-				    	obj.checkSpectrogram = 0;
-				    	}else{
-				    	obj.checkSpectrogram = 1;
-				    	}
+				        var ele = document.getElementById('spectrogram');	
+                        if(ele.checked) {
+				    	    obj.checkSpectrogram = 1;
+                        } else {
+				    	  obj.checkSpectrogram = 0;
+                        }
+
 				    	if(obj.name == 0) return;
 				    	
 				    	displayLimitRange();
@@ -617,12 +620,13 @@ change font of frequency, time
 				    });
 				    
 				    $("#pulse").click(function(){
+				        var ele = document.getElementById('pulse');	
+                        if(ele.checked) {
+				    	    obj.checkPulse = 1;
+                        } else {
+				    	  obj.checkPulse = 0;
+                        }
 				     	
-				     	if(obj.checkPulse == 1){
-				     	obj.checkPulse = 0;
-				     	}else{
-				     	obj.checkPulse = 1;
-				     	}
 				     	if(obj.name == 0) return;
 				     	
 				     	displayLimitRange();
@@ -1167,7 +1171,16 @@ change font of frequency, time
 	        }
 	    }
 	    
-	   	  
+function displayGroups() {
+    alert("Retrieving groups");
+    document.getElementById('audioselect').style.display = 'block';
+    document.getElementById('fileuploader').style.display = 'block';
+    document.getElementById('groupselection').style.display = 'none';
+    document.getElementById('manageGroup').style.display = 'none';
+    $.get('groups', function(data, status){
+        alert("Retrieving groups");
+    })
+} 
 	    
 	    function displayList(){
 	    // retrieve the list 
@@ -1188,8 +1201,8 @@ change font of frequency, time
 	    }
 
 	    function displayEafList(){
-
-		$.get(listEaf,function(data,status){
+        var _listEaf = listEaf + '/' + obj.name
+		$.get(_listEaf,function(data,status){
 	    		var size1 = data.files.length;
 			//alert(size1);
 				var vals1 = data.files;
@@ -1253,7 +1266,7 @@ change font of frequency, time
 			    	$('.eafBoxWrap').hide();
 			    	
 				var selectedFile = selectedValue;
-	    			var readeaf  = '/read-eaf/'+selectedFile;
+	    			var readeaf  = '/read-eaf/' + obj.name + '/' +selectedFile;
 
 				$.get(readeaf,function(data,status){
 	    				//alert(data);
@@ -1609,7 +1622,8 @@ change font of frequency, time
 			
 			
 			<!-- the upload button -->	
-			<div class="uploadFile" data-toggle = "tooltip" title = "Upload a new sound file to start the analysis.">
+            <!-- class="uploadFile" -->
+			<div class="uploadFile" data-toggle = "tooltip" title = "Upload a new sound file to start the analysis." id="fileuploader" style="display:none">
 			    <span  >Upload sound file </span>
 			    <form id="myForm" enctype="multipart/form-data" method="post" action="upload-sound">
 			    <input id="upload" type="file" name="sound" accept="audio/*" />
@@ -1618,8 +1632,18 @@ change font of frequency, time
 			
 			
 						
-			
-			<button class= "selectFromList" id = "selectFromList"  data-toggle = "tooltip" title = "Select a sound file from the list.">Select from list</button>
+		    <div id='groupmanage'>	
+			<button class="manageGroup" onclick="manageGroups()" id = "manageGroup"  data-toggle = "tooltip" title = "Manage groups">Manage groups</button>
+            </div>
+						
+		    <div id='groupselection'>	
+			<button class="selectFromList" onclick="displayGroups()" id = "selectGroup"  data-toggle = "tooltip" title = "Select a group to work on.">Select a group</button>
+            </div>
+
+            <div id='audioselect' style="display:none">
+			<button class="selectFromList" onclick="displayList()" id = "selectFromList"  data-toggle = "tooltip" title = "Select a sound file from the list.">Select from list</button>
+            </div>
+
   			<div id='fileinput' class="hidden">
 				<button class= "choosebox" id = "choosebox"  data-toggle = "tooltip" title = "Select an EAF file from the list.">View EAF</button>
 			</div>
@@ -1650,6 +1674,12 @@ change font of frequency, time
 		 	
 		 	<p id = "timeDurationText">Time duration : </p>
 		 	<p id = "timeDuration"></p>
+		 
+		 	<p id = "authUserText">User : </p>
+		 	<p id = "authUser">yqchen</p>
+		 	
+		 	<p id = "authGroupText">Group : </p>
+		 	<p id = "authGroup">yqchen's personal group</p>
 		 
 		<div id = "leftMenuBar" >
 			<!-- the side menus -->	
@@ -1735,8 +1765,9 @@ change font of frequency, time
 			 	<div class = "drop-content">
 				    <a href = "javascript:void(0)"  class='viewWaveform' onclick = "viewWaveform(); unhide(this, 'TextBoxesGroup'); unhide(this, 'playbox');">&nbsp; View Waveform.. </a>
 				    <a href = "javascript:void(0)"  id='addButton' class='addtier' onclick = "bringToFront()">&nbsp; Add Tier </a>	
-				    <a href = "javascript:void(0)"  id='removeButton' class='removetier'>&nbsp; Remove Tier </a>				    			    		    					    <a href = "javascript:void(0)"  id='saveannotationbutton' class='saveannotation' onclick = "saveAnnotation(); unhide(this, 'fileinput');">&nbsp; Save Annotation </a>	
-		    		    <a href = "javascript:void(0)"  id='getButtonValue' class='getannotationvalue'>&nbsp; Get Annotation </a>	
+				    <a href = "javascript:void(0)"  id='removeButton' class='removetier'>&nbsp; Remove Tier </a>
+                    <a href = "javascript:void(0)"  id='saveannotationbutton' class='saveannotation' onclick = "saveAnnotation(); unhide(this, 'fileinput');">&nbsp; Save Annotation </a>	
+		    		<a href = "javascript:void(0)"  id='getButtonValue' class='getannotationvalue'>&nbsp; Get Annotation </a>	
 				
 				<!--These properties were added here as backup. Currently, properties from css are commented.
 				.addannotation{
@@ -1869,10 +1900,10 @@ change font of frequency, time
 -->
 		<!-- the checkboxes --> 
 		<div id = "checkboxes">	
-			<input  id="spectrogram" type="checkbox" value = "spectrogram" checked> Spectrogram<br>
+			<input  id="spectrogram" type="checkbox" value = "spectrogram"> Spectrogram<br>
 			<input  id="pitch" type="checkbox" value = "Pitch" checked> Pitch<br>
-			<input  id="intensity" type="checkbox" value = "intensity" checked> Intensity<br>
-			<input  id="formant" type="checkbox" value = "formant" checked> Formant<br>
+			<input  id="intensity" type="checkbox" value = "intensity"> Intensity<br>
+			<input  id="formant" type="checkbox" value = "formant"> Formant<br>
 			<input  id="pulse" type="checkbox" value = "pointprocess"> Pulses<br>
 			
 	    </div>
@@ -1927,7 +1958,7 @@ change font of frequency, time
 			 			</select>
 			 			
 			 			<button  id = "close"  >Close</button>
-			 			<button  id = "select" onclick = "selectFile()" >Select</button>
+			 			<button  id = "select" onclick = "selectFile(); unhide(this, 'fileinput')" >Select</button>
 			 		</div>
 			 	</div>
 		</div>		

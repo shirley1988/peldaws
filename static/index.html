@@ -34,6 +34,13 @@ change font of frequency, time
 		
 		
 		       $(document).ready(function() { 
+
+					$.get('/auth/profile', function(data, status){
+                        var userName = data.name;
+                        var groupName = data.details.currentGroup.name;
+                        document.getElementById('authUser').innerHTML = userName;
+                        document.getElementById('authGroup').innerHTML = groupName;
+                    });
 		       	   
 		           // bind 'myForm' and provide a simple callback function 
 		           $('#myForm').ajaxForm({ 
@@ -1623,7 +1630,7 @@ function displayGroups() {
 			
 			<!-- the upload button -->	
             <!-- class="uploadFile" -->
-			<div class="uploadFile" data-toggle = "tooltip" title = "Upload a new sound file to start the analysis." id="fileuploader" style="display:none">
+			<div class="uploadFile" data-toggle = "tooltip" title = "Upload a new sound file to start the analysis." id="fileuploader">
 			    <span  >Upload sound file </span>
 			    <form id="myForm" enctype="multipart/form-data" method="post" action="upload-sound">
 			    <input id="upload" type="file" name="sound" accept="audio/*" />
@@ -1632,15 +1639,7 @@ function displayGroups() {
 			
 			
 						
-		    <div id='groupmanage'>	
-			<button class="manageGroup" onclick="manageGroups()" id = "manageGroup"  data-toggle = "tooltip" title = "Manage groups">Manage groups</button>
-            </div>
-						
-		    <div id='groupselection'>	
-			<button class="selectFromList" onclick="displayGroups()" id = "selectGroup"  data-toggle = "tooltip" title = "Select a group to work on.">Select a group</button>
-            </div>
-
-            <div id='audioselect' style="display:none">
+            <div id='audioselect'>
 			<button class="selectFromList" onclick="displayList()" id = "selectFromList"  data-toggle = "tooltip" title = "Select a sound file from the list.">Select from list</button>
             </div>
 

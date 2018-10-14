@@ -8,3 +8,4 @@ from intensityOps import *
 from formantOps import *
 from pointProcessOps import *
 from harmonicityOps import *
+from auth import *

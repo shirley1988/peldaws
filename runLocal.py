@@ -7,6 +7,7 @@ if __name__ == '__main__':
     app.config.update(
         SECRET_KEY = 'd83b92f46ec874a0e441abc51b797c6410380c48a301dfb5bbd5622f06321f50',
         DATABASE_URI = 'sqlite:///peldawsv1.db',
+        #DATABASE_URI = 'mysql://appsrv@peldaws:4O8de38Fc1db@peldaws.mysql.database.azure.com/peldaws',
         GOOGLE_LOGIN_CLIENT_ID = '504212720496-k43hig4lcrt2c8ot6hdkelfvvme8tfq5.apps.googleusercontent.com',
         GOOGLE_LOGIN_CLIENT_SECRET = 'lroMckpPUtcgJdtgIbCmPTC2',
         GOOGLE_LOGIN_REDIRECT_URI = 'http://localhost:5000/oauth2callback',

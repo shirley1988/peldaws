@@ -49,3 +49,10 @@ def mkdir_p(path):
             pass
         else:
             raise
+
+def is_true(v):
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, basestring):
+        return str(v).lower() == 'true' or str(v) == '1'
+    return v == 1

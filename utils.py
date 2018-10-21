@@ -1,5 +1,6 @@
 from PIL import Image
 import os, re
+import shutil
 import errno
 import hashlib
 import uuid
@@ -46,6 +47,15 @@ def mkdir_p(path):
         os.makedirs(path)
     except OSError as e:
         if e.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
+def rm_rf(path):
+    try:
+        shutil.rmtree(path)
+    except OSError as e:
+        if e.errno == errno.ENOENT:
             pass
         else:
             raise

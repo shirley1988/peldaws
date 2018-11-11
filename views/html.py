@@ -1,11 +1,13 @@
-from flask import send_from_directory
+from flask import send_from_directory, request, render_template
 from praat import app
 from flask_login import login_required
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 @login_required
 def index():
-    return app.send_static_file("auth.html")
+    context = request.args.get('context') or 'workspace'
+    #return app.send_static_file("auth.html")
+    return render_template('auth.html', context=context)
 
 @app.route('/index.html')
 @login_required

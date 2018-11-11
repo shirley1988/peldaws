@@ -43,7 +43,7 @@
       }
 
       function showOwnership() {
-          console.log("Show membership");
+          console.log("Show ownership");
           $.get('/auth/profile', function(data) {
               console.log(data);
               populateGroupList(data.details.ownership, 'ownership');
@@ -118,7 +118,9 @@ function validateAction() {
             userEmail: email
         });
         btn.off('click').click(
-            simplePost('/auth/groups/' + $("#groupHolder").val(),  payload)
+            simplePost('/auth/groups/' + $("#groupHolder").val(),  payload, function(d) {
+                showOwnership();
+            })
         );
         return;
     }
@@ -137,7 +139,7 @@ function showActions(gid) {
 }
 
 
-function simplePost(api, payload) {
+function simplePost(api, payload, callback) {
     return function() {
                   console.log("Posting to API " + api + " with payload " + payload);
                   $.ajax({
@@ -149,12 +151,12 @@ function simplePost(api, payload) {
                       success: function(_data) {
                           console.log("success data ");
                           console.log(_data);
-                          location.reload(true);
+                          callback(_data);
                       },
                       error: function(_data) {
                           console.log("error data ");
                           console.log(_data);
-                          location.reload(true);
+                          callback(_data);
                       }
                   });
 
@@ -166,7 +168,9 @@ function simplePost(api, payload) {
           var btn = $("#selectBtn");
           btn.text("Select to work");
           btn.off('click').click(
-              simplePost('/auth/profile', JSON.stringify({groupId: gid}))
+              simplePost('/auth/profile', JSON.stringify({groupId: gid}), function(d) {
+                  location.href = '/index.html';
+              })
           );
       }
 
@@ -187,7 +191,8 @@ function simplePost(api, payload) {
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" id="userBlk">User</a>
+          <!-- a class="navbar-brand" id="userBlk">User</a -->
+          <div class="navbar-brand" id="userBlk">User</div>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">

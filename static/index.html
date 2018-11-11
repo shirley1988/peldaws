@@ -39,7 +39,7 @@ change font of frequency, time
                         var userName = data.name;
                         var groupName = data.details.currentGroup.name;
                         document.getElementById('authUser').innerHTML = userName;
-                        document.getElementById('authGroup').innerHTML = groupName;
+                        document.getElementById('authGroup').innerHTML = "<a href='/'>" + groupName + "</a>";
                     });
 		       	   
 		           // bind 'myForm' and provide a simple callback function 
@@ -1675,10 +1675,10 @@ function displayGroups() {
 		 	<p id = "timeDuration"></p>
 		 
 		 	<p id = "authUserText">User : </p>
-		 	<p id = "authUser">yqchen</p>
+		 	<p id = "authUser"></p>
 		 	
 		 	<p id = "authGroupText">Group : </p>
-		 	<p id = "authGroup">yqchen's personal group</p>
+            <p id = "authGroup"></p>
 		 
 		<div id = "leftMenuBar" >
 			<!-- the side menus -->	

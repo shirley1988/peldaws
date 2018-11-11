@@ -27,7 +27,7 @@ def runScript(scriptName, args):
    return output
 
 # Create flask app
-app = Flask(__name__, static_url_path="")
+app = Flask(__name__, static_url_path="", template_folder="templates")
 app.config.update(
     # https://code.google.com/apis/console
     GOOGLE_LOGIN_SCOPES = 'email,profile',

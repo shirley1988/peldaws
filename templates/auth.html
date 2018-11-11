@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Group Management</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/auth.css" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script>
+      $(document).ready(function() {
+          console.log("Document ready!");
+          $.get('/auth/profile', function(data) {
+              console.log(data);
+              var userName = data.name;
+              var currentGroupName = data.details.currentGroup.name;
+              $("#operatorHolder").val(data.id);
+              $("#groupHolder").val(data.details.currentGroup.id);
+              document.getElementById("userBlk").innerHTML = "Welcome " + userName;
+              document.getElementById("groupBlk").innerHTML = "Current group " + currentGroupName;
+              populateGroupList(data.details.membership, 'membership');
+              showGroupInfo(data.currentGroupId, 'membership');
+              var context = $("#contextHolder").val();
+              if (context == 'ownership') {
+                  showOwnership();
+              } else if (context == 'membership') {
+                  showMembership();
+              } else {
+                  showWorkspace();
+              }
+          });
+      });
+
+      function showWorkspace() {
+          console.log("Show workspace");
+          $.get('/auth/profile', function(data) {
+              console.log(data);
+              populateGroupList(data.details.membership, 'membership');
+              $("#groupDisplay").hide();
+              $("#workspace").show();
+          });
+      }
+
+      function showMembership() {
+          console.log("Show membership");
+          $.get('/auth/profile', function(data) {
+              console.log(data);
+              populateGroupList(data.details.membership, 'membership');
+              $("#workspace").hide();
+              showGroupInfo(data.currentGroupId, 'membership');
+          });
+      }
+
+      function showOwnership() {
+          console.log("Show ownership");
+          $.get('/auth/profile', function(data) {
+              console.log(data);
+              populateGroupList(data.details.ownership, 'ownership');
+              $("#workspace").hide();
+              showGroupInfo(data.details.ownership[0].id, 'ownership');
+          });
+      }
+
+      function populateGroupList(groups, context) {
+          var gList = $('#groupList');
+          gList.empty();
+          $.each(groups, function(index, _group) {
+              gList.append(createGroupListItem(_group, context));
+          });
+      }
+
+      function createGroupListItem(group, context) {
+          var liNode = document.createElement('li');
+          var aNode = document.createElement('a');
+          aNode.setAttribute('id', group.id);
+          aNode.innerHTML = group.name;
+          aNode.onclick = function() {
+              $("#groupHolder").val(group.id);
+              showGroupInfo(group.id, context);
+          };
+          liNode.append(aNode);
+          return liNode;
+      }
+
+      function showGroupInfo(gid, context) {
+          console.log("Group " + gid + "was just clicked");
+          $("#groupHolder").val(gid);
+          var groupNameNode = $("#groupName");
+          var groupOwnerNode = $("#groupOwner");
+          var groupMembersNode = $("#groupMembers");
+          var api = '/auth/groups/' + gid;
+          $.get(api, function(data) {
+              //console.log("Group data for " + gid);
+              //console.log(data);
+              groupNameNode.text(data.name);
+              groupOwnerNode.text(data.ownerName);
+              var members = extractGroupMembers(data.details.members);
+              groupMembersNode.text(members.join(", "));
+              $("#groupDisplay").show();
+              if (context == 'ownership') {
+                  showActions(gid);
+              } else {
+                  enableSwitchButton(gid);
+              }
+          });
+      }
+
+function updateAnimation() {
+    var player = document.getElementById('audioPlayer');
+    console.log("Duration: " + player.duration);
+    console.log("Current time: " + player.currentTime);
+}
+
+function validateAction() {
+    var parts = $("#actionDetails").val().split(",");
+    console.log(parts);
+    var btn = $("#selectBtn");
+    if (parts.length != 2) {
+        console.log("Invalid action string");
+        btn.attr('disabled', true);
+        return false;
+    }
+    var email = parts[1].toLowerCase().trim();
+    if (email.includes(" ") ) {
+        console.log("Invalid email address " + email);
+        btn.attr('disabled', true);
+        return false;
+    }
+    var act = parts[0].trim().toLowerCase();
+    if (act == 'add' || act == 'remove' || act == 'transfer') {
+        btn.attr('disabled', false);
+        var payload =  JSON.stringify({
+            action: act,
+            userEmail: email
+        });
+        btn.off('click').click(
+            simplePost('/auth/groups/' + $("#groupHolder").val(),  payload, function(d) {
+                showOwnership();
+            })
+        );
+        return;
+    }
+    console.log("Invalid actions");
+    btn.attr('disabled', true);
+    return false;
+}
+
+function showActions(gid) {
+    $("#actionItems").show();
+    var details = $("#actionDetails");
+    details.val();
+
+    var btn = $("#selectBtn");
+    btn.text("Submit");
+}
+
+
+function simplePost(api, payload, callback) {
+    return function() {
+                  console.log("Posting to API " + api + " with payload " + payload);
+                  $.ajax({
+                      type: "POST",
+                      url: api,
+                      data: payload,
+                      contentType: "application/json",
+                      dataType: "text",
+                      success: function(_data) {
+                          console.log("success data ");
+                          console.log(_data);
+                          callback(_data);
+                      },
+                      error: function(_data) {
+                          console.log("error data ");
+                          console.log(_data);
+                          callback(_data);
+                      }
+                  });
+
+    };
+}
+
+      function enableSwitchButton(gid) {
+          $("#actionItems").hide();
+          var btn = $("#selectBtn");
+          btn.text("Select to work");
+          btn.off('click').click(
+              simplePost('/auth/profile', JSON.stringify({groupId: gid}), function(d) {
+                  location.href = '/?context=workspace';
+              })
+          );
+      }
+
+      function extractGroupMembers(members) {
+          var memberList = [];
+          for (var index = 0; index < members.length; index++) {
+              memberList.push( members[index].name + "(" + members[index].email + ")" );
+          }
+          return memberList;
+      }
+
+    </script>
+
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <!-- a class="navbar-brand" id="userBlk">User</a -->
+          <div class="navbar-brand" id="userBlk">User</div>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/?context=workspace" id="groupBlk">Group</a></li>
+            <li><a href="/?context=membership">Membership</a></li>
+            <li><a href="/?context=ownership">Ownership</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-5 col-md-3 sidebar">
+          <ul class="nav nav-sidebar" id="groupList">
+          </ul>
+        </div>
+        <div class="col-sm-7 col-sm-offset-5 col-md-9 col-md-offset-3 main">
+          <!-- h1 class="page-header">placeholder</h1 -->
+          <div id="groupDisplay" style="display:none">
+            <form>
+              <div class="form-group row">
+                <label for="groupName" class="col-sm-2 col-form-label">Name</label>
+                <div class="col-sm-10">
+                  <p class="form-control-static" id="groupName"></p>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="groupOwner" class="col-sm-2 col-form-label">Owner</label>
+                <div class="col-sm-10">
+                  <p class="form-control-static" id="groupOwner"></p>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="groupMembers" class="col-sm-2 col-form-label">Members</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static" id="groupMembers"> </p>
+                </div>
+              </div>
+
+              <div class="form-group row" id="actionItems" style="display:none">
+                <label for="addMember" class="col-sm-2 col-form-label">Actions</label>
+                <div class="col-sm-10">
+                    <input class="form-control" style="text" id="actionDetails" onchange="validateAction()" value=""> </input>
+                    <small id="emailHelp" class="form-text text-muted">
+                        You can ADD, REMOVE member or TRANSFER ownership to another member. One action/member each time. E.g. <br>
+                        ADD, ally@gmail.com <br>
+                        REMOVE, betty@gmail.com <br>
+                        TRANSFER, charlie@gmail.com
+                    </small>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <button type="button" class="btn btn-primary" id="selectBtn">Work in this group</button>
+              </div>
+            </form>
+          </div>
+          <div id="workspace" style="display:none">
+              <h2> Hello workspace! </h2>
+              <div>
+                  <audio controls ontimeupdate="updateAnimation()" id="audioPlayer" src="/play/Part1.mp3" type="audio/mp3">
+                  </audio>
+              </div>
+          </div>
+
+          <!-- placeholder elements -->
+          <input style="display:none" id="operatorHolder"></input>
+          <input style="display:none" id="userHolder"></input>
+          <input style="display:none" id="groupHolder"></input>
+          <input style="display:none" id="contextHolder" value="{{ context }}"></input>
+
+
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

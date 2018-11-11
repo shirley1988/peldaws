@@ -18,11 +18,18 @@ def isSound(fileName):
    return '.' in fileName and \
          fileType(fileName) in _sound_extensions
 
-def resizeImage(image):
+def resizeImage(image, size=(500, 500)):
    """ Down-scaling the image to 500x500 pixels """
    img = Image.open(image)
-   img.thumbnail((500,500), Image.ANTIALIAS)
+   img.thumbnail(size, Image.ANTIALIAS)
    img.save(image, "PNG", quality=88)
+
+def cropImage(image):
+    img = Image.open(image)
+    w, h = img.size
+    wf = 0.096
+    hf = 0.128
+    img.crop((w * wf, h * hf, w * (1-wf), h * (1-hf))).save(image)
 
 def deleteCachedImages(directory, prefix):
    """ Delete cached images starting with prefix """
@@ -53,7 +60,10 @@ def mkdir_p(path):
 
 def rm_rf(path):
     try:
-        shutil.rmtree(path)
+        if os.path.isfile(path):
+            os.remove(path)
+        else:
+            shutil.rmtree(path)
     except OSError as e:
         if e.errno == errno.ENOENT:
             pass

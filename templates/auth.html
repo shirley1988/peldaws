@@ -28,8 +28,6 @@
               $("#groupHolder").val(data.details.currentGroup.id);
               document.getElementById("userBlk").innerHTML = "Welcome " + userName;
               document.getElementById("groupBlk").innerHTML = "Current group " + currentGroupName;
-              populateGroupList(data.details.membership, 'membership');
-              showGroupInfo(data.currentGroupId, 'membership');
               var context = $("#contextHolder").val();
               if (context == 'ownership') {
                   showOwnership();
@@ -50,6 +48,25 @@
               $("#workspace").show();
           });
       }
+
+function zoomImage(dir) {
+    var img = $('#waveformImg');
+    var w = img.width();
+    var h = img.height();
+    console.log("Current size: W " + img.width() + " H " + img.height());
+    var inFactor = 0.8;
+    var outFactor = 1.25;
+    if (dir > 0) {
+        console.log("Zoom out image");
+        img.width(w * outFactor);
+        img.height(h * outFactor);
+    } else {
+        console.log("Zoom in image");
+        img.width(w * inFactor);
+        img.height(h * inFactor);
+    }
+    console.log("New size: W " + img.width() + " H " + img.height());
+}
 
       function showMembership() {
           console.log("Show membership");
@@ -119,6 +136,20 @@ function updateAnimation() {
     var player = document.getElementById('audioPlayer');
     console.log("Duration: " + player.duration);
     console.log("Current time: " + player.currentTime);
+    var percent = Math.round(player.currentTime * 88 / player.duration);
+    var newPos = 6 + percent;
+    console.log("New relative position: " + newPos + "%");
+    $('#progressLine').text(player.currentTime);
+    $('#progressLine').css("left", newPos + "%");
+}
+
+function resetAnimation() {
+    $('#progressLine').text("");
+    $('#progressLine').css("left", "6%");
+}
+
+function showProgress() {
+    $('#progressLine').show();
 }
 
 function validateAction() {
@@ -282,8 +313,15 @@ function simplePost(api, payload, callback) {
           <div id="workspace" style="display:none">
               <h2> Hello workspace! </h2>
               <div>
-                  <audio controls ontimeupdate="updateAnimation()" id="audioPlayer" src="/play/Part1.mp3" type="audio/mp3">
+                  <audio controls ontimeupdate="updateAnimation()" onended="resetAnimation()" id="audioPlayer">
+                      <source src="/play/{{ audiofile }}" type="audio/mp3">
                   </audio>
+                  <!-- button type="button" class="btn btn-primary" id="zoomin" onclick="zoomImage(-1)">Zoom In</button>
+                  <button type="button" class="btn btn-primary" id="zoomout" onclick="zoomImage(1)">Zoom Out</button -->
+                  <div class="image-div">
+                    <img class="base-image" src="/waveform/{{ audiofile }}/" id="waveformImg" onload="showProgress()">
+                    <div class="vl" id="progressLine" style="display:none"></div>
+                  </div>
               </div>
           </div>
 

@@ -84,3 +84,23 @@ body {
   margin-top: 0;
 }
 
+.image-div {
+  position: relative;
+  height: 360px;
+  width: 720px;
+}
+
+.base-image {
+  position: relative;
+  z-index: 1;
+  height: 360px;
+}
+
+.vl {
+  border-left: 2px solid red;
+  height: 300px;
+  position: relative;
+  z-index: 1000;
+  top: -330px;
+  left: 6%;
+}

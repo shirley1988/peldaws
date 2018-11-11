@@ -6,8 +6,9 @@ from flask_login import login_required
 @login_required
 def index():
     context = request.args.get('context') or 'workspace'
+    audiofile="OldPart2.mp3"
     #return app.send_static_file("auth.html")
-    return render_template('auth.html', context=context)
+    return render_template('auth.html', context=context, audiofile=audiofile)
 
 @app.route('/index.html')
 @login_required

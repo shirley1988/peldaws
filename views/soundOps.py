@@ -66,6 +66,37 @@ def drawSound(sound, startTime, endTime):
     resp.content_type = "image/png"
     return resp
 
+@app.route('/waveform/<sound>/', methods=['GET'])
+def waveform(sound):
+    startTime = request.args.get('startTime', '0')
+    endTime = request.args.get('endTime', '0')
+    if float(startTime) > float(endTime):
+        endTime = startTime
+    script = praat._scripts_dir + 'drawWave'
+    params = [sound, startTime, endTime, praat._sounds_dir, praat._images_dir]
+
+    ts = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S_")
+    if "wav" not  in sound:
+        image = praat._images_dir + ts + str(sound.replace("mp3", "png"))
+    else:
+        image = praat._images_dir + ts + str(sound.replace("wav", "png"))
+
+    # Add image name to params list
+    params.append(image)
+
+    # If image does not exist, run script
+    #if not os.path.isfile(image):
+    praat.runScript(script, params)
+    utils.resizeImage(image, (1280, 640))
+    #utils.cropImage(image)
+
+    # Image should be available now, generated or cached
+    with open(image) as fp:
+        resp = app.make_response(fp.read())
+    utils.rm_rf(image)
+    resp.content_type = "image/png"
+    return resp
+
 @app.route('/get-bounds/<sound>')
 def getBounds(sound):
     script = praat._scripts_dir + "getBounds";

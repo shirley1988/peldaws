@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from flask_login import login_required
 
 from xml.etree import cElementTree as ET
 #from lxml import etree
@@ -67,6 +68,7 @@ def drawSound(sound, startTime, endTime):
     return resp
 
 @app.route('/waveform/<sound>/', methods=['GET'])
+@login_required
 def waveform(sound):
     startTime = request.args.get('startTime', '0')
     endTime = request.args.get('endTime', '0')

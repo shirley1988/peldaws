@@ -37,6 +37,27 @@ import pathlib
 #################################################################################################
 ## added to test elan waveform individually
 
+
+# input: eaf file path
+# output, a dictionary of annoation tiers
+def parse_eaf(eaffile):
+    eaf = Eaf(eaffile)
+    res = {}
+    for k, v in eaf.tiers.iteritems():
+        print "Item"
+        print k
+        print v
+        info = v[0].values()[0]
+        res[k] = {
+            "name": k,
+            "startTime": eaf.timeslots[info[0]],
+            "endTime": eaf.timeslots[info[1]],
+            "text": info[2],
+        }
+    return res
+
+
+
 @app.route('/draw-elan/<sound>/<startTime>/<endTime>/')
 @login_required
 def drawElan(sound, startTime, endTime):
@@ -71,6 +92,29 @@ def drawElan(sound, startTime, endTime):
     resp = app.make_response(open(image).read())
     resp.content_type = "image/png"
     return resp
+
+
+@app.route('/annotations/', methods=['POST'])
+@login_required
+def annotations():
+    sound = request.args.get('sound')
+    name = request.args.get('name')
+    start_time = request.args.get('startTime')
+    end_time = request.args.get('endTime')
+    tier_one = request.args.get('tierOne')
+    tier_two = request.args.get('tierTwo')
+    tier_three = request.args.get('tierThree')
+    print "Saving annotation %s for sound %s" % (name, sound)
+
+    eaf_obj = pympi.Elan.Eaf()
+    ltcon = 'Time_Subdivision'
+    soundpath = praat._sounds_dir + sound
+    soundpath_url = pathlib.Path(soundpath)
+    extension = sound.split('.')[-1]
+    mimetype = 'audio/' + extension
+
+
+
 
 ## Add a new annotation
 @app.route('/annotation/<eaffilename>/<sound>/<ltype>/<start>/<end>/<text0>/<text1>/<text2>')

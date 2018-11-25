@@ -1,7 +1,6 @@
-
 FROM python:2.7
 
-MAINTAINER YQCHEN
+MAINTAINER NANALIU
 
 RUN mkdir /code
 WORKDIR /code
@@ -27,4 +26,5 @@ RUN pip install -r requirements.txt
 COPY init.sh /usr/local/bin/
 
 RUN chmod u+x /usr/local/bin/init.sh
+RUN chmod u+x /code/run.py
 ENTRYPOINT ["init.sh"]

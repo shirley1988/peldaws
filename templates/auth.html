@@ -148,6 +148,31 @@ function updateAnimation() {
     $('#progressLine').css("left", newPos + "%");
 }
 
+function updateInterval() {
+    var player = document.getElementById('audioPlayer');
+    var ct = player.currentTime;
+    console.log("Selected time: " + ct);
+    var tiHolder = $('#timeIntervalHolder');
+    var curPos = tiHolder.val();
+    if (curPos == '') {
+        console.log("Setting start time");
+        $('#startTime').val(ct);
+        tiHolder.val('start');
+    } else if (curPos == 'start') {
+        console.log("Setting end time");
+        $('#endTime').val(ct);
+        tiHolder.val('end');
+    } else {
+        console.log("do nothing");
+    }
+}
+
+function resetTimeInterval() {
+    $('#timeIntervalHolder').val('');
+    $('#startTime').val('');
+    $('#endTime').val('');
+}
+
 function resetAnimation() {
     $('#progressLine').text("");
     $('#progressLine').css("left", "6%");
@@ -338,7 +363,7 @@ function simplePost(api, payload, callback) {
           <div id="workspace" style="display:none">
               <h2> Hello workspace! </h2>
               <div>
-                  <audio controls ontimeupdate="updateAnimation()" onended="resetAnimation()" id="audioPlayer" type="audio/mp3">
+                  <audio controls ontimeupdate="updateAnimation()" onended="resetAnimation()" onpause="updateInterval()" id="audioPlayer" type="audio/mp3">
                   </audio>
                   <!-- button type="button" class="btn btn-primary" id="zoomin" onclick="zoomImage(-1)">Zoom In</button>
                   <button type="button" class="btn btn-primary" id="zoomout" onclick="zoomImage(1)">Zoom Out</button -->
@@ -392,6 +417,7 @@ function simplePost(api, payload, callback) {
                   </div>
 
                   <div class="form-group row">
+                    <button type="button" class="btn btn-primary" onclick="resetTimeInterval()">Reset Time Interval</button>
                     <button type="button" class="btn btn-primary" onclick="saveAnnotation()">Save Annotation</button>
                   </div>
                 </form>
@@ -402,6 +428,7 @@ function simplePost(api, payload, callback) {
           <input style="display:none" id="operatorHolder"></input>
           <input style="display:none" id="userHolder"></input>
           <input style="display:none" id="groupHolder"></input>
+          <input style="display:none" id="timeIntervalHolder"></input>
           <input style="display:none" id="contextHolder" value="{{ context }}"></input>
           <input style="display:none" id="audioHolder" value="{{ audiofile }}"></input>
 

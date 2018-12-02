@@ -136,21 +136,32 @@ def group_ops(gid):
 def group_audio_ops(gid):
     user = g.user
     group = praat.Group.query.get(gid)
-    return generic_audio_ops(user, group, request.method, request.files.get('audio'))
+    params = request.json or request.args
+    return generic_audio_ops(user, group, request.method, request.files.get('audio'), params)
 
 @app.route('/auth/audios', methods=['GET', 'POST'])
 @login_required
 def audio_ops():
     user = g.user
     group = praat.Group.query.get(user.current_group_id)
-    return generic_audio_ops(user, group, request.method, request.files.get('audio'))
+    params = request.json or request.args
+    return generic_audio_ops(user, group, request.method, request.files.get('audio'), params)
 
-def generic_audio_ops(user, group, method, audio=None):
+def generic_audio_ops(user, group, method, audio=None, params=None):
     if group is None:
         return "Group does not exist"
+    storage_svc = get_storage_service(praat.app.config)
     if method == 'GET':
-        g_info = group.details()
-        return jsonify(g_info['details']['audios'])
+        #g_info = group.details()
+        #return jsonify(g_info['details']['audios'])
+        resp = []
+        for audio in group.audios:
+            info = audio.summary()
+            if utils.is_true(params.get('show_versions')):
+                info['versions'] = storage_svc.show_versions(audio.location)
+            resp.append(info)
+        print resp
+        return jsonify(resp)
 
     if not audio or not audio.filename:
         # If no audio file, stop
@@ -165,7 +176,6 @@ def generic_audio_ops(user, group, method, audio=None):
         data = audio.read()
         key = utils.generate_id(group.id + audioName)
         audioObj = praat.Audio.query.filter_by(location=key).first()
-        storage_svc = get_storage_service(praat.app.config)
         storage_svc.put(key, data)
         if audioObj is None:
             print 'Creating new audio file'

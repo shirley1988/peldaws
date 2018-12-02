@@ -85,7 +85,8 @@ class LocalStorageService(StorageService):
                 continue
             ts, ver = rec.split("---")
             versions.append({
-                'timestamp': float(ts.strip()),
+                'timestamp': ts.strip(),
+                'timestamp_utc': time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime(float(ts))),
                 'version': ver.strip()
                 })
         return versions[::-1]

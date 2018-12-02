@@ -4,6 +4,7 @@ from praat import app
 import praat
 import utils
 from flask_login import login_required
+from storage import get_storage_service
 
 
 # retrieve a list of users
@@ -98,8 +99,7 @@ def find_user(uid=None, email=None):
 
 # retrieve or update group info
 @app.route('/auth/groups/<gid>', methods=['GET', 'POST'])
-# TODO: require login
-#@login_required
+@login_required
 def group_ops(gid):
     operator = g.user
     group = praat.Group.query.get(gid)
@@ -109,27 +109,76 @@ def group_ops(gid):
         operator = praat.User.query.first()
     if request.method == 'GET':
         return jsonify(group.details())
-    #if request.method == 'DELETE':
-    #    praat.delete_group(operator, group)
-    #    return "User %s just deleted group %s" % (operator.name, group.name)
+
+    allowed_actions = ['add', 'remove', 'transfer']
+    if not praat.is_owner(operator, group):
+        return "User %s has no permission to update group %s" % (operator.name, group.name)
+    action = request.json.get('action', '').lower()
+    if not action in allowed_actions:
+        return "Invalid action %s" % (action)
+    user = find_user(uid=request.json.get('userId'), email=request.json.get('userEmail'))
+    if user is None:
+        return "User not found"
+    print "Operator name: %s , id: %s" % (operator.name, operator.id)
+    print "User name: %s , id: %s" % (user.name, user.id)
+    print "Group name: %s , id: %s" % (group.name, group.id)
+    if action == 'add':
+        praat.add_user_to_group(operator, user, group)
+    elif action == 'remove':
+        praat.remove_user_from_group(operator, user, group)
     else:
-        allowed_actions = ['add', 'remove', 'transfer']
-        if not praat.is_owner(operator, group):
-            return "User %s has no permission to update group %s" % (operator.name, group.name)
-        action = request.json.get('action', '').lower()
-        if not action in allowed_actions:
-            return "Invalid action %s" % (action)
-        user = find_user(uid=request.json.get('userId'), email=request.json.get('userEmail'))
-        if user is None:
-            return "User not found"
-        print "Operator name: %s , id: %s" % (operator.name, operator.id)
-        print "User name: %s , id: %s" % (user.name, user.id)
-        print "Group name: %s , id: %s" % (group.name, group.id)
-        if action == 'add':
-            praat.add_user_to_group(operator, user, group)
-        elif action == 'remove':
-            praat.remove_user_from_group(operator, user, group)
+        praat.transfer_group(operator, user, group)
+    return "User %s updates group %s - action: %s, target: %s" % (
+            operator.name, group.name, action, user.name)
+
+@app.route('/auth/groups/<gid>/audios', methods=['GET', 'POST'])
+@login_required
+def group_audio_ops(gid):
+    user = g.user
+    group = praat.Group.query.get(gid)
+    return generic_audio_ops(user, group, request.method, request.files.get('audio'))
+
+@app.route('/auth/audios', methods=['GET', 'POST'])
+@login_required
+def audio_ops():
+    user = g.user
+    group = praat.Group.query.get(user.current_group_id)
+    return generic_audio_ops(user, group, request.method, request.files.get('audio'))
+
+def generic_audio_ops(user, group, method, audio=None):
+    if group is None:
+        return "Group does not exist"
+    if method == 'GET':
+        g_info = group.details()
+        return jsonify(g_info['details']['audios'])
+
+    if not audio or not audio.filename:
+        # If no audio file, stop
+        status = "No audio file"
+        audioName = ""
+    elif not utils.isSound(audio.filename):
+        # Stop if uploaded file is not a audio
+        status = "Unknown file type"
+        audioName = audio.filename
+    else:
+        audioName = audio.filename
+        data = audio.read()
+        key = utils.generate_id(group.id + audioName)
+        audioObj = praat.Audio.query.filter_by(location=key).first()
+        storage_svc = get_storage_service(praat.app.config)
+        storage_svc.put(key, data)
+        if audioObj is None:
+            print 'Creating new audio file'
+            audioObj = praat.Audio(audioName, user, group, key)
+            praat.db_session.add(audioObj)
+            praat.db_session.commit()
         else:
-            praat.transfer_group(operator, user, group)
-        return "User %s updates group %s - action: %s, target: %s" % (
-                operator.name, group.name, action, user.name)
+            print audioObj.summary()
+            print 'Updating existing audio file'
+        status = "Success"
+
+    result = {
+        "status": status,
+        "audio": audioName
+    }
+    return jsonify(result)

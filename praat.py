@@ -148,6 +148,7 @@ class Group(Base):
             'name': self.name,
             'ownerId': self.owner_id,
             'ownerName': self.owner.name,
+            'ownerEmail': self.owner.email,
             'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
@@ -169,6 +170,7 @@ class Audio(Base):
     owner_id = Column(String(60), ForeignKey('groups.id'))
     location = Column(String(60), default='')
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     owner = relationship('Group', back_populates='audios')
     annotations = relationship('Annotation', back_populates='audio')
 
@@ -185,7 +187,9 @@ class Audio(Base):
             'name': self.name,
             'ownerId': self.owner_id,
             'ownerName': self.owner.name,
+            'location': self.location,
             'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'updated_at': self.updated_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
 

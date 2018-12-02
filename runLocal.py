@@ -11,6 +11,7 @@ if __name__ == '__main__':
         GOOGLE_LOGIN_CLIENT_SECRET = 'lroMckpPUtcgJdtgIbCmPTC2',
         GOOGLE_LOGIN_REDIRECT_URI = 'http://localhost:5000/oauth2callback',
         STAGE = 'development',
+        STORAGE_LOCATION = 'local',
     )
     init_db()
     app.run(host='0.0.0.0', port=5000, threaded=True)

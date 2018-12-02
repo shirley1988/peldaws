@@ -122,10 +122,10 @@ function zoomImage(dir) {
           var groupMembersNode = $("#groupMembers");
           var api = '/auth/groups/' + gid;
           $.get(api, function(data) {
-              //console.log("Group data for " + gid);
-              //console.log(data);
+              console.log("Group data for " + gid);
+              console.log(data);
               groupNameNode.text(data.name);
-              groupOwnerNode.text(data.ownerName);
+              groupOwnerNode.text(data.ownerName + '(' + data.ownerEmail + ')');
               var members = extractGroupMembers(data.details.members);
               groupMembersNode.text(members.join(", "));
               $("#groupDisplay").show();
@@ -224,7 +224,6 @@ function showActions(gid) {
     var btn = $("#selectBtn");
     btn.text("Submit");
 }
-
 
 function saveAnnotation() {
     var name = $('#annotationName').val();
@@ -362,6 +361,14 @@ function simplePost(api, payload, callback) {
           </div>
           <div id="workspace" style="display:none">
               <h2> Hello workspace! </h2>
+
+			  <div data-toggle="tooltip" title="Upload a new sound file to start the analysis." id="fileuploader">
+			    <span>Upload audio file</span>
+			    <form id="audioUploadForm" enctype="multipart/form-data" method='post', action='/auth/audios' onchange="this.submit()">
+			      <input id="audioUpload" type="file" name="audio" accept="audio/*" />
+			    </form>
+			  </div>
+			
               <div>
                   <audio controls ontimeupdate="updateAnimation()" onended="resetAnimation()" onpause="updateInterval()" id="audioPlayer" type="audio/mp3">
                   </audio>

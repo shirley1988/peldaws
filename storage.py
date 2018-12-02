@@ -5,9 +5,9 @@ import hashlib
 import time
 
 
-def get_storage_service(app):
-    if app.config['STORAGE_LOCATION'] == 'azure':
-        return AzureStorageService(app.config)
+def get_storage_service(config):
+    if config.get('STORAGE_LOCATION') == 'azure':
+        return AzureStorageService(config)
     else:
         return LocalStorageService()
 
@@ -119,7 +119,7 @@ class LocalStorageService(StorageService):
                 find = True
 
         # if we find the provided version, do revert
-        if find == True:
+        if find:
             # if provided version is the oldest
             if revert_to is None:
                 data = ''

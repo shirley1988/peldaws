@@ -11,6 +11,7 @@ if __name__ == '__main__':
         GOOGLE_LOGIN_CLIENT_SECRET = 'B6mzHoERK5lYv-nRImfd2-1o',
         GOOGLE_LOGIN_REDIRECT_URI = 'http://peldawsnliu.azurewebsites.net/oauth2callback',
         STAGE = 'production',
+        SOTRAGE_LOCATION = 'azure',
     )
     init_db()
     app.run(host='0.0.0.0', port=8000, threaded=True)

@@ -5,22 +5,25 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags-->
 
     <title> Peldaws - Audio Annotation Versioning </title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom style for this template-->
-    <link href="css/base.css" rel="stylesheet">
+    <!-- Custom style for this template>
+    <link href="css/base.css" rel="stylesheet"-->
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
-    <script>
-      
-    </script>
+    <script src="js/base.js"></script>
+  
+    <!-- flask form template -->
+	
+	
+
   </head>
 
   <body>
@@ -43,7 +46,7 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav navbar-center">
         
-        <li class="active"><a href="#">Membership Management <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="/">Membership Management <span class="sr-only">(current)</span></a></li>
         <li><a href="#">Group Management</a></li>
 
         <li class="dropdown">
@@ -86,7 +89,70 @@
   </div><!-- /.container-fluid -->
 </nav>
 
-<p>{% block UserName %}{% endblock %}</p>
+
+
+<div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-5 col-md-3 sidebar">
+          <ul class="nav nav-sidebar" id="groupList">
+          </ul>
+        </div>
+        <div class="col-sm-7 col-sm-offset-5 col-md-9 col-md-offset-3 main">
+          <!-- h1 class="page-header">placeholder</h1 -->
+          <div id="groupDisplay" style="display:none">
+            <form>
+              <div class="form-group row">
+                <label for="groupName" class="col-sm-2 col-form-label">Name</label>
+                <div class="col-sm-10">
+                  <p class="form-control-static" id="groupName"></p>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="groupOwner" class="col-sm-2 col-form-label">Owner</label>
+                <div class="col-sm-10">
+                  <p class="form-control-static" id="groupOwner"></p>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="groupMembers" class="col-sm-2 col-form-label">Members</label>
+                <div class="col-sm-10">
+                    <p class="form-control-static" id="groupMembers"> </p>
+                </div>
+              </div>
+
+              <div class="form-group row" id="actionItems" style="display:none">
+                <label for="addMember" class="col-sm-2 col-form-label">Actions</label>
+                <div class="col-sm-10">
+                    <input class="form-control" style="text" id="actionDetails" onchange="validateAction()" value=""> </input>
+                    <small id="emailHelp" class="form-text text-muted">
+                        You can ADD, REMOVE member or TRANSFER ownership to another member. One action/member each time. E.g. <br>
+                        ADD, ally@gmail.com <br>
+                        REMOVE, betty@gmail.com <br>
+                        TRANSFER, charlie@gmail.com
+                    </small>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <button type="button" class="btn btn-primary" id="selectBtn">Work in this group</button>
+              </div>
+            </form>
+          </div>
+              
+          <!-- placeholder elements -->
+          <input style="display:none" id="operatorHolder"></input>
+          <input style="display:none" id="userHolder"></input>
+          <input style="display:none" id="groupHolder"></input>
+          <input style="display:none" id="contextHolder" value="{{ context }}"></input>
+          <input style="display:none" id="audioHolder" value="{{ audiofile }}"></input>
+
+
+        </div>
+      </div>
+    </div>
+
 </body>
 
 

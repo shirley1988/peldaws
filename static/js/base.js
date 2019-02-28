@@ -7,19 +7,29 @@
               var currentGroupName = data.details.currentGroup.name;
               $("#operatorHolder").val(data.id);
               $("#groupHolder").val(data.details.currentGroup.id);
-              '''document.getElementById("userBlk").innerHTML = "Welcome " + userName;
-              '''document.getElementById("groupBlk").innerHTML = "Current group " + currentGroupName;
               
-              var context = $("#contextHolder").val();
+	      var context = extractContextFromURL();
+	      if (context != $("#contextHolder").val()) {
+		$("#contextHolder").val(context);
+	      }
+
               if (context == 'ownership') {
                   showOwnership();
-              } else if (context == 'membership') {
-                  showMembership();
               } else {
-                  showWorkspace();
+                  showMembership();
               }
           });
       });
+
+	function showMembership() {
+          console.log("Show membership");
+          $.get('/auth/profile', function(data) {
+              console.log(data);
+              populateGroupList(data.details.membership, 'membership');
+              $("#workspace").hide();
+              showGroupInfo(data.currentGroupId, 'membership');
+          });
+      }
 
 
 	function showMembership() {
@@ -89,8 +99,10 @@
       }
 
        function extractContextFromURL() {
-	  var param = window.location.href.split('?').split('=')[1];
-	  $("#context").val(param);
-	  console.log("setting context from url");
+	  var param = window.location.href.split('?') + '';
+          var cont = param.split('=')[1] + '';
+	  $("#context").val(cont);
+	  console.log("setting context from url, context is:", cont);
+	  
        }
 

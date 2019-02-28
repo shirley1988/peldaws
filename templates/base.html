@@ -49,7 +49,8 @@
         <li><a href="/?context=membership">Group Management</a></li>
 
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Project Workshop <span class="caret"></span></a>
+	  <a href="/?context=workspace" id="groupBlk" role="button">Project Workshop</a>
+          <!--a href="/?context=workspace" id="groupBlk" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Project Workshop<span class="caret"></span></a-->
           <ul class="dropdown-menu">
             <li><a href="#">Action</a></li>
             <li><a href="#">Another action</a></li>
@@ -139,18 +140,84 @@
               </div>
             </form>
           </div>
+
+
+	   <div id="workspace" style="display:none">
+              <h2> Hello workspace! </h2>
+              <div>
+                  <audio controls ontimeupdate="updateAnimation()" onended="resetAnimation()" id="audioPlayer" type="audio/mp3">
+                  </audio>
+                  <!-- button type="button" class="btn btn-primary" id="zoomin" onclick="zoomImage(-1)">Zoom In</button>
+                  <button type="button" class="btn btn-primary" id="zoomout" onclick="zoomImage(1)">Zoom Out</button -->
+                  <div class="image-div">
+                    <img class="base-image" src="/waveform/{{ audiofile }}/" id="waveformImg" onload="showProgress()">
+                    <div class="vl" id="progressLine" style="display:none"></div>
+                  </div>
+              </div>
+              <div id="annotation-div" width="600">
+                <form>
+                  <div class="form-group row">
+                    <label for="annotationName" class="col-sm-2 col-form-label">Annotation Name</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="annotationName"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="startTime" class="col-sm-2 col-form-label">Start Time</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="startTime"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="endTime" class="col-sm-2 col-form-label">End Time</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="endTime"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="tierOne" class="col-sm-2 col-form-label">Tier One</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="tierOne"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="tierTwo" class="col-sm-2 col-form-label">Tier Two</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="tierTwo"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="tierThree" class="col-sm-2 col-form-label">Tier Three</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="tierThree"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <button type="button" class="btn btn-primary" onclick="saveAnnotation()">Save Annotation</button>
+                  </div>
+                </form>
+              </div>
+          </div>
               
           <!-- placeholder elements -->
           <input style="display:none" id="operatorHolder"></input>
           <input style="display:none" id="userHolder"></input>
           <input style="display:none" id="groupHolder"></input>
-          <input style="display:none" id="contextHolder" value=extactContextFromURL()></input>
+          <input style="display:none" id="contextHolder" value="{{ context }}"></input>
           <input style="display:none" id="audioHolder" value="{{ audiofile }}"></input>
 
 
         </div>
       </div>
     </div>
+
+
 
 </body>
 

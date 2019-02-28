@@ -22,7 +22,6 @@
   
     <!-- flask form template -->
 	
-	
 
   </head>
 
@@ -39,15 +38,15 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">Peldaws</a>
+      <div class="navbar-brand" href="#">Peldaws</div>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav navbar-center">
         
-        <li class="active"><a href="/">Membership Management <span class="sr-only">(current)</span></a></li>
-        <li><a href="#">Group Management</a></li>
+        <li class="active"><a href="/?context=ownership">Membership Management <span class="sr-only">(current)</span></a></li>
+        <li><a href="/?context=membership">Group Management</a></li>
 
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Project Workshop <span class="caret"></span></a>
@@ -145,7 +144,7 @@
           <input style="display:none" id="operatorHolder"></input>
           <input style="display:none" id="userHolder"></input>
           <input style="display:none" id="groupHolder"></input>
-          <input style="display:none" id="contextHolder" value="{{ context }}"></input>
+          <input style="display:none" id="contextHolder" value=extactContextFromURL()></input>
           <input style="display:none" id="audioHolder" value="{{ audiofile }}"></input>
 
 

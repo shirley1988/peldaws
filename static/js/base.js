@@ -1,10 +1,26 @@
-$(document).ready(function() {
+
+	$(document).ready(function() {
           console.log("Document ready!");
           $.get('/auth/profile', function(data) {
-              console.log("logined in user:" + data.name + data.email);
-	      showMembership();
-           });
- });
+              console.log(data);
+              var userName = data.name;
+              var currentGroupName = data.details.currentGroup.name;
+              $("#operatorHolder").val(data.id);
+              $("#groupHolder").val(data.details.currentGroup.id);
+              '''document.getElementById("userBlk").innerHTML = "Welcome " + userName;
+              '''document.getElementById("groupBlk").innerHTML = "Current group " + currentGroupName;
+              
+              var context = $("#contextHolder").val();
+              if (context == 'ownership') {
+                  showOwnership();
+              } else if (context == 'membership') {
+                  showMembership();
+              } else {
+                  showWorkspace();
+              }
+          });
+      });
+
 
 	function showMembership() {
           console.log("Show membership");
@@ -71,4 +87,10 @@ $(document).ready(function() {
           }
           return memberList;
       }
+
+       function extractContextFromURL() {
+	  var param = window.location.href.split('?').split('=')[1];
+	  $("#context").val(param);
+	  console.log("setting context from url");
+       }
 

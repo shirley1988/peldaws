@@ -8,7 +8,7 @@ def index():
     context = request.args.get('context') or 'workspace'
     audiofile="OldPart2.mp3"
     user={'username': 'Nana Liu'}
-    return render_template('base.html', context='membership', user=user)
+    return render_template('base.html', context='ownership', user=user)
 
 @app.route('/index.html')
 @login_required

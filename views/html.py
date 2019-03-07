@@ -8,12 +8,15 @@ def index():
     context = request.args.get('context') or 'workspace'
     audiofile="OldPart2.mp3"
     user={'username': 'Nana Liu'}
+    if context is 'membership':
+        return render_template('group.html', context=context, user=user)
     return render_template('base.html', context=context, user=user, audiofile=audiofile)
 
-@app.route('/index.html')
+
+@app.route('/test.html')
 @login_required
 def original_index():
-    return app.send_static_file("index.html")
+    return render_template("test.html")
 
 @app.route('/googleb4aacaa01acbdce3.html')
 def goog_verify():

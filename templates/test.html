@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags-->
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom style for this template>
+    <link href="css/base.css" rel="stylesheet"-->
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <!--script src="js/base.js"></script-->
+
+
+<style>
+.collapsible {
+  background-color: #777;
+  color: black;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: green;
+}
+
+.collapsible:after {
+  content: '\002B';
+  color: white;
+  font-weight: bold;
+  float: left;
+  margin-left: 5px;
+}
+
+.memberProject {
+  background-color: #777;
+  color: black;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.content {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
+}
+
+p {
+  text-align:left;
+  float: right;
+  display: inline-block;
+}
+
+i {
+  border: solid black;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 3px;
+}
+
+.right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
+
+</style>
+</head>
+
+
+<body>
+
+<h2 align="center">Collapsibles Projects</h2>
+<ul id="projectGroup">
+</ul>
+
+<script>
+$(document).ready(function() {
+          console.log("Document ready!");
+          $.get('/auth/profile', function(data) {
+              console.log("fetch user data:" + data);
+              populateOwnedList(data.details.ownership, "ownership");
+	      populateMemberList(data.details.membership, "membership");
+          });
+});
+
+function populateMemberList(projects, context) {
+	var projectList = $("#projectGroup");
+	$.each(projects, function(index, _project) {
+		var bNode = createProjectItem(_project, context);
+		createChildNode(bNode);
+		projectList.append(bNode);
+		
+	});
+	console.log("populating membership project");
+}
+
+function populateOwnedList(projects, context) {
+          var projectList = $('#projectGroup');
+          projectList.empty();
+          $.each(projects, function(index, _project) {
+                var bNode = createProjectItem(_project, context);
+		rightArrow = createRightArrow();
+		bNode.append(rightArrow);
+		projectList.append(bNode);
+
+		var divNode = document.createElement("div");
+          	divNode.setAttribute('class', 'content');
+		createChildNode(divNode);
+                projectList.append(divNode);
+                
+                bNode.onclick = function() {
+		    // the classList property is not supported in Internet Explorer 9.
+		    // https://www.w3schools.com/howto/howto_js_toggle_class.asp for cross-browser solution.
+                    this.classList.toggle("active");
+                    var content = this.nextElementSibling;
+                    if (content.style.maxHeight){
+                         content.style.maxHeight = null;
+                    } else {
+                         content.style.maxHeight = content.scrollHeight + "px";
+                    } 
+                };
+                
+		
+		console.log("polulating owned project");
+          });
+
+}
+
+function createChildNode(pNode) {
+	  var rightArrow = createRightArrow();
+	  pNode.append(rightArrow);
+	  // TO DO: add clickon function()
+}
+
+function createRightArrow() {
+	var pNode = document.createElement("p");
+	pNode.innerHTML = "Work On It";
+	
+	var iNode = document.createElement("i");
+	iNode.setAttribute('class', "arrow right");
+	pNode.append(iNode);
+	
+	return pNode;
+}
+
+function createProjectItem(project, context) {
+          var buttonNode = document.createElement('button');
+          
+          buttonNode.setAttribute('id', project.id);
+	  if (context == "ownership") {
+		buttonNode.setAttribute('class', 'collapsible');
+	  } else {
+		buttonNode.setAttribute('class', 'memberProject');
+	  }
+          
+          buttonNode.innerHTML = project.name;
+          
+          /*var divNode = document.createElement('div');
+          divNode.setAttribute('class', 'content');
+          
+          buttonNode.append(divNode); */
+          return buttonNode;
+      }
+
+</script>
+
+</body>
+</html>

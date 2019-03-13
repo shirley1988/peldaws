@@ -3,6 +3,7 @@ from flask import g, jsonify, request
 from praat import app
 import praat
 import utils
+import json
 from flask_login import login_required
 from storage import get_storage_service
 
@@ -61,9 +62,9 @@ def profile():
 # retrieve groups owned by current user
 # or create a new group
 @app.route('/auth/groups', methods=['GET', 'POST'])
-# TODO: require login
-#@login_required
+@login_required
 def groups():
+    print 'get or post a group'
     operator = g.user
     if operator is None:
         operator = praat.User.query.first()
@@ -72,6 +73,7 @@ def groups():
             'ownership': group_summary(operator.ownership),
             'membership': group_summary(operator.membership),
         }
+        print 'returning a group'
         return jsonify(res)
     else:
         _name = request.json.get('groupName')

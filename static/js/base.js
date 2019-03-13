@@ -79,7 +79,7 @@ function zoomImage(dir) {
           gList.empty();
           $.each(groups, function(index, _group) {
               gList.append(createGroupListItem(_group, context));
-		console.log("polulating each group");
+		console.log("populating each group");
           });
          }
 
@@ -140,7 +140,7 @@ function showProgress() {
 }
 
 
-	function validateAction() {
+function validateAction() {
     var parts = $("#actionDetails").val().split(",");
     console.log(parts);
     var btn = $("#selectBtn");
@@ -206,7 +206,7 @@ function showProgress() {
     	return function() {
                   console.log("Posting to API " + api + " with payload " + payload);
                   $.ajax({
-                      type: "POST",
+                      method: "POST",
                       url: api,
                       data: payload,
                       contentType: "application/json",

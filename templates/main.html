@@ -20,10 +20,10 @@
 
 
 <style>
-/* set all even button items to a different color (zibra-stripes) */
-ul button:nth-child(even) {
+/* set all even button items to a different color (zibra-stripes) 
+ul button, .collapsible: nth-child(even) {
   background: #f9f9f9;
-}
+} */
 
 /* style the header */
 .container {
@@ -64,20 +64,23 @@ input {
 }
 
 .collapsible {
-  background-color: #5F9EA0;
+  background-color: #EEE8AA;
   color: black;
   cursor: pointer;
+  margin: 1px;
   padding: 18px;
   width: 80%;
   border: none;
   border-radius: 5px;
-  text-align: justify;
+  text-align: left;
+  text-indent: 10px;
   outline: none;
-  font-size: 15px;
+  font-size: 18px;
 }
 
+
 .active, .memberProject:hover, .collapsible:hover {
-  background-color: #1E90FF;
+  background-color: #F1f1f1;
 }
 
 .collapsible:after {
@@ -89,16 +92,18 @@ input {
 }
 
 .memberProject {
-  background-color: #EEE8AA;
+  background-color: #BABFBC;
   color: black;
   cursor: pointer;
   padding: 18px;
+  margin: 1px;
   width: 80%;
   border: none;
   border-radius: 5px;
   text-align: justify;
+  text-indent: 10px;
   outline: none;
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .active:after {
@@ -108,9 +113,10 @@ input {
 .content {
   padding: 0 18px;
   max-height: 0;
+  width: 80%;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
-  background-color: #f1f1f1;
+  background-color: #F1f1f1;
 }
 
 .projectBtn {
@@ -145,18 +151,17 @@ i {
   <span onclick="createGroup()()" class="addBtn" >Add</span>
 </div>
 
-<div>
-  <ul id="projectGroup">
+<div data-role="collapsible">
+  <ul id="projectGroup" class="projectList">
   </ul>
 </div>
-<p></p>
 
 <script>
 $(document).ready(function() {
           console.log("Document ready!");
           $.get('/auth/profile', function(data) {
               console.log(data);
-              // populateOwnedList(data.details.ownership, "ownership");
+              populateOwnedList(data.details.ownership, "ownership");
 	      populateMemberList(data.details.ownership, data.details.membership, "membership");
           });
 });
@@ -165,18 +170,12 @@ $(document).ready(function() {
 function populateMemberList(projects_1, projects_2, context) {
 	var projectList = $("#projectGroup");
 	$.each(projects_1, function(index, _project) {
-		var bNode = createProjectItem(_project, "ownership");
+		var bNode = createProjectItem(_project, context);
 		createChildNode(bNode, _project);
 		projectList.append(bNode);
 		
 	});
-	$.each(projects_2, function(index, _project) {
-		if (projects_1.indexOf(_project) == -1) {
-			var bNode = createProjectItem(_project, "membership");
-			createChildNode(bNode, _project);
-			projectList.append(bNode);
-		}
-	});
+	
 	console.log("populating each project");
 }
 
@@ -191,10 +190,13 @@ function populateOwnedList(projects, context) {
 
 		var divNode = document.createElement("div");
           	divNode.setAttribute('class', 'content');
+	
 		// createChildNode(divNode);
-                projectList.append(divNode);
-                
-                bNode.onclick = function() {
+                var testButton = createColPanel(divNode, _project);
+	  	divNode.append(testButton);
+		projectList.append(divNode);
+
+                bNode.click(function() {
 		    // the classList property is not supported in Internet Explorer 9.
 		    // https://www.w3schools.com/howto/howto_js_toggle_class.asp for cross-browser solution.
                     this.classList.toggle("active");
@@ -203,8 +205,9 @@ function populateOwnedList(projects, context) {
                          content.style.maxHeight = null;
                     } else {
                          content.style.maxHeight = content.scrollHeight + "px";
-                    } 
-                };
+                    }
+		     	
+                });
                 
 		
 		console.log("populating owned project");
@@ -233,7 +236,7 @@ function createRightArrow(_project) {
 	return pNode;
 }
 
-
+// TO DO: handle page switch to working panel.
 function loadProjectManagementPage(_project) {
 	console.log("button clicked, switch to project page");
 	var btn = $(".projectBtn");
@@ -243,6 +246,35 @@ function loadProjectManagementPage(_project) {
         });
 }
 
+function createColPanel(buttonNode, project) {
+	var pane = document.createElement('button');
+	pane.innerHTML = "Just a Button";
+	pane.setAttribute('id', "demo");
+	return pane;
+	/*var form = document.createElement('form');
+	form.setAttribute('class', 'expanding-search-form');
+	
+	var div = document.createElement('div');
+	
+	var dropdown = createDropDown();
+	var menu = createMenu();
+	div.append(dropdown);
+	div.append(menu);
+
+	form.append(div);
+	
+	var input = document.createElement('input');
+
+	form.append(input);
+	
+	var label = createLabel();
+	form.append(label);
+
+	var button = createButton();
+	form.append(button);*/
+}
+
+
 
 function createProjectItem(project, context) {
           var buttonNode = document.createElement('button');
@@ -250,6 +282,11 @@ function createProjectItem(project, context) {
           buttonNode.setAttribute('id', project.id);
 	  if (context == "ownership") {
 		buttonNode.setAttribute('class', 'collapsible');
+		buttonNode.setAttribute('data-toggle', "collapse");
+		buttonNode.setAttribute('data-target', '#demo');
+		
+		
+		
 	  } else {
 		buttonNode.setAttribute('class', 'memberProject');
 	  }
@@ -291,8 +328,7 @@ function simplePost(api, payload, callback) {
 function createGroup() {
 	return simplePost('/auth/groups', JSON.stringify({groupName: 'testing is so fun'}), function(d) {
 		  location.reload();
-		  alert(JSON.stringify(d));
-              });
+	});
 }
 
 

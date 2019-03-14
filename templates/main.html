@@ -80,7 +80,7 @@ input {
 
 
 .active, .memberProject:hover, .collapsible:hover {
-  background-color: #F1f1f1;
+  background-color: #f1f1f1;
 }
 
 .collapsible:after {
@@ -113,6 +113,7 @@ input {
 .content {
   padding: 0 18px;
   max-height: 0;
+  border-radius: 5px;
   width: 80%;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
@@ -195,10 +196,12 @@ function populateOwnedList(projects, context) {
                 var testButton = createColPanel(divNode, _project);
 	  	divNode.append(testButton);
 		projectList.append(divNode);
-
-                bNode.click(function() {
+		
+		
+                bNode.onclick = function() {
 		    // the classList property is not supported in Internet Explorer 9.
 		    // https://www.w3schools.com/howto/howto_js_toggle_class.asp for cross-browser solution.
+		    event.stopPropagation();
                     this.classList.toggle("active");
                     var content = this.nextElementSibling;
                     if (content.style.maxHeight){
@@ -207,7 +210,7 @@ function populateOwnedList(projects, context) {
                          content.style.maxHeight = content.scrollHeight + "px";
                     }
 		     	
-                });
+                };
                 
 		
 		console.log("populating owned project");

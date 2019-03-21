@@ -4,7 +4,7 @@ from flask import Flask, request, g, session, redirect, url_for, abort, jsonify,
 from flask_login import login_user, login_required, LoginManager, UserMixin
 from flask_googlelogin import GoogleLogin
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, Enum, UniqueConstraint, ForeignKey, Table
-import datetime
+import datetime, json
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from flask_cors import CORS
@@ -304,6 +304,13 @@ def remove_user_from_group(operator, user, group):
         msg = "User %s is not an owner of group %s" % (operator.name, group.name)
         raise ActionNotAuthorized(msg)
     member = Member.query.filter_by(group_id=group.id).filter_by(user_id=user.id).first()
+    # print "User: " + json.dumps(user.id);
+    # print "Group: " + json.dumps(group.owner_id);
+    if user.id == group.owner_id:
+	print "User input is the owner of group, and cannot be deleted"
+	msg = "User %s is the owner of current group, owner cannot be deleted" % (operator.name)
+	raise ActionNotAuthorized(msg)
+    
     if member is not None:
         print "Removing user from group"
         db_session.delete(member)

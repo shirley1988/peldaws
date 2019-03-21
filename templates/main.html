@@ -33,7 +33,7 @@ ul button, .collapsible: nth-child(even) {
 }
 
 /* style the input */
-input {
+.container input {
   margin: 0;
   border: none;
   border-style: solid;
@@ -79,8 +79,9 @@ input {
 }
 
 
-.active, .memberProject:hover, .collapsible:hover {
+.active {
   background-color: #f1f1f1;
+  margin: 0;
 }
 
 .collapsible:after {
@@ -138,6 +139,142 @@ i {
   -webkit-transform: rotate(-45deg);
 }
 
+// ----------------------------------------
+* {
+  box-sizing: border-box;
+}
+
+/* Style the navbar */
+.topMenu {
+  position: relative;
+  overflow: hidden;
+  top: 5px;
+  left: 5%;
+  background-color: #f1f1f1;
+  display: inline-block;
+  width: auto;
+  height: 120px;
+}
+
+/* Style the input container */
+.topMenu .search-container {
+  position: relative;
+  float: left;
+  display: inline-block;
+}
+
+/* Style the input field inside the navbar */
+.topMenu input[type=text] {
+  position: relative;
+  float: left;
+  padding: 8px;
+  display: inline-block;
+  margin-top: 0px;
+  font-size: 17px;
+  border: none;
+  width: 500px;
+}
+
+/* Style the button inside the input container */
+.topMenu .search-container button {
+  float: right;
+  display: inline-block;
+  padding: 8px;
+  margin-top: 0px;
+  margin-right:0px;
+  background: #ddd;
+  font-size: 17px;
+  border: none;
+  cursor: pointer;
+}
+
+.topMenu .search-container button:hover {
+  background: #ccc;
+}
+
+/* Add responsiveness - On small screens, display the navbar vertically instead of horizontally */
+@media screen and (max-width: 600px) {
+  .topMenu .search-container {
+    float: none;
+  }
+  .topMenu .div, .topMenu input[type=text], .topMenu .search-container button {
+    float: none;
+    display: inline-block;
+    text-align: right;
+    width: 100%;
+    margin: 0;
+    padding: 14px;
+  }
+  .topMenu input[type=text] {
+    border: 1px solid #ccc; 
+  }
+}
+
+
+/* The container must be positioned relative: */
+.topMenu .custom-select {
+  position: relative;
+  float: left;
+  font-family: Arial;
+  width: 200px;
+  font-size: 15px;
+}
+
+.topMenu .custom-select select {
+  display: none; /*hide original SELECT element: */
+}
+
+.topMenu .select-selected {
+  background-color: DodgerBlue;
+}
+
+/* Style the arrow inside the select element: */
+.topMenu .select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+
+/* Point the arrow upwards when the select box is open (active): */
+.topMenu .select-selected.select-arrow-active:after {
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
+}
+
+/* style the items (options), including the selected item: */
+.topMenu .select-items div, .select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+}
+
+/* Style items (options): */
+.topMenu .select-items {
+  position: absolute;
+  background-color: DodgerBlue;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+
+/* Hide the items when the select box is closed: */
+.topMenu .select-hide {
+  display: none;
+}
+
+.topMenu .select-items div:hover, .same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+
 </style>
 </head>
 
@@ -157,16 +294,102 @@ i {
   </ul>
 </div>
 
+<!-- placeholder elements -->
+<input style="display:none" id="operatorHolder"></input>
+<input style="display:none" id="groupHolder"></input>
 <script>
 $(document).ready(function() {
           console.log("Document ready!");
           $.get('/auth/profile', function(data) {
               console.log(data);
+              $("#operatorHolder").val(data.id);
+              $("#groupHolder").val(data.details.currentGroup.id);
+
               populateOwnedList(data.details.ownership, "ownership");
 	      populateMemberList(data.details.ownership, data.details.membership, "membership");
+	      attachCustomSelect();
+	      
           });
 });
 
+function attachCustomSelect() {
+	var x, i, j, selElmnt, a, b, c;
+	/* Look for any elements with the class "custom-select": */
+	x = document.getElementsByClassName("custom-select");
+	for (i = 0; i < x.length; i++) {
+  		selElmnt = x[i].getElementsByTagName("select")[0];
+  		/* For each element, create a new DIV that will act as the selected item: */
+  		a = document.createElement("div");
+  		a.setAttribute("class", "select-selected");
+
+  		a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+  		x[i].appendChild(a);
+  		/* For each element, create a new DIV that will contain the option list: */
+  		b = document.createElement("div");
+  		b.setAttribute("class", " select-hide");
+  		for (j = 1; j < selElmnt.length; j++) {
+    			/* For each option in the original select element,
+    			create a new DIV that will act as an option item: */
+    			c = document.createElement("div");
+    			c.innerHTML = selElmnt.options[j].innerHTML;
+    			c.addEventListener("click", function(e) {
+        		/* When an item is clicked, update the original select box,
+        		and the selected item: */
+        		var y, i, k, s, h;
+        		s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+        		h = this.parentNode.previousSibling;
+        		for (i = 0; i < s.length; i++) {
+          			if (s.options[i].innerHTML == this.innerHTML) {
+            				s.selectedIndex = i;
+            				h.innerHTML = this.innerHTML;
+            				y = this.parentNode.getElementsByClassName("same-as-selected");
+            			for (k = 0; k < y.length; k++) {
+              				y[k].removeAttribute("class");
+            			}
+            			this.setAttribute("class", "same-as-selected");
+            			break;
+          		}
+        	}
+        	h.click();
+    	});
+    	b.appendChild(c);
+  	}
+  x[i].appendChild(b);
+  
+  a.addEventListener("click", function(e) {
+    /*When the select box is clicked, close any other select boxes,
+    and open/close the current select box: */
+    e.stopPropagation();
+    // closeAllSelect(this);
+    this.nextSibling.classList.toggle("select-hide");
+    this.classList.toggle("select-arrow-active");
+  });
+}
+
+function closeAllSelect(elmnt) {
+  /* A function that will close all select boxes in the document,
+  except the current select box: */
+  var x, y, i, arrNo = [];
+  x = document.getElementsByClassName("select-items");
+  y = document.getElementsByClassName("select-selected");
+  for (i = 0; i < y.length; i++) {
+    if (elmnt == y[i]) {
+      arrNo.push(i)
+    } else {
+      y[i].classList.remove("select-arrow-active");
+    }
+  }
+  for (i = 0; i < x.length; i++) {
+    if (arrNo.indexOf(i)) {
+      x[i].classList.add("select-hide");
+    }
+  }
+}
+
+/* If the user clicks anywhere outside the select box,
+then close all select boxes: */
+// document.addEventListener("click", closeAllSelect);
+}
 
 function populateMemberList(projects_1, projects_2, context) {
 	var projectList = $("#projectGroup");
@@ -191,18 +414,16 @@ function populateOwnedList(projects, context) {
 
 		var divNode = document.createElement("div");
           	divNode.setAttribute('class', 'content');
-	
-		// createChildNode(divNode);
-                var testButton = createColPanel(divNode, _project);
-	  	divNode.append(testButton);
-		projectList.append(divNode);
 		
+		createTopMenu(divNode);
+		projectList.append(divNode);
 		
                 bNode.onclick = function() {
 		    // the classList property is not supported in Internet Explorer 9.
 		    // https://www.w3schools.com/howto/howto_js_toggle_class.asp for cross-browser solution.
 		    event.stopPropagation();
                     this.classList.toggle("active");
+		    $("#groupHolder").val(_project.id);
                     var content = this.nextElementSibling;
                     if (content.style.maxHeight){
                          content.style.maxHeight = null;
@@ -212,10 +433,124 @@ function populateOwnedList(projects, context) {
 		     	
                 };
                 
-		
 		console.log("populating owned project");
           });
+}
 
+function createTopMenu(divNode) {
+	var tDiv = document.createElement('form');
+	tDiv.setAttribute('class', 'topMenu');
+	
+	attachText(tDiv, "member");
+	attachSelect(tDiv, "member");
+	attachChildDiv(tDiv, "member")
+
+	/*attachText(tDiv, "permission");
+	attachSelect(tDiv, "permission");
+	attachChildDiv(tDiv, "permission");*/
+
+	divNode.appendChild(tDiv);
+
+}
+
+function attachText(tDiv, context) {
+	var para = document.createElement('p');
+	para.setAttribute('class', 'memberActions');
+	$(".memberActions").text("ADD/REMOVE a Member");
+	/*if (context === "member") {
+		document.getElementByClassName('memberActions').textContent = "ADD/REMOVE a Member";
+	} else {
+		document.getElementByClassName('memberActions').textContent = "ADD/REMOVE Write Permission to the Group Files";
+	}*/
+	
+	// para.appendChild(text);
+	para.setAttribute('style', 'font: arial, sans-serif; font-weight: bold; font-style: italic; font-size: 18px; display: inline-block; float: left; top: 10px; padding: 10px; width: 400px; word-spacing: 12px;');
+	tDiv.appendChild(para);
+}
+
+function attachSelect(tDiv, context) {
+	var topDiv = document.createElement('div');
+	topDiv.setAttribute('class', 'custom-select');
+
+	var select = document.createElement('select');
+	// select.setAttribute('id', 'custom-select');
+	
+	var opt_1 = document.createElement('option');
+	opt_1.setAttribute('value', '0');
+	opt_1.textContent = "Select an Action";
+	
+	var opt_2 = document.createElement('option');
+	opt_2.setAttribute('value', '0');
+	opt_2.textContent = "ADD";
+
+	var opt_3 = document.createElement('option');
+	opt_3.setAttribute('value', '1');
+	opt_3.textContent = "REMOVE";
+
+	select.append(opt_1);
+	select.append(opt_2);
+	select.append(opt_3);
+	
+	topDiv.append(select);
+	tDiv.append(topDiv);
+}
+
+function attachChildDiv(tDiv, context) {
+	var div = document.createElement('div');
+	div.setAttribute('class', 'search-container');
+
+	var input = document.createElement('input');
+	input.placeholder = "A Member Email......";
+	// input.setAttribute('value', 'A Member Email....');
+	// input.setAttribute('onfocus', "this.value=''");
+	input.setAttribute('type', 'text');
+	input.setAttribute('class', "memberEmail");
+	div.appendChild(input);
+
+	var sButton = document.createElement('button');
+	sButton.setAttribute('id', 'memberAction');
+	sButton.setAttribute('type', 'submit');
+	sButton.innerHTML = "Submit";
+	div.append(sButton);
+
+	tDiv.append(div);
+	
+	sButton.onclick = function(e) {
+		e.preventDefault();
+		var email = $(".memberEmail").val();
+		console.log("Email: " + email);
+
+		// TRY and TEST
+		var act = $(".custom-select option:selected").text().split("Select")[0];
+		console.log("act: " + act);
+
+		var payload = JSON.stringify({
+			action: act.toLowerCase(),
+			userEmail: email
+		});
+		//var group = $('.collapsible.active').text().split("Work")[0];
+		var group = $("#groupHolder").val();
+		console.log("payload: " + payload);
+
+		var api = '/auth/groups/' + $("#groupHolder").val();
+		
+		$.ajax({
+                      type: "POST",
+                      url: api,
+                      data: payload,
+                      contentType: "application/json",
+                      dataType: "json",
+                      success: function(_data) {
+                          console.log("success data ");
+                          console.log(_data);
+                          //callback(_data);
+                      },
+		      error: function(_data) {
+			  console.log("error data ");
+			  console.log(_data);
+		      }
+                  });
+	};
 }
 
 function createChildNode(pNode, _project) {
@@ -249,47 +584,12 @@ function loadProjectManagementPage(_project) {
         });
 }
 
-function createColPanel(buttonNode, project) {
-	var pane = document.createElement('button');
-	pane.innerHTML = "Just a Button";
-	pane.setAttribute('id', "demo");
-	return pane;
-	/*var form = document.createElement('form');
-	form.setAttribute('class', 'expanding-search-form');
-	
-	var div = document.createElement('div');
-	
-	var dropdown = createDropDown();
-	var menu = createMenu();
-	div.append(dropdown);
-	div.append(menu);
-
-	form.append(div);
-	
-	var input = document.createElement('input');
-
-	form.append(input);
-	
-	var label = createLabel();
-	form.append(label);
-
-	var button = createButton();
-	form.append(button);*/
-}
-
-
-
 function createProjectItem(project, context) {
           var buttonNode = document.createElement('button');
           
           buttonNode.setAttribute('id', project.id);
 	  if (context == "ownership") {
 		buttonNode.setAttribute('class', 'collapsible');
-		buttonNode.setAttribute('data-toggle', "collapse");
-		buttonNode.setAttribute('data-target', '#demo');
-		
-		
-		
 	  } else {
 		buttonNode.setAttribute('class', 'memberProject');
 	  }

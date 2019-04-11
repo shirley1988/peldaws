@@ -62,7 +62,7 @@ import enum
 class Role(enum.Enum):
     reader = 1
     editor = 2
-
+
 '''
 membership_table = Table('members', Base.metadata,
     Column('group_id', String(60), ForeignKey('groups.id')),
@@ -305,7 +305,7 @@ def add_owner_to_group(operator, user, group):
     if not is_owner(operator, group):
         msg = "User %s is not an owner of group %s" % (operator.name, group.name)
         raise ActionNotAuthorized(msg)
-    
+
     if user not in group.members:
         print "Adding owner to group"
         member = Member(group, user)
@@ -330,7 +330,7 @@ def remove_user_from_group(operator, user, group):
 	print "User input is the owner of group, and cannot be deleted"
 	msg = "User %s is the owner of current group, owner cannot be deleted" % (operator.name)
 	raise ActionNotAuthorized(msg)
-    
+
     if member is not None:
         print "Removing user from group"
         db_session.delete(member)

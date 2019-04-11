@@ -62,7 +62,7 @@ import enum
 class Role(enum.Enum):
     reader = 1
     editor = 2
-
+
 '''
 membership_table = Table('members', Base.metadata,
     Column('group_id', String(60), ForeignKey('groups.id')),
@@ -76,13 +76,24 @@ class Member(Base):
     id = Column(String(60), primary_key=True)
     group_id = Column(String(60), ForeignKey('groups.id'))
     user_id = Column(String(60), ForeignKey('users.id'))
+    role = Column(Enum(Role))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     __table_args__ = (UniqueConstraint('group_id', 'user_id', name='_member_tuple'),)
 
-    def __init__(self, group, user,  _id=None):
+    def __init__(self, group, user, _id=None):
         self.id = utils.generate_id(_id)
         self.group_id = group.id
         self.user_id = user.id
+	self.role = Role.reader
+
+    def summary(self):
+        return {
+            'id': self.id,
+            'group_id': self.group_id,
+	    'user_id': self.user_id,
+            'role': str(self.role),
+            'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
 
 class ActionNotAuthorized(Exception):
     pass
@@ -97,7 +108,7 @@ class User(Base, UserMixin):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     ownership = relationship('Group', back_populates='owner')
     annotations = relationship('Annotation', back_populates='owner')
-    annotation_permissions = relationship('AnnotationPermission', back_populates='user')
+    # annotation_permissions = relationship('AnnotationPermission', back_populates='user')
     membership = relationship('Group', secondary=Member.__table__, back_populates='members')
 
     def __init__(self, name, google_id, email, _id=None):
@@ -112,6 +123,7 @@ class User(Base, UserMixin):
             'name': self.name,
             'email': self.email,
             'currentGroupId': self.current_group_id,
+	    'google_id': self.google_id,
             'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
@@ -123,7 +135,7 @@ class User(Base, UserMixin):
             'ownership': list(grp.summary() for grp in self.ownership),
             'membership': list(grp.summary() for grp in self.membership),
             'annotations': list(ant.summary() for ant in self.annotations),
-            'annotationPermissions': list(ap.summary() for ap in self.annotation_permissions),
+            # 'annotationPermissions': list(ap.summary() for ap in self.annotation_permissions),
         }
         return s
 
@@ -202,7 +214,7 @@ class Annotation(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     audio = relationship('Audio', back_populates='annotations')
     owner = relationship('User', back_populates='annotations')
-    annotation_permissions = relationship('AnnotationPermission', back_populates='annotation')
+    # annotation_permissions = relationship('AnnotationPermission', back_populates='annotation')
 
     def __init__(self, name, audio, owner, _id=None):
         self.id = utils.generate_id(_id)
@@ -219,7 +231,7 @@ class Annotation(Base):
             'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
-
+'''
 class AnnotationPermission(Base):
     __tablename__ = 'annotation_permissions'
     id = Column(String(60), primary_key=True)
@@ -245,7 +257,7 @@ class AnnotationPermission(Base):
             'role': str(self.role),
             'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
-
+'''
 
 @app.route('/oauth2callback')
 @googlelogin.oauth2callback
@@ -286,18 +298,26 @@ def check_personal_group(user):
     if not user.current_group_id:
         user.current_group_id = group.id
     # make sure user has membership of personal group
-    add_user_to_group(user, user, group)
+    add_owner_to_group(user, user, group)
 
 
-def add_user_to_group(operator, user, group):
+def add_owner_to_group(operator, user, group):
     if not is_owner(operator, group):
         msg = "User %s is not an owner of group %s" % (operator.name, group.name)
         raise ActionNotAuthorized(msg)
+    
     if user not in group.members:
-        print "Adding user to group"
+        print "Adding owner to group"
         member = Member(group, user)
         db_session.add(member)
         db_session.commit()
+
+def add_user_to_group(operator, user, group):
+    if user not in group.members:
+	print "Adding user to group"
+	member = Member(group, user)
+	db_session.add(member)
+	db_session.commit()
 
 def remove_user_from_group(operator, user, group):
     if not is_owner(operator, group):

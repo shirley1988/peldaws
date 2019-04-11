@@ -78,11 +78,11 @@ ul button, .collapsible: nth-child(even) {
   font-size: 18px;
 }
 
-
+/*
 .active {
   background-color: #f1f1f1;
   margin: 0;
-}
+}*/
 
 .collapsible:after {
   content: '\002B';
@@ -153,7 +153,7 @@ i {
   background-color: #f1f1f1;
   display: inline-block;
   width: auto;
-  height: 120px;
+  height: 80px;
 }
 
 /* Style the input container */
@@ -200,7 +200,6 @@ i {
   .topMenu .div, .topMenu input[type=text], .topMenu .search-container button {
     float: none;
     display: inline-block;
-    text-align: right;
     width: 100%;
     margin: 0;
     padding: 14px;
@@ -216,7 +215,7 @@ i {
   position: relative;
   float: left;
   font-family: Arial;
-  width: 200px;
+  width: 155px;
   font-size: 15px;
 }
 
@@ -438,37 +437,43 @@ function populateOwnedList(projects, context) {
 }
 
 function createTopMenu(divNode) {
-	var tDiv = document.createElement('form');
-	tDiv.setAttribute('class', 'topMenu');
-	
-	attachText(tDiv, "member");
-	attachSelect(tDiv, "member");
-	attachChildDiv(tDiv, "member")
-
-	/*attachText(tDiv, "permission");
-	attachSelect(tDiv, "permission");
-	attachChildDiv(tDiv, "permission");*/
-
-	divNode.appendChild(tDiv);
-
+	var form1 = createForm("member");
+	divNode.appendChild(form1);
+	var form2 = createForm("permission");
+	divNode.appendChild(form2);
 }
 
-function attachText(tDiv, context) {
+function createForm(context) {
+	var tForm = document.createElement('form');
+	tForm.setAttribute('class', 'topMenu');
+	
+	attachText(tForm, context);
+	attachSelect(tForm);
+	attachChildDiv(tForm, context)
+
+	return tForm;
+}
+
+function attachText(tForm, context) {
 	var para = document.createElement('p');
-	para.setAttribute('class', 'memberActions');
-	$(".memberActions").text("ADD/REMOVE a Member");
-	/*if (context === "member") {
-		document.getElementByClassName('memberActions').textContent = "ADD/REMOVE a Member";
-	} else {
-		document.getElementByClassName('memberActions').textContent = "ADD/REMOVE Write Permission to the Group Files";
-	}*/
 	
-	// para.appendChild(text);
-	para.setAttribute('style', 'font: arial, sans-serif; font-weight: bold; font-style: italic; font-size: 18px; display: inline-block; float: left; top: 10px; padding: 10px; width: 400px; word-spacing: 12px;');
-	tDiv.appendChild(para);
+	console.log("context input: " + context);
+	
+	if (context === "member") {
+		console.log("context: " + context);
+		para.setAttribute('class', 'memberActions');
+		$(".memberActions").text("ADD/REMOVE a Member");
+	} else if (context === "permission") {
+		console.log("context: " + context);
+		para.setAttribute('class', 'permissionActions');
+		$(".permissionActions").text("ADD/REMOVE Write Permission of a Member");
+	}
+	
+	para.setAttribute('style', 'font: arial, sans-serif; font-weight: bold; font-style: italic; font-size: 18px; display: block; float: left; top: 10px; padding: 10px; width: 475px; word-spacing: 8px;');
+	tForm.appendChild(para);
 }
 
-function attachSelect(tDiv, context) {
+function attachSelect(tForm) {
 	var topDiv = document.createElement('div');
 	topDiv.setAttribute('class', 'custom-select');
 
@@ -492,10 +497,10 @@ function attachSelect(tDiv, context) {
 	select.append(opt_3);
 	
 	topDiv.append(select);
-	tDiv.append(topDiv);
+	tForm.append(topDiv);
 }
 
-function attachChildDiv(tDiv, context) {
+function attachChildDiv(tForm, context) {
 	var div = document.createElement('div');
 	div.setAttribute('class', 'search-container');
 
@@ -510,29 +515,63 @@ function attachChildDiv(tDiv, context) {
 	var sButton = document.createElement('button');
 	sButton.setAttribute('id', 'memberAction');
 	sButton.setAttribute('type', 'submit');
-	sButton.innerHTML = "Submit";
+	sButton.innerHTML = "Apply";
 	div.append(sButton);
 
-	tDiv.append(div);
+	tForm.append(div);
 	
+	/*if (context === 'member') {
+		addMemberEvent(sButton)
+	} else {
+		addPermissionEvent(sButton)
+	}*/
 	sButton.onclick = function(e) {
 		e.preventDefault();
 		var email = $(".memberEmail").val();
-		console.log("Email: " + email);
-
-		// TRY and TEST
 		var act = $(".custom-select option:selected").text().split("Select")[0];
-		console.log("act: " + act);
-
 		var payload = JSON.stringify({
 			action: act.toLowerCase(),
 			userEmail: email
 		});
-		//var group = $('.collapsible.active').text().split("Work")[0];
-		var group = $("#groupHolder").val();
 		console.log("payload: " + payload);
+		
+		// TO DO: change table configuration in praat.py
+		var group = $("#groupHolder").val();
+		var api = '/auth/groups/' + group;
+		
+		$.ajax({
+                      type: "POST",
+                      url: api,
+                      data: payload,
+                      contentType: "application/json",
+                      dataType: "json",
+                      success: function(_data) {
+                          console.log("success data ");
+                          console.log(_data);
+                          //callback(_data);
+                      },
+		      error: function(_data) {
+			  console.log("error data ");
+			  console.log(_data);
+		      }
+                  });
+	}; 
+}
 
-		var api = '/auth/groups/' + $("#groupHolder").val();
+function addMemberEvent(sButton) {
+	sButton.onclick = function(e) {
+		e.preventDefault();
+		var email = $(".memberEmail").val();
+		var act = $(".custom-select option:selected").text().split("Select")[0];
+		var payload = JSON.stringify({
+			action: act.toLowerCase(),
+			userEmail: email
+		});
+		console.log("payload: " + payload);
+		
+		// TO DO: change table configuration in praat.py
+		var group = $("#groupHolder").val();
+		var api = '/auth/groups/' + group;
 		
 		$.ajax({
                       type: "POST",
@@ -551,6 +590,10 @@ function attachChildDiv(tDiv, context) {
 		      }
                   });
 	};
+}
+
+function addPermissionEvent(sButton) {
+
 }
 
 function createChildNode(pNode, _project) {

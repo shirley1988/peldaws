@@ -3,6 +3,13 @@ from praat import app, create_group, User, Group
 from flask_login import login_required
 import json
 
+
+@app.route('/workspace', methods=['GET'])
+@login_required
+def workspace():
+    return render_template('workspace_base.html')
+
+
 @app.route('/', methods=['GET'])
 @login_required
 def index():

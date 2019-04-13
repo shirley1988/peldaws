@@ -1287,6 +1287,8 @@ function displayGroups() {
 		}
 
 		function showPopup(data) {
+            console.log("ELAN data");
+            console.log(data);
 			//var newWin = window.open("", "PopUpTextbox",  "width=270,height=300,top=200,left=200,toolbars=no,scrollbars=no,status=no,resizable=no");
 			var newWin = window.open("about:blank", "XML", 'menubar=yes,toolbar=yes,resizable=yes,scrollbars=yes,status=no,location=yes');
 			newWin.document.open('content-type: text/xml');

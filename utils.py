@@ -46,8 +46,10 @@ def personal_group_name(user):
 
 def generate_id(seed=None):
     if isinstance(seed, basestring):
-        return hashlib.md5(str(seed)).hexdigest()
-    return str(uuid.uuid4()).replace('-', '')
+        ret = hashlib.md5(str(seed)).hexdigest()
+    else:
+        ret = str(uuid.uuid4()).replace('-', '')
+    return ret[0:16]
 
 def mkdir_p(path):
     try:

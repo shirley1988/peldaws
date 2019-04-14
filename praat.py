@@ -107,8 +107,6 @@ class User(Base, UserMixin):
     current_group_id = Column(String(60), nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     ownership = relationship('Group', back_populates='owner')
-    annotations = relationship('Annotation', back_populates='owner')
-    # annotation_permissions = relationship('AnnotationPermission', back_populates='user')
     membership = relationship('Group', secondary=Member.__table__, back_populates='members')
 
     def __init__(self, name, google_id, email, _id=None):
@@ -123,8 +121,8 @@ class User(Base, UserMixin):
             'name': self.name,
             'email': self.email,
             'currentGroupId': self.current_group_id,
-	    'google_id': self.google_id,
-            'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+	    'googleId': self.google_id,
+            'createdAt': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
     def details(self):
@@ -134,8 +132,6 @@ class User(Base, UserMixin):
             'currentGroup': cg.summary(),
             'ownership': list(grp.summary() for grp in self.ownership),
             'membership': list(grp.summary() for grp in self.membership),
-            'annotations': list(ant.summary() for ant in self.annotations),
-            # 'annotationPermissions': list(ap.summary() for ap in self.annotation_permissions),
         }
         return s
 
@@ -161,7 +157,7 @@ class Group(Base):
             'ownerId': self.owner_id,
             'ownerName': self.owner.name,
             'ownerEmail': self.owner.email,
-            'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'createdAt': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
     def details(self):
@@ -180,18 +176,16 @@ class Audio(Base):
     name = Column(String(240))
     creator_id = Column(String(60), ForeignKey('users.id'))
     owner_id = Column(String(60), ForeignKey('groups.id'))
-    location = Column(String(60), default='')
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     owner = relationship('Group', back_populates='audios')
-    annotations = relationship('Annotation', back_populates='audio')
+    annotations = relationship('AudioAnnotation', back_populates='audio')
 
-    def __init__(self, name, creator, owner, location='', _id=None):
+    def __init__(self, name, creator, owner,  _id=None):
         self.id = utils.generate_id(_id)
         self.name = name
         self.creator_id = creator.id
         self.owner_id = owner.id
-        self.location = location
 
     def summary(self):
         return {
@@ -199,65 +193,43 @@ class Audio(Base):
             'name': self.name,
             'ownerId': self.owner_id,
             'ownerName': self.owner.name,
-            'location': self.location,
-            'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            'updated_at': self.updated_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'createdAt': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'updatedAt': self.updated_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
 
-class Annotation(Base):
+class AudioAnnotation(Base):
     __tablename__ = 'annotations'
     id = Column(String(60), primary_key=True)
     name = Column(String(240))
     audio_id = Column(String(60), ForeignKey('audios.id'))
-    owner_id = Column(String(60), ForeignKey('users.id'))
+    audio_version = Column(String(60))
+    start_time = Column(Integer)
+    end_time = Column(Integer)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     audio = relationship('Audio', back_populates='annotations')
-    owner = relationship('User', back_populates='annotations')
-    # annotation_permissions = relationship('AnnotationPermission', back_populates='annotation')
 
-    def __init__(self, name, audio, owner, _id=None):
+    def __init__(self, name, audio_id, audio_version, start_time, end_time, _id=None):
         self.id = utils.generate_id(_id)
         self.name = name
-        self.audio_id = audio.id
-        self.owner_id = owner.id
+        self.audio_id = audio_id
+        self.audio_version = audio_version
+        self.start_time = start_time
+        self.end_time = end_time
 
     def summary(self):
         return {
             'id': self.id,
             'name': self.name,
             'audioId': self.audio_id,
-            'ownerId': self.owner_id,
-            'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'audioVersion': self.audio_version,
+            'startTime': self.start_time,
+            'endTime': self.end_time,
+            'createdAt': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'updatedAt': self.updated_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
-'''
-class AnnotationPermission(Base):
-    __tablename__ = 'annotation_permissions'
-    id = Column(String(60), primary_key=True)
-    user_id = Column(String(60), ForeignKey('users.id'))
-    annotation_id = Column(String(60), ForeignKey('annotations.id'))
-    role = Column(Enum(Role))
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    __table_args__ = (UniqueConstraint('user_id', 'annotation_id', name='_usr_atn_tuple'),)
-    user = relationship('User', back_populates='annotation_permissions')
-    annotation = relationship('Annotation', back_populates='annotation_permissions')
-
-    def __init__(self, user, annotation, role, _id):
-        self.id = utils.generate_id(_id)
-        self.user_id = user.id
-        self.annotation_id = annotation.id
-        self.role = role
-
-    def summary(self):
-        return {
-            'id': self.id,
-            'userId': self.user_id,
-            'annotationId': self.annotation_id,
-            'role': str(self.role),
-            'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        }
-'''
 
 @app.route('/oauth2callback')
 @googlelogin.oauth2callback

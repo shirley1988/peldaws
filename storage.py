@@ -89,7 +89,7 @@ class LocalStorageService(StorageService):
         m = hashlib.md5()
         m.update(timestamp)
         m.update(data)
-        return m.hexdigest()
+        return utils.generate_id(m.hexdigest())
 
     def _update_meta(self, meta_file, timestamp, version, attrs=''):
         with open(meta_file, 'a+') as fp:
@@ -125,14 +125,24 @@ class LocalStorageService(StorageService):
 
 
     def get(self, key, version=None):
+        versions = self.show_versions(key)
         if version is None:
-            versions = self.show_versions(key)
             if len(versions) == 0:
                 return None
-            version = versions[0]['version']
+            version_info = versions[0]
+            version = version_info['version']
+        else:
+            version_exists = False
+            for v in versions:
+                if v['version'] == version:
+                    version_exists = True
+                    version_info = v
+                    break
+            if not version_exists:
+                return None
         full_path = os.path.join(self.__root, utils.generate_id(key), version)
         if os.path.isfile(full_path):
-            return self._read(full_path)
+            return {'data': self._read(full_path), 'version': version_info}
         return None
 
     def revert(self, key, version):

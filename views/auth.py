@@ -7,6 +7,7 @@ import json
 from flask_login import login_required
 from storage import get_storage_service
 import datetime
+import base64
 
 
 # retrieve a list of users
@@ -135,20 +136,101 @@ def group_ops(gid):
             operator.name, group.name, action, user.name)
 
 
-@app.route('/auth/audios/<audio>/annotations', methods=['GET', 'POST'])
-@login_required
-def annotation_ops(audio):
-    user = g.user
-    group = praat.Group.query.get(user.current_group_id)
+@app.route('/auth/annotations/<aid>', methods=['GET', 'PUT'])
+#@login_required
+def handle_single_annotation(aid):
+    annotation = praat.AudioAnnotation.query.get(aid)
+    if annotation is None:
+        return jsonify({"status": "fail", "message": "Annotation does not exist"})
     storage_svc = get_storage_service(praat.app.config)
     if request.method == 'GET':
-        # TODO: handle real requests
-        resp = {"status": "success"}
+        versions = storage_svc.show_versions(aid)
+        resp = annotation.summary()
+        resp['versions'] = versions
         return jsonify(resp)
     payload = request.json
-    # TODO: handle real request
-    resp = {"status": "success", "payload": payload}
+    # save annotation details in annotation version
+    attributes = {
+        'created_by': 'admin',
+    }
+    contents = {
+        'comments': payload.get('comments', ''),
+        'tierOne': payload.get('tierOne', ''),
+        'tierTwo': payload.get('tierTwo', ''),
+        'tierThree': payload.get('tierThree', ''),
+    }
+    storage_svc.put(aid, json.dumps(contents), attributes)
+    annotation.updated_at = datetime.datetime.utcnow()
+    praat.db_session.commit()
+    return jsonify({"status": "success", "summary": annotation.summary()})
+
+
+@app.route('/auth/annotations/<aid>/versions/<vid>', methods=['GET'])
+@login_required
+def annotation_version_handler(aid, vid):
+    storage_svc = get_storage_service(praat.app.config)
+    result = storage_svc.get(aid, vid)
+    if result is None:
+        return jsonify({"status": "fail", "message": "Annotation version does not exist"})
+    resp = result['version']
+    resp.update(json.loads(result['data']))
     return jsonify(resp)
+
+
+@app.route('/auth/audios/<audio>/annotations', methods=['GET', 'POST'])
+#@login_required
+def annotation_ops(audio):
+    user = g.user
+    audio_obj = praat.Audio.query.get(audio)
+    if audio_obj is None:
+        return jsonify({"status": "fail", "message": "Audio file does not exist"})
+    if request.method == 'GET':
+        anns = []
+        for annotation in audio_obj.annotations:
+            anns.append(annotation.summary())
+        resp = {"status": "success", 'annotations': anns}
+        return jsonify(resp)
+    payload = request.json
+    storage_svc = get_storage_service(praat.app.config)
+    audio_version = payload.get('audio_version')
+    if audio_version is None:
+        versions = storage_svc.show_versions(audio_obj.id)
+        if len(versions) > 0:
+            audio_version = versions[0]['version']
+        else:
+            return jsonify({"status": "fail", "message": "unable to find any version of audio"})
+    # Annotation key is a combinatiom of audio id, audio version, and annotation name
+    name = payload['name']
+    a_key_seed = "%s:%s:%s" % (audio, audio_version, name)
+    # create or update an annotation object
+    start_time = int(payload['startTime'])
+    end_time = int(payload['endTime'])
+    if start_time < 0 or end_time < start_time:
+        return jsonify({"status": "fail", "message": "Invalid annotation start/end time"})
+    annotation_obj = praat.AudioAnnotation.query.get(utils.generate_id(a_key_seed))
+    if annotation_obj is None:
+        print "Creating new Annotation"
+        annotation_obj = praat.AudioAnnotation(name, audio, audio_version, start_time, end_time, a_key_seed)
+        praat.db_session.add(annotation_obj)
+        praat.db_session.commit()
+    else:
+        if annotation_obj.start_time != start_time or annotation_obj.end_time != end_time:
+            return jsonify({"status":"fail", "message": "Inconsistent start time or end time for annotation " + name})
+        annotation_obj.updated_at = datetime.datetime.utcnow()
+        praat.db_session.commit()
+
+    # save annotation details in annotation version
+    attributes = {
+        'created_by': 'admin',
+    }
+    contents = {
+        'comments': payload.get('comments', ''),
+        'tierOne': payload.get('tierOne', ''),
+        'tierTwo': payload.get('tierTwo', ''),
+        'tierThree': payload.get('tierThree', ''),
+    }
+    storage_svc.put(annotation_obj.id, json.dumps(contents), attributes)
+    return jsonify({"status": "success", "summary": annotation_obj.summary()})
 
 
 @app.route('/auth/groups/<gid>/audios', methods=['GET', 'POST'])
@@ -170,13 +252,25 @@ def audio_ops():
 @app.route('/auth/audios/<audio>', methods=['GET', 'POST'])
 @login_required
 def single_audio_ops(audio):
-    audio = praat.Audio.query.get(audio)
-    if audio is None:
+    audio_obj = praat.Audio.query.get(audio)
+    if audio_obj is None:
         return "Audio file not found"
     storage_svc = get_storage_service(praat.app.config)
-    info = audio.summary()
-    info['versions'] = storage_svc.show_versions(audio.location)
+    info = audio_obj.summary()
+    info['versions'] = storage_svc.show_versions(audio_obj.id)
     return jsonify(info)
+
+@app.route('/auth/audios/<aid>/versions/<vid>', methods=['GET'])
+@login_required
+def audio_version_handler(aid, vid):
+    storage_svc = get_storage_service(praat.app.config)
+    result = storage_svc.get(aid, vid)
+    if result is None:
+        return jsonify({"status": "fail", "message": "Audio version does not exist"})
+    audio = praat.Audio.query.get(aid)
+    resp = app.make_response(result['data'])
+    resp.content_type = "audio/" + utils.fileType(audio.name)
+    return resp
 
 
 def generic_audio_ops(user, group, method, audio=None, params=None):
@@ -186,12 +280,13 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
     if method == 'GET':
         #g_info = group.details()
         #return jsonify(g_info['details']['audios'])
-        resp = []
+        audios = []
         for audio in group.audios:
             info = audio.summary()
             if utils.is_true(params.get('show_versions')):
-                info['versions'] = storage_svc.show_versions(audio.location)
-            resp.append(info)
+                info['versions'] = storage_svc.show_versions(audio.id)
+            audios.append(info)
+        resp = {"status": "success", "audios": audios}
         print resp
         return jsonify(resp)
 
@@ -206,15 +301,16 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
     else:
         audioName = audio.filename
         data = audio.read()
+        key_seed = group.id + audioName
         key = utils.generate_id(group.id + audioName)
         attrs = {
             'created_by': user.email,
         }
-        audioObj = praat.Audio.query.filter_by(location=key).first()
+        audioObj = praat.Audio.query.get(key)
         storage_svc.put(key, data, attrs)
         if audioObj is None:
             print 'Creating new audio file'
-            audioObj = praat.Audio(audioName, user, group, key)
+            audioObj = praat.Audio(audioName, user, group, key_seed)
             praat.db_session.add(audioObj)
             praat.db_session.commit()
         else:

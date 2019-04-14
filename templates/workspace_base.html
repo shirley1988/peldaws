@@ -121,7 +121,7 @@ function populateAnnotationRevisions(annotation_id) {
     $.get(api, function(data) {
         var versions = data.versions;
         $.each(versions, function(index, _v) {
-            var text = _v.version + "(" + _v.timestamp_utc  + ")";
+            var text = _v.version + " (by " + _v.attributes.created_by + " at " + _v.timestamp_utc  + ")";
             var opt = $('<option></option>').attr('value', _v.version).text(text);
             selectList.append(opt);
         });
@@ -306,7 +306,7 @@ function simplePost(api, payload, callback) {
                 <form>
                   <div class="form-group row">
                     <label for="versionSelect" class="col-sm-2 col-form-label">Revisions</label>
-                    <div class="col-sm-6">
+                    <div class="col-sm-8">
                     <select class="form-control" id="versionSelect" onchange="fillAnnotationRevisionInfo()">
                     </select>
                     </div>

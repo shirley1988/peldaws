@@ -18,7 +18,7 @@ def index():
     user={'username': 'Nana Liu'}
     if context is 'membership':
         return render_template('group.html', context=context, user=user)
-    return render_template('base.html', context=context, user=user, audiofile=audiofile)
+    return render_template('auth.html', context=context, user=user, audiofile=audiofile)
 
 @app.route('/audioSelection.html', methods=['GET'])
 @login_required

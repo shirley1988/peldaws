@@ -6,6 +6,7 @@ import utils
 import json
 from flask_login import login_required
 from storage import get_storage_service
+import datetime
 
 
 # retrieve a list of users
@@ -133,6 +134,23 @@ def group_ops(gid):
     return "User %s updates group %s - action: %s, target: %s" % (
             operator.name, group.name, action, user.name)
 
+
+@app.route('/auth/audios/<audio>/annotations', methods=['GET', 'POST'])
+@login_required
+def annotation_ops(audio):
+    user = g.user
+    group = praat.Group.query.get(user.current_group_id)
+    storage_svc = get_storage_service(praat.app.config)
+    if request.method == 'GET':
+        # TODO: handle real requests
+        resp = {"status": "success"}
+        return jsonify(resp)
+    payload = request.json
+    # TODO: handle real request
+    resp = {"status": "success", "payload": payload}
+    return jsonify(resp)
+
+
 @app.route('/auth/groups/<gid>/audios', methods=['GET', 'POST'])
 @login_required
 def group_audio_ops(gid):
@@ -148,6 +166,18 @@ def audio_ops():
     group = praat.Group.query.get(user.current_group_id)
     params = request.json or request.args
     return generic_audio_ops(user, group, request.method, request.files.get('audio'), params)
+
+@app.route('/auth/audios/<audio>', methods=['GET', 'POST'])
+@login_required
+def single_audio_ops(audio):
+    audio = praat.Audio.query.get(audio)
+    if audio is None:
+        return "Audio file not found"
+    storage_svc = get_storage_service(praat.app.config)
+    info = audio.summary()
+    info['versions'] = storage_svc.show_versions(audio.location)
+    return jsonify(info)
+
 
 def generic_audio_ops(user, group, method, audio=None, params=None):
     if group is None:
@@ -177,8 +207,11 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
         audioName = audio.filename
         data = audio.read()
         key = utils.generate_id(group.id + audioName)
+        attrs = {
+            'created_by': user.email,
+        }
         audioObj = praat.Audio.query.filter_by(location=key).first()
-        storage_svc.put(key, data)
+        storage_svc.put(key, data, attrs)
         if audioObj is None:
             print 'Creating new audio file'
             audioObj = praat.Audio(audioName, user, group, key)
@@ -186,6 +219,8 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
             praat.db_session.commit()
         else:
             print audioObj.summary()
+            audioObj.updated_at = datetime.datetime.utcnow()
+            praat.db_session.commit()
             print 'Updating existing audio file'
         status = "Success"
 
@@ -194,3 +229,4 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
         "audio": audioName
     }
     return jsonify(result)
+

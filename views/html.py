@@ -1,5 +1,5 @@
-from flask import send_from_directory, request, render_template
-from praat import app, create_group, User, Group
+from flask import send_from_directory, request, render_template, g
+from praat import app, create_group, User, Group, Audio, AudioAnnotation
 from flask_login import login_required
 import json
 
@@ -13,12 +13,34 @@ def workspace():
 @app.route('/', methods=['GET'])
 @login_required
 def index():
-    context = request.args.get('context') or 'workspace'
-    audiofile="OldPart2.mp3"
-    user={'username': 'Nana Liu'}
-    if context is 'membership':
-        return render_template('group.html', context=context, user=user)
-    return render_template('auth.html', context=context, user=user, audiofile=audiofile)
+    u = g.user
+    user = u.details()
+    group = Group.query.get(u.current_group_id)
+    context = request.args.get('context') or 'ownership'
+    annotation_id = request.args.get('annotation_id', '')
+    audios = list(group.audios)
+    annotations = []
+    if not audios:
+        audio = {}
+    else:
+        # TODO: may support multiple audios per project(group)
+        # TODO: deal with audio versions
+        audio = audios[0].summary()
+        for a in audios[0].annotations:
+            annotations.append(a.summary())
+    if context == 'workspace':
+        annotation = AudioAnnotation.query.get(annotation_id)
+        if annotation and annotation.audio_id == audio.get('id'):
+            return render_template('workspace_base.html', context=context, user=user, audio=audio, annotations=annotations, annotation=annotation.summary())
+        elif annotations:
+            return render_template('workspace_base.html', context=context, user=user, audio=audio, annotations=annotations)
+        elif audio:
+            return render_template('workspace_base.html', context=context, user=user, audio=audio)
+        else:
+            # TODO: redirect to audio selection?
+            return render_template('workspace_base.html', context=context, user=user)
+    else:
+        return render_template('auth.html', context=context,  audio=audio)
 
 @app.route('/audioSelection.html', methods=['GET'])
 @login_required

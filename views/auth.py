@@ -178,20 +178,23 @@ def annotation_version_handler(aid, vid):
 
 
 @app.route('/auth/audios/<audio>/annotations', methods=['GET', 'POST'])
-#@login_required
+@login_required
 def annotation_ops(audio):
     user = g.user
     audio_obj = praat.Audio.query.get(audio)
     if audio_obj is None:
         return jsonify({"status": "fail", "message": "Audio file does not exist"})
+    storage_svc = get_storage_service(praat.app.config)
     if request.method == 'GET':
         anns = []
         for annotation in audio_obj.annotations:
-            anns.append(annotation.summary())
+            summary = annotation.summary()
+            if utils.is_true(request.args.get('show_versions')):
+                summary['versions'] = storage_svc.show_versions(annotation.id)
+            anns.append(summary)
         resp = {"status": "success", 'annotations': anns}
         return jsonify(resp)
     payload = request.json
-    storage_svc = get_storage_service(praat.app.config)
     audio_version = payload.get('audio_version')
     if audio_version is None:
         versions = storage_svc.show_versions(audio_obj.id)
@@ -221,10 +224,10 @@ def annotation_ops(audio):
 
     # save annotation details in annotation version
     attributes = {
-        'created_by': 'admin',
+        'created_by': user.email,
     }
     contents = {
-        'comments': payload.get('comments', ''),
+        'commitMessage': payload.get('commitMessage', ''),
         'tierOne': payload.get('tierOne', ''),
         'tierTwo': payload.get('tierTwo', ''),
         'tierThree': payload.get('tierThree', ''),

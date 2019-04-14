@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>Workspace</title>
+    <title>Group Management</title>
 
     <!-- Bootstrap core CSS -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -16,6 +16,198 @@
     <link href="css/auth.css" rel="stylesheet">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script>
+      $(document).ready(function() {
+          console.log("Document ready!");
+          var user = {{ user|tojson }};
+          var userName = user.name;
+          var currentGroupName = user.details.currentGroup.name;
+          $("#operatorHolder").val(user.id);
+          $("#groupHolder").val(user.details.currentGroup.id);
+          document.getElementById("userBlk").innerHTML = "Welcome " + userName;
+          document.getElementById("groupBlk").innerHTML = "Current group " + currentGroupName;
+          var audio = {{ audio|tojson }};
+          console.log(audio);
+          $.get('/auth/audios/' + audio.id, function(data) {
+              console.log('Audio details');
+              console.log(data);
+              var audioVersion = data.versions[0];
+              $("#audioVersionHolder").val(audioVersion.version);
+              $("#audioIdHolder").val(audio.id);
+              var audioDesc = audio.name + " ( Version " + audioVersion.version + ", created by " + audioVersion.attributes.created_by + " at " + audioVersion.timestamp_utc + ")" 
+              document.getElementById('audioName').innerHTML = audioDesc;
+              $('#audioPlayer').prop('src', "/auth/audios/" + audio.id + '/versions/' + audioVersion.version);
+              $('#audioPlayer').load();
+          });
+          {% if annotation %}
+          var annotation = {{ annotation|tojson }};
+          console.log(annotation);
+          setInputAndDisable($('#annotationName'), annotation.name);
+          setInputAndDisable($('#startTime'), annotation.startTime);
+          setInputAndDisable($('#endTime'), annotation.endTime);
+          {% elif annotations %}
+          var annotations = {{ annotations|tojson }};
+          console.log("Annotations");
+          console.log(annotations);
+          console.log("Populating annotation list");
+          populateAnnotationList(annotations);
+          {% else %}
+          {% endif %}
+      });
+
+function loadAnnotations() {
+}
+
+function setInputAndDisable(inputNode, text) {
+    inputNode.val(text);
+    inputNode.prop('disabled', true);
+}
+
+
+      function showWorkspace() {
+          console.log("Show workspace");
+          $.get('/auth/profile', function(data) {
+              console.log(data);
+              populateGroupList(data.details.membership, 'membership');
+              $("#groupDisplay").hide();
+              //$('#waveformImg').prop('src', "/waveform/" + audiofile);
+              //$('#waveformImg').load();
+              //$('#audioPlayer').prop('src', "/play/" + audiofile);
+              //$('#audioPlayer').load();
+              $("#workspace").show();
+          });
+      }
+
+
+      function populateAnnotationList(annotations) {
+          var aList = $('#annotationList');
+          aList.empty();
+          $.each(annotations, function(index, _annotation) {
+              aList.append(createAnnotationListItem(_annotation));
+          });
+      }
+
+      function createAnnotationListItem(annotation) {
+          var liNode = document.createElement('li');
+          var aNode = document.createElement('a');
+          aNode.setAttribute('id', annotation.id);
+          aNode.innerHTML = annotation.name;
+          aNode.onclick = function() {
+            setInputAndDisable($('#annotationName'), annotation.name);
+            setInputAndDisable($('#startTime'), annotation.startTime);
+            setInputAndDisable($('#endTime'), annotation.endTime);
+          };
+          liNode.append(aNode);
+          return liNode;
+      }
+
+
+function updateAnimation() {
+    var player = document.getElementById('audioPlayer');
+    console.log("Duration: " + player.duration);
+    console.log("Current time: " + player.currentTime);
+    var percent = Math.round(player.currentTime * 88 / player.duration);
+    var newPos = 6 + percent;
+    console.log("New relative position: " + newPos + "%");
+    $('#progressLine').text(player.currentTime);
+    $('#progressLine').css("left", newPos + "%");
+}
+
+function updateInterval() {
+    var player = document.getElementById('audioPlayer');
+    var ct = player.currentTime;
+    console.log("Selected time: " + ct);
+    var tiHolder = $('#timeIntervalHolder');
+    var curPos = tiHolder.val();
+    if (curPos == '') {
+        console.log("Setting start time");
+        $('#startTime').val(ct);
+        tiHolder.val('start');
+    } else if (curPos == 'start') {
+        console.log("Setting end time");
+        $('#endTime').val(ct);
+        tiHolder.val('end');
+    } else {
+        console.log("do nothing");
+    }
+}
+
+function resetTimeInterval() {
+    if ($('#startTime').prop('disabled')) {
+        return;
+    }
+    $('#timeIntervalHolder').val('');
+    $('#startTime').val('');
+    $('#endTime').val('');
+}
+
+function resetAnimation() {
+    $('#progressLine').text("");
+    $('#progressLine').css("left", "6%");
+}
+
+function showProgress() {
+    $('#progressLine').show();
+}
+
+
+function saveAnnotation() {
+    var name = $('#annotationName').val();
+    var startTime = $('#startTime').val();
+    var endTime = $('#endTime').val();
+    var tierOne = $('#tierOne').val();
+    var tierTwo = $('#tierTwo').val();
+    var tierThree = $('#tierThree').val();
+    var commitMessage = $('#commitMessage').val();
+    var payload = {
+        name: name,
+        startTime: startTime,
+        endTime: endTime,
+        tierOne: tierOne,
+        tierTwo: tierTwo,
+        tierThree: tierThree,
+        commitMessage: commitMessage
+    }
+    console.log("Payload");
+    console.log(payload);
+    var api = "/auth/audios/" + $('#audioIdHolder').val() + '/annotations';
+    console.log("API");
+    console.log(api);
+    var act = simplePost(api, JSON.stringify(payload), function(data) {
+        console.log("Annotation creation response");
+        console.log(data);
+    });
+    act();
+}
+
+
+function simplePost(api, payload, callback) {
+    return function() {
+                  console.log("Posting to API " + api + " with payload " + payload);
+                  $.ajax({
+                      type: "POST",
+                      url: api,
+                      data: payload,
+                      contentType: "application/json",
+                      dataType: "text",
+                      success: function(_data) {
+                          console.log("success data ");
+                          console.log(_data);
+                          callback(_data);
+                      },
+                      error: function(_data) {
+                          console.log("error data ");
+                          console.log(_data);
+                          callback(_data);
+                      }
+                  });
+
+    };
+}
+
+
+    </script>
 
   </head>
 
@@ -40,16 +232,107 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-5 col-md-3 sidebar">
-          <ul class="nav nav-sidebar" id="groupList">
-            <li><a href="/?context=workspace">Group</a></li>
-            <li><a href="/?context=membership">Membership</a></li>
-            <li><a href="/?context=ownership">Ownership</a></li>
+          <ul class="nav nav-sidebar" id="annotationList">
           </ul>
         </div>
-
         <div class="col-sm-7 col-sm-offset-5 col-md-9 col-md-offset-3 main">
           <!-- h1 class="page-header">placeholder</h1 -->
-          
+          <div id="workspace">
+			  <!-- div data-toggle="tooltip" title="Upload a new sound file to start the analysis." id="fileuploader">
+			    <span>Upload audio file</span>
+			    <form id="audioUploadForm" enctype="multipart/form-data" method='post', action='/auth/audios' onchange="this.submit()">
+			      <input id="audioUpload" type="file" name="audio" accept="audio/*" />
+			    </form>
+			  </div -->
+			
+              <div>
+                  <!-- audio controls ontimeupdate="updateAnimation()" onended="resetAnimation()" onpause="updateInterval()" id="audioPlayer" type="audio/mp3" -->
+                  <p id="audioName"></p>
+                  <audio controls id="audioPlayer" type="audio/mp3">
+                  </audio>
+                  <!-- button type="button" class="btn btn-primary" id="zoomin" onclick="zoomImage(-1)">Zoom In</button>
+                  <button type="button" class="btn btn-primary" id="zoomout" onclick="zoomImage(1)">Zoom Out</button -->
+                  <!-- div class="image-div">
+                    <img class="base-image" src="/waveform/{{ audio }}/" id="waveformImg" onload="showProgress()">
+                    <div class="vl" id="progressLine" style="display:none"></div>
+                  </div -->
+              </div>
+              <div id="annotation-div" width="600">
+                <form>
+                  <div class="form-group row">
+                    <label for="versionSelect" class="col-sm-2 col-form-label">Revisions</label>
+                    <div class="col-sm-4">
+                    <select class="form-control" id="versionSelect">
+                    </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="annotationName" class="col-sm-2 col-form-label">Annotation Name</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="annotationName"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="startTime" class="col-sm-2 col-form-label">Start Time</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="startTime"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="endTime" class="col-sm-2 col-form-label">End Time</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="endTime"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="tierOne" class="col-sm-2 col-form-label">Tier One</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="tierOne"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="tierTwo" class="col-sm-2 col-form-label">Tier Two</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="tierTwo"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="tierThree" class="col-sm-2 col-form-label">Tier Three</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="tierThree"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <label for="commitMessage" class="col-sm-2 col-form-label">Commit Message</label>
+                    <div class="col-sm-4">
+                      <input class="form-control" id="commitMessage"></input>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <button type="button" class="btn btn-primary" onclick="resetTimeInterval()">Reset Time Interval</button>
+                    <button type="button" class="btn btn-primary" onclick="saveAnnotation()">Save Annotation</button>
+                  </div>
+                </form>
+              </div>
+          </div>
+
+          <!-- placeholder elements -->
+          <input style="display:none" id="operatorHolder"></input>
+          <input style="display:none" id="userHolder"></input>
+          <input style="display:none" id="groupHolder"></input>
+          <input style="display:none" id="timeIntervalHolder"></input>
+          <input style="display:none" id="contextHolder" value="{{ context }}"></input>
+          <input style="display:none" id="audioIdHolder"></input>
+          <input style="display:none" id="audioVersionHolder"></input>
+
         </div>
       </div>
     </div>

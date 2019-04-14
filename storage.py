@@ -76,6 +76,7 @@ class LocalStorageService(StorageService):
         version = self._compute_version(timestamp, data)
         self._save(os.path.join(subdir, version), data)
         self._update_meta(subdir + "/meta", timestamp, version, self._serialize_attrs(attrs))
+        return {'key': key, 'version': version}
 
     def _save(self, full_path, content):
         with open(full_path, 'w+') as fp:
@@ -107,7 +108,7 @@ class LocalStorageService(StorageService):
             ts = parts[0]
             ver = parts[1]
             if len(parts) > 2:
-                attrs = parts[2]
+                attrs = parts[2].strip()
             else:
                 attrs = ''
             v_info = {
@@ -149,6 +150,7 @@ class LocalStorageService(StorageService):
         versions = self.show_versions(key)
         find = False
         revert_to = None
+        new_version = None
         for ver in versions:
             # if previous version is the provided one, revert to this version
             if find == True:
@@ -163,7 +165,8 @@ class LocalStorageService(StorageService):
             if revert_to is None:
                 data = ''
             else:
-                data = self.get(key, revert_to)
-            self.put(key, data)
+                data = self.get(key, revert_to)['data']
+            result = self.put(key, data)
+            new_version = result['version']
 
-        return find
+        return {'modified': find, 'key': key, 'version': new_version}

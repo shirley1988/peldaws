@@ -1,0 +1,11 @@
+form Draw Waveform
+   sentence soundFullPath
+   sentence imageFullPath
+endform
+
+sound = Read from file: soundFullPath$
+Select outer viewport: 0,10,0,5
+Colour: "Black"
+Draw: 0, 0, 0, 0, "yes"
+
+Save as 300-dpi PNG file: imageFullPath$

@@ -204,8 +204,8 @@ def annotation_ops(audio, vid=None):
     audio_version = vid or payload.get('audio_version')
     all_versions = storage_svc.show_versions(audio_obj.id)
     if audio_version is None:
-        if len(versions) > 0:
-            audio_version = versions[0]['version']
+        if len(all_versions) > 0:
+            audio_version = all_versions[0]['version']
         else:
             return jsonify({"status": "fail", "message": "unable to find any version of audio"})
     else:

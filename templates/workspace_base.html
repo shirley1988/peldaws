@@ -88,7 +88,9 @@ function setInputAndDisable(inputNode, text) {
           aList.empty();
           if ( annotation.id == null ) {
               console.log("Going to disable annotation revision select");
+              $('#versionSelectDiv').hide();
           }
+          aList.append(createAnnotationListItem({id: 'new', name: 'Create New Annotation'}));
           $.each(annotations, function(index, _annotation) {
               if (_annotation.audioId == audioId && _annotation.audioVersion == audioVersion) {
                   console.log("Adding annotation " + _annotation.id);
@@ -308,7 +310,7 @@ function simplePost(api, payload, callback) {
               </div>
               <div id="annotation-div" width="600">
                 <form>
-                  <div class="form-group row">
+                  <div class="form-group row" id="versionSelectDiv">
                     <label for="versionSelect" class="col-sm-2 col-form-label">Revisions</label>
                     <div class="col-sm-8">
                     <select class="form-control" id="versionSelect" onchange="fillAnnotationRevisionInfo()">

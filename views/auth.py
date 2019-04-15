@@ -220,9 +220,9 @@ def annotation_ops(audio, vid=None):
     name = payload['name']
     a_key_seed = "%s:%s:%s" % (audio, audio_version, name)
     # create or update an annotation object
-    start_time = int(payload['startTime'])
-    end_time = int(payload['endTime'])
-    if start_time < 0 or end_time < start_time:
+    start_time = payload['startTime']
+    end_time = payload['endTime']
+    if float(start_time) < 0 or float(end_time) < float(start_time):
         return jsonify({"status": "fail", "message": "Invalid annotation start/end time"})
     annotation_obj = praat.AudioAnnotation.query.get(utils.generate_id(a_key_seed))
     if annotation_obj is None:
@@ -326,7 +326,7 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
         audioObj = praat.Audio.query.get(key)
         retval = storage_svc.put(key, data, attrs)
         # save waveform
-        temp_dir = '/tmp/waveform/'
+        temp_dir = '/tmp/waveform' + key + retval['version'] + '/'
         waveform_name = key + retval['version'] + '.png'
         utils.mkdir_p(temp_dir)
         with open(temp_dir + audioName, 'w') as fp:
@@ -339,6 +339,7 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
             attrs = {'name': audioName}
             attrs.update(retval)
             storage_svc.put(waveform_name, data, attrs)
+        utils.rm_rf(temp_dir)
 
         if audioObj is None:
             print 'Creating new audio file'
@@ -359,3 +360,11 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
     #return jsonify(result)
     return redirect('/?context=workspace')
 
+@app.route('/auth/audios/<aid>/versions/<vid>/waveform', methods=['GET'])
+@login_required
+def audio_waveform_handler(aid, vid):
+    storage_svc = get_storage_service(praat.app.config)
+    waveform_name = aid + vid + '.png'
+    resp = app.make_response(storage_svc.get(waveform_name)['data'])
+    resp.content_type = "image/png"
+    return resp

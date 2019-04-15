@@ -40,6 +40,8 @@
               document.getElementById('audioName').innerHTML = audioDesc;
               $('#audioPlayer').prop('src', "/auth/audios/" + audio.id + '/versions/' + audioVersion.version);
               $('#audioPlayer').load();
+              $('#waveformImg').prop('src', "/auth/audios/" + audio.id + '/versions/' + audioVersion.version + '/waveform');
+              $('#waveformImg').load();
               loadAnnotations();
           });
           {% else %}
@@ -56,6 +58,8 @@ function loadAnnotations() {
     {% if annotations %}
         var annotations = {{ annotations | tojson }};
         populateAnnotationList(annotations, annotation);
+    {% else %}
+        populateAnnotationList([], annotation);
     {% endif %}
 }
 
@@ -165,6 +169,9 @@ function updateAnimation() {
 }
 
 function updateInterval() {
+    if ($('#startTime').prop('disabled')) {
+        return;
+    }
     var player = document.getElementById('audioPlayer');
     var ct = player.currentTime;
     console.log("Selected time: " + ct);
@@ -297,16 +304,16 @@ function simplePost(api, payload, callback) {
 			  </div>
 			
               <div>
-                  <!-- audio controls ontimeupdate="updateAnimation()" onended="resetAnimation()" onpause="updateInterval()" id="audioPlayer" type="audio/mp3" -->
+                  <audio controls ontimeupdate="updateAnimation()" onended="resetAnimation()" onpause="updateInterval()" id="audioPlayer" type="audio/mp3">
                   <p id="audioName"></p>
-                  <audio controls id="audioPlayer" type="audio/mp3">
+                  <!-- audio controls id="audioPlayer" type="audio/mp3" -->
                   </audio>
                   <!-- button type="button" class="btn btn-primary" id="zoomin" onclick="zoomImage(-1)">Zoom In</button>
                   <button type="button" class="btn btn-primary" id="zoomout" onclick="zoomImage(1)">Zoom Out</button -->
-                  <!-- div class="image-div">
-                    <img class="base-image" src="/waveform/{{ audio }}/" id="waveformImg" onload="showProgress()">
+                  <div class="image-div">
+                    <img class="base-image"  id="waveformImg" onload="showProgress()">
                     <div class="vl" id="progressLine" style="display:none"></div>
-                  </div -->
+                  </div>
               </div>
               <div id="annotation-div" width="600">
                 <form>

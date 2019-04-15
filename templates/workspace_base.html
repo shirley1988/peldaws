@@ -27,6 +27,7 @@
           $("#groupHolder").val(user.details.currentGroup.id);
           document.getElementById("userBlk").innerHTML = "Welcome " + userName;
           document.getElementById("groupBlk").innerHTML = "Current group " + currentGroupName;
+          {% if audio %}
           var audio = {{ audio|tojson }};
           console.log(audio);
           $.get('/auth/audios/' + audio.id, function(data) {
@@ -41,6 +42,9 @@
               $('#audioPlayer').load();
               loadAnnotations();
           });
+          {% else %}
+          $('#fileuploader').show();
+          {% endif %}
       });
 
 function loadAnnotations() {
@@ -283,12 +287,12 @@ function simplePost(api, payload, callback) {
         <div class="col-sm-7 col-sm-offset-5 col-md-9 col-md-offset-3 main">
           <!-- h1 class="page-header">placeholder</h1 -->
           <div id="workspace">
-			  <!-- div data-toggle="tooltip" title="Upload a new sound file to start the analysis." id="fileuploader">
+			  <div data-toggle="tooltip" title="Upload a new sound file to start the analysis." id="fileuploader" style="display:none">
 			    <span>Upload audio file</span>
 			    <form id="audioUploadForm" enctype="multipart/form-data" method='post', action='/auth/audios' onchange="this.submit()">
 			      <input id="audioUpload" type="file" name="audio" accept="audio/*" />
 			    </form>
-			  </div -->
+			  </div>
 			
               <div>
                   <!-- audio controls ontimeupdate="updateAnimation()" onended="resetAnimation()" onpause="updateInterval()" id="audioPlayer" type="audio/mp3" -->

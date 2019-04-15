@@ -1,5 +1,6 @@
 from flask import send_from_directory
 from flask import g, jsonify, request
+from flask import redirect
 from praat import app
 import praat
 import utils
@@ -137,8 +138,9 @@ def group_ops(gid):
 
 
 @app.route('/auth/annotations/<aid>', methods=['GET', 'PUT'])
-#@login_required
-def handle_single_annotation(aid):
+@app.route('/auth/audios/<audio>/annotations/<aid>', methods=['GET', 'PUT'])
+@login_required
+def handle_single_annotation(aid, audio=None):
     annotation = praat.AudioAnnotation.query.get(aid)
     if annotation is None:
         return jsonify({"status": "fail", "message": "Annotation does not exist"})
@@ -166,8 +168,9 @@ def handle_single_annotation(aid):
 
 
 @app.route('/auth/annotations/<aid>/versions/<vid>', methods=['GET'])
+@app.route('/auth/audios/<audio>/annotations/<aid>/versions/<vid>', methods=['GET'])
 @login_required
-def annotation_version_handler(aid, vid):
+def annotation_version_handler(aid, vid, audio=None):
     storage_svc = get_storage_service(praat.app.config)
     result = storage_svc.get(aid, vid)
     if result is None:
@@ -178,8 +181,9 @@ def annotation_version_handler(aid, vid):
 
 
 @app.route('/auth/audios/<audio>/annotations', methods=['GET', 'POST'])
+@app.route('/auth/audios/<audio>/versions/<vid>/annotations', methods=['GET', 'POST'])
 @login_required
-def annotation_ops(audio):
+def annotation_ops(audio, vid=None):
     user = g.user
     audio_obj = praat.Audio.query.get(audio)
     if audio_obj is None:
@@ -189,19 +193,29 @@ def annotation_ops(audio):
         anns = []
         for annotation in audio_obj.annotations:
             summary = annotation.summary()
+            if vid and vid != annotation.audio_version:
+                continue
             if utils.is_true(request.args.get('show_versions')):
                 summary['versions'] = storage_svc.show_versions(annotation.id)
             anns.append(summary)
         resp = {"status": "success", 'annotations': anns}
         return jsonify(resp)
     payload = request.json
-    audio_version = payload.get('audio_version')
+    audio_version = vid or payload.get('audio_version')
+    all_versions = storage_svc.show_versions(audio_obj.id)
     if audio_version is None:
-        versions = storage_svc.show_versions(audio_obj.id)
         if len(versions) > 0:
             audio_version = versions[0]['version']
         else:
             return jsonify({"status": "fail", "message": "unable to find any version of audio"})
+    else:
+        version_exists = False
+        for v in all_versions:
+            if v['version'] == audio_version:
+                version_exists = True
+                break
+        if not version_exists:
+            return jsonify({"status": "fail", "message": "Audio version " + audio_version + " does not exist"})
     # Annotation key is a combinatiom of audio id, audio version, and annotation name
     name = payload['name']
     a_key_seed = "%s:%s:%s" % (audio, audio_version, name)
@@ -310,7 +324,22 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
             'created_by': user.email,
         }
         audioObj = praat.Audio.query.get(key)
-        storage_svc.put(key, data, attrs)
+        retval = storage_svc.put(key, data, attrs)
+        # save waveform
+        temp_dir = '/tmp/waveform/'
+        waveform_name = key + retval['version'] + '.png'
+        utils.mkdir_p(temp_dir)
+        with open(temp_dir + audioName, 'w') as fp:
+            fp.write(data)
+        script = praat._scripts_dir + 'drawWaveV2'
+        params = [temp_dir + audioName, temp_dir + waveform_name]
+        praat.runScript(script, params)
+        with open(temp_dir + waveform_name, 'r') as fp:
+            data = fp.read()
+            attrs = {'name': audioName}
+            attrs.update(retval)
+            storage_svc.put(waveform_name, data, attrs)
+
         if audioObj is None:
             print 'Creating new audio file'
             audioObj = praat.Audio(audioName, user, group, key_seed)
@@ -327,5 +356,6 @@ def generic_audio_ops(user, group, method, audio=None, params=None):
         "status": status,
         "audio": audioName
     }
-    return jsonify(result)
+    #return jsonify(result)
+    return redirect('/?context=workspace')
 

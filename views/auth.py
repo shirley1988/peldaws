@@ -154,7 +154,7 @@ def handle_single_annotation(aid, audio=None):
     payload = request.json
     # save annotation details in annotation version
     attributes = {
-        'created_by': 'admin',
+        'created_by': g.user.email,
     }
     contents = {
         'comments': payload.get('comments', ''),
@@ -166,6 +166,14 @@ def handle_single_annotation(aid, audio=None):
     annotation.updated_at = datetime.datetime.utcnow()
     praat.db_session.commit()
     return jsonify({"status": "success", "summary": annotation.summary()})
+
+@app.route('/auth/annotations/<aid>/versions/<vid>/revert', methods=['POST'])
+@login_required
+def revert_annotation(aid, vid):
+    storage_svc = get_storage_service(praat.app.config)
+    attrs = {'created_by': g.user.email}
+    resp = storage_svc.revert(aid, vid, attrs)
+    return jsonify(resp)
 
 
 @app.route('/auth/annotations/<aid>/versions/<vid>', methods=['GET'])

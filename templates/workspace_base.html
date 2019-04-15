@@ -63,6 +63,20 @@ function clearDiff() {
     document.getElementById('testdiff').innerHTML = "";
 }
 
+function revertAnnotation() {
+    var selectList = document.getElementById('versionSelect');
+    var opt = selectList.options[selectList.selectedIndex];
+    var revision = opt.value;
+    var annotation_id = $('#annotationIdHolder').val();
+    var api = "/auth/annotations/" + annotation_id + "/versions/" + revision + "/revert";
+    var act = simplePost(api, '', function(data) {
+        console.log("Annotation revert response");
+        console.log(data);
+        //window.location.reload();
+    });
+    act();
+}
+
 function loadAnnotations() {
     var annotation = {};
     {% if annotation %}
@@ -402,6 +416,7 @@ function simplePost(api, payload, callback) {
                     <button type="button" class="btn btn-primary" onclick="saveAnnotation()">Save Annotation</button>
                     <button type="button" class="btn btn-primary" onclick="selectForDiff()">Select For Diff</button>
                     <button type="button" class="btn btn-primary" onclick="clearDiff()">Clear Diff</button>
+                    <button type="button" class="btn btn-primary" onclick="revertAnnotation()">Revert</button>
                   </div>
                 </form>
               </div>

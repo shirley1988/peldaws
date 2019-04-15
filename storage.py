@@ -37,7 +37,7 @@ class StorageService(object):
     # revert the content of a file so that its latest version is the same as
     # the last version prior to the provided version. File will not be
     # modified if the provided version does not exist.
-    def revert(self, key, version):
+    def revert(self, key, version, attrs=None):
         raise 'Not implemented yet'
 
     # delete the full history of file with the provided key, cannot be reverted
@@ -146,7 +146,7 @@ class LocalStorageService(StorageService):
             return {'data': self._read(full_path), 'version': version_info}
         return None
 
-    def revert(self, key, version):
+    def revert(self, key, version, attrs=None):
         versions = self.show_versions(key)
         find = False
         revert_to = None
@@ -166,7 +166,7 @@ class LocalStorageService(StorageService):
                 data = ''
             else:
                 data = self.get(key, revert_to)['data']
-            result = self.put(key, data)
+            result = self.put(key, data, attrs)
             new_version = result['version']
 
         return {'modified': find, 'key': key, 'version': new_version}

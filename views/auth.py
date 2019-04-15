@@ -9,6 +9,7 @@ from flask_login import login_required
 from storage import get_storage_service
 import datetime
 import base64
+import difflib
 
 
 # retrieve a list of users
@@ -368,3 +369,30 @@ def audio_waveform_handler(aid, vid):
     resp = app.make_response(storage_svc.get(waveform_name)['data'])
     resp.content_type = "image/png"
     return resp
+
+
+@app.route('/auth/annotation_diff/<aid>/<rev1>/<rev2>', methods=['GET'])
+# compute the diff between rev1 and rev2 off annotation aid
+def annotation_diff(aid, rev1, rev2):
+    storage_svc = get_storage_service(praat.app.config)
+    revision1 = storage_svc.get(aid, rev1)
+    revision2 = storage_svc.get(aid, rev2)
+    if revision1 is None or revision2 is None:
+        return jsonify({"status": "fail"})
+    # we have commitMessage, tierOne, tierTwo, tierThree in revision data
+    rev1_data = json.loads(revision1['data'])
+    rev2_data = json.loads(revision2['data'])
+    diff = {
+        'revision': calc_diff(rev1, rev2, 'revision'),
+        'commitMessage': calc_diff(rev1_data['commitMessage'], rev2_data['commitMessage'], 'commitMessage'),
+        'tierOne': calc_diff(rev1_data['tierOne'], rev2_data['tierOne'], 'tierOne'),
+        'tierTwo': calc_diff(rev1_data['tierTwo'], rev2_data['tierTwo'], 'tierTwo'),
+        'tierThree': calc_diff(rev1_data['tierThree'], rev2_data['tierThree'], 'tierThree'),
+    }
+    return jsonify(diff)
+
+
+def calc_diff(data1, data2, filename):
+    lines1 = data1.split("\n")
+    lines2 = data2.split("\n")
+    return "\n".join(difflib.unified_diff(lines1, lines2, fromfile=filename, tofile=filename, lineterm=''))

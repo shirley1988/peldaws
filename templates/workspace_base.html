@@ -14,8 +14,11 @@
 
     <!-- Custom styles for this template -->
     <link href="css/auth.css" rel="stylesheet">
+    <link href="css/diff2html.min.css" rel="stylesheet" type="text/css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="js/diff2html.min.js"></script>
+    <script type="text/javascript" src="js/diff2html-ui.min.js"></script>
 
     <script>
       $(document).ready(function() {
@@ -48,6 +51,17 @@
           $('#fileuploader').show();
           {% endif %}
       });
+
+function selectForDiff() {
+    var selectList = document.getElementById('versionSelect');
+    var opt = selectList.options[selectList.selectedIndex];
+    $('#revisionIdDiffHolder').val(opt.value);
+}
+
+function clearDiff() {
+    $('#revisionIdDiffHolder').val("");
+    document.getElementById('testdiff').innerHTML = "";
+}
 
 function loadAnnotations() {
     var annotation = {};
@@ -154,6 +168,15 @@ function fillAnnotationRevisionInfo() {
         $('#tierThree').val(data.tierThree);
         $('#commitMessage').val(data.commitMessage);
     });
+    var previousRev = $('#revisionIdDiffHolder').val();
+    if ( previousRev != null && previousRev.length > 4 ) {
+        var api = "/auth/annotation_diff/" + annotation_id + "/" + previousRev + "/" + annotation_version;
+        $.get(api, function(data) {
+            var diffstring = data['revision'] + "\n" + data["commitMessage"] + "\n" + data["tierOne"] + "\n" + data["tierTwo"] + "\n" + data["tierThree"]
+            var diffHtml = Diff2Html.getPrettyHtml(diffstring, {inputFormat: 'diff', outputFormat: 'side-by-side'});
+            document.getElementById('testdiff').innerHTML = diffHtml;
+        })
+    }
 }
 
 
@@ -377,8 +400,14 @@ function simplePost(api, payload, callback) {
                   <div class="form-group row">
                     <button type="button" class="btn btn-primary" onclick="resetTimeInterval()">Reset Time Interval</button>
                     <button type="button" class="btn btn-primary" onclick="saveAnnotation()">Save Annotation</button>
+                    <button type="button" class="btn btn-primary" onclick="selectForDiff()">Select For Diff</button>
+                    <button type="button" class="btn btn-primary" onclick="clearDiff()">Clear Diff</button>
                   </div>
                 </form>
+              </div>
+
+              <div>
+                  <h4 id='testdiff'></h4>
               </div>
           </div>
 
@@ -391,6 +420,7 @@ function simplePost(api, payload, callback) {
           <input style="display:none" id="audioIdHolder"></input>
           <input style="display:none" id="audioVersionHolder"></input>
           <input style="display:none" id="annotationIdHolder"></input>
+          <input style="display:none" id="revisionIdDiffHolder" value=""></input>
 
         </div>
       </div>

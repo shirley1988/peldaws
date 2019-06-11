@@ -1,0 +1,60 @@
+0.1 Install Docker
+
+https://docs.docker.com/install/
+https://docs.docker.com/install/linux/docker-ce/ubuntu/
+
+sudo apt-get update
+
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+
+## List all containers
+sudo docker ps -a
+## Stop a container
+sudo docker stop <container_id>
+## Stop all containers
+sudo docker stop $(sudo docker ps -aq)
+
+
+0.2 create a docker account: https://hub.docker.com
+
+
+0.3 Install Azure Cli
+https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
+
+
+1.0 Deploy docker
+https://docs.microsoft.com/en-us/azure/app-service/containers/tutorial-custom-docker-image
+
+az group create --name peldaws --location "West US"
+az acr create --name nliuCR --resource-group peldaws --sku Basic --admin-enabled true
+az acr credential show --name nliuCR
+sudo docker login nliuCR.azurecr.io --username nliuCR
+sudo docker tag mypeldaws nliuCR.azurecr.io/mypeldaws:v0.0.1
+sudo docker push nliuCR.azurecr.io/mypeldaws:v0.0.1
+
+az appservice plan create --name peldaws --resource-group peldaws --sku B1 --is-linux
+az webapp create --resource-group peldaws --plan peldaws --name peldawsnliu --deployment-container-image-name nliuCR.azurecr.io/mypeldaws:v0.0.1
+az webapp config container set --name peldawsnliu --resource-group peldaws --docker-custom-image-name nliuCR.azurecr.io/mypeldaws:v0.0.1 --docker-registry-server-url https://nliuCR.azurecr.io --docker-registry-server-user nliuCR --docker-registry-server-password xxx
+
+
+1.1 Update/Manage container image
+az webapp config container set/show
+## use help for instructions
+az webapp config container --help

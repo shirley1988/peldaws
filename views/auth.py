@@ -97,7 +97,7 @@ def group_summary(groups):
 def find_user(uid=None, email=None):
     if uid is None and email is None:
         return None
-    if uid is not None:
+    if uid:
         return praat.User.query.get(uid)
     return praat.User.query.filter_by(email=email).first()
 
@@ -116,26 +116,32 @@ def group_ops(gid):
     if request.method == 'GET':
         return jsonify(group.details())
 
-    allowed_actions = ['add', 'remove', 'transfer']
+    allowed_actions = ['add', 'remove', 'transfer', 'update']
     if not praat.is_owner(operator, group):
         return "User %s has no permission to update group %s" % (operator.name, group.name)
+    print "Request JSON!!!"
+    print request.json
     action = request.json.get('action', '').lower()
     if not action in allowed_actions:
         return "Invalid action %s" % (action)
     user = find_user(uid=request.json.get('userId'), email=request.json.get('userEmail'))
-    if user is None:
+    if user is None and action != 'update':
         return "User not found"
-    print "Operator name: %s , id: %s" % (operator.name, operator.id)
-    print "User name: %s , id: %s" % (user.name, user.id)
-    print "Group name: %s , id: %s" % (group.name, group.id)
     if action == 'add':
         praat.add_user_to_group(operator, user, group)
     elif action == 'remove':
         praat.remove_user_from_group(operator, user, group)
-    else:
+    elif action == 'transfer':
         praat.transfer_group(operator, user, group)
-    return "User %s updates group %s - action: %s, target: %s" % (
-            operator.name, group.name, action, user.name)
+    else:
+        updates = request.json.get('updates', {})
+        print "!!!!!UPDATES!!!!!!"
+        print updates
+        for user_id, role in updates.iteritems():
+            print "Updating user %s role to %s" % (user_id, role)
+            praat.update_user_role(operator, user_id, gid, role)
+    return "User %s updates group %s - action: %s" % (
+            operator.name, group.name, action)
 
 
 @app.route('/auth/annotations/<aid>', methods=['GET', 'PUT'])

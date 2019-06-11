@@ -150,10 +150,18 @@ class User(Base, UserMixin):
         cg = Group.query.get(self.current_group_id)
         s['details'] = {
             'currentGroup': cg.summary(),
-            'ownership': list(grp.summary() for grp in self.ownership),
+            #'ownership': list(grp.summary() for grp in self.ownership),
+            'ownership': self.__owned_groups(),
             'membership': list(member.group_summary() for member in self.i_membership),
         }
         return s
+
+    def __owned_groups(self):
+        _groups = []
+        for grp in self.ownership:
+            member = Member.query.filter_by(user_id=self.id).filter_by(group_id=grp.id).first()
+            _groups.append(member.group_summary())
+        return _groups
 
 class Group(Base):
     __tablename__ = 'groups'
@@ -311,6 +319,20 @@ def add_user_to_group(operator, user, group, role=Role.reader):
 	db_session.add(member)
 	db_session.commit()
 
+def update_user_role(operator, user_id, group_id, role):
+    group = Group.query.get(group_id)
+    if not is_owner(operator, group):
+        msg = "User %s is not an owner of group %s" % (operator.name, group_id)
+        raise ActionNotAuthorized(msg)
+    member = Member.query.filter_by(group_id=group_id).filter_by(user_id=user_id).first()
+    if role == 'reader' and member.role != Role.reader:
+        member.role = Role.reader
+        db_session.commit()
+    elif role == 'editor' and member.role != Role.editor:
+        member.role = Role.editor
+        db_session.commit()
+
+
 def remove_user_from_group(operator, user, group):
     if not is_owner(operator, group):
         msg = "User %s is not an owner of group %s" % (operator.name, group.name)
@@ -336,6 +358,7 @@ def transfer_group(operator, user, group):
         raise ActionNotAuthorized("Personal group ownership cannot be transferred")
     if group.owner_id != user.id:
         # make sure new owner has membership
+        print "Adding user %s to group %s as editor" % (user.id, group.id)
         add_user_to_group(operator, user, group, Role.editor)
         # transfer owner
         group.owner_id = user.id

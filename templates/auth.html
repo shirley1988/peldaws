@@ -120,14 +120,18 @@ function zoomImage(dir) {
           var groupNameNode = $("#groupName");
           var groupOwnerNode = $("#groupOwner");
           var groupMembersNode = $("#groupMembers");
+          groupMembersNode.empty();
           var api = '/auth/groups/' + gid;
           $.get(api, function(data) {
               console.log("Group data for " + gid);
               console.log(data);
               groupNameNode.text(data.name);
               groupOwnerNode.text(data.ownerName + '(' + data.ownerEmail + ')');
-              var members = extractGroupMembers(data.details.members);
-              groupMembersNode.text(members.join(", "));
+              $.each(data.details.members, function(index, member) {
+                  groupMembersNode.append(createGroupMemberNode(member));
+              });
+              //var members = extractGroupMembers(data.details.members);
+              //groupMembersNode.text(members.join(", "));
               $("#groupDisplay").show();
               if (context == 'ownership') {
                   showActions(gid);
@@ -136,6 +140,25 @@ function zoomImage(dir) {
               }
           });
       }
+
+function createGroupMemberNode(member) {
+    //<li>One : <input type='radio' name='one' value='reader'>reader <input type='radio' name='one' value='editor'>editor </li>
+    var memberInfo = member.name + "(" + member.email + ")";
+    var isReader = 'checked';
+    var isEditor = '';
+    if (member.role == 'editor') {
+        isEditor = 'checked';
+        isReader = '';
+    }
+    var readerRadio = "<input type='radio' name='" + member.id + "_role' value='reader' " + isReader + "> reader ";
+    var editorRadio = "<input type='radio' name='" + member.id + "_role' value='editor' " + isEditor + "> editor ";
+    var htmlString = memberInfo  + " : " + readerRadio + editorRadio;
+    var node = document.createElement('li');
+    node.id = member.id;
+    console.log(htmlString);
+    node.innerHTML = htmlString;
+    return node;
+}
 
 function updateAnimation() {
     var player = document.getElementById('audioPlayer');
@@ -186,24 +209,36 @@ function validateAction() {
     var parts = $("#actionDetails").val().split(",");
     console.log(parts);
     var btn = $("#selectBtn");
-    if (parts.length != 2) {
+    var act = '';
+    var email = '';
+    if (parts.length == 1) {
+        act = parts[0].trim().toLowerCase();
+        if (act != 'update') {
+            return false;
+        }
+    } else if (parts.length == 2) {
+        act = parts[0].trim().toLowerCase();
+        email = parts[1].toLowerCase().trim();
+        if (email.includes(" ") ) {
+            console.log("Invalid email address " + email);
+            btn.attr('disabled', true);
+            return false;
+        }
+    } else {
         console.log("Invalid action string");
         btn.attr('disabled', true);
         return false;
     }
-    var email = parts[1].toLowerCase().trim();
-    if (email.includes(" ") ) {
-        console.log("Invalid email address " + email);
-        btn.attr('disabled', true);
-        return false;
-    }
-    var act = parts[0].trim().toLowerCase();
-    if (act == 'add' || act == 'remove' || act == 'transfer') {
+    if (act == 'add' || act == 'remove' || act == 'transfer' || act == 'update') {
         btn.attr('disabled', false);
-        var payload =  JSON.stringify({
+        payloadDict = {
             action: act,
-            userEmail: email
-        });
+            userEmail: email,
+        }
+        payloadDict.updates = getRoles();
+        console.log("Payload dict");
+        console.log(payloadDict);
+        var payload =  JSON.stringify(payloadDict);
         btn.off('click').click(
             simplePost('/auth/groups/' + $("#groupHolder").val(),  payload, function(d) {
                 showOwnership();
@@ -214,6 +249,21 @@ function validateAction() {
     console.log("Invalid actions");
     btn.attr('disabled', true);
     return false;
+}
+
+function getRoles() {
+    var groupMembersNode = $("#groupMembers");
+    var children = groupMembersNode.children();
+    var res = {};
+    for (var index = 0; index < children.length; index++) {
+        var user_id = children[index].id;
+        var role = $('input[name=' + user_id + '_role]:checked', '#myForm').val();
+        console.log("User " + user_id + " role " + role);
+        res[user_id] = role;
+    }
+    console.log("New roles");
+    console.log(res);
+    return res;
 }
 
 function showActions(gid) {
@@ -319,7 +369,7 @@ function simplePost(api, payload, callback) {
         <div class="col-sm-7 col-sm-offset-5 col-md-9 col-md-offset-3 main">
           <!-- h1 class="page-header">placeholder</h1 -->
           <div id="groupDisplay">
-            <form>
+            <form id='myForm'>
               <div class="form-group row">
                 <label for="groupName" class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-10">
@@ -337,7 +387,8 @@ function simplePost(api, payload, callback) {
               <div class="form-group row">
                 <label for="groupMembers" class="col-sm-2 col-form-label">Members</label>
                 <div class="col-sm-10">
-                    <p class="form-control-static" id="groupMembers"> </p>
+                    <ul class="form-control-static" id="groupMembers">
+                    </ul>
                 </div>
               </div>
 

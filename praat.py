@@ -79,21 +79,40 @@ class Member(Base):
     role = Column(Enum(Role))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     __table_args__ = (UniqueConstraint('group_id', 'user_id', name='_member_tuple'),)
+    user = relationship('User', back_populates='i_membership')
+    group = relationship('Group', back_populates='i_members')
 
-    def __init__(self, group, user, _id=None):
+    def __init__(self, group, user, role=Role.reader,  _id=None):
         self.id = utils.generate_id(_id)
         self.group_id = group.id
         self.user_id = user.id
-	self.role = Role.reader
+	self.role = role
 
     def summary(self):
         return {
             'id': self.id,
             'group_id': self.group_id,
 	    'user_id': self.user_id,
-            'role': str(self.role),
+            'role': self.descriptive_role(),
             'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
+
+    def descriptive_role(self):
+        if self.role == Role.reader:
+            return 'reader'
+        if self.role == Role.editor:
+            return 'editor'
+        return 'none'
+
+    def user_summary(self):
+        _summary = self.user.summary()
+        _summary['role'] = self.descriptive_role()
+        return _summary
+
+    def group_summary(self):
+        _summary = self.group.summary()
+        _summary['role'] = self.descriptive_role()
+        return _summary
 
 class ActionNotAuthorized(Exception):
     pass
@@ -108,6 +127,7 @@ class User(Base, UserMixin):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     ownership = relationship('Group', back_populates='owner')
     membership = relationship('Group', secondary=Member.__table__, back_populates='members')
+    i_membership = relationship('Member', back_populates='user')
 
     def __init__(self, name, google_id, email, _id=None):
         self.id = utils.generate_id(_id)
@@ -131,7 +151,7 @@ class User(Base, UserMixin):
         s['details'] = {
             'currentGroup': cg.summary(),
             'ownership': list(grp.summary() for grp in self.ownership),
-            'membership': list(grp.summary() for grp in self.membership),
+            'membership': list(member.group_summary() for member in self.i_membership),
         }
         return s
 
@@ -144,6 +164,7 @@ class Group(Base):
     owner = relationship('User', back_populates='ownership')
     audios = relationship('Audio', back_populates='owner')
     members = relationship('User', secondary=Member.__table__, back_populates='membership')
+    i_members = relationship('Member', back_populates='group')
 
     def __init__(self, name, owner, _id=None):
         self.id = utils.generate_id(_id)
@@ -163,11 +184,10 @@ class Group(Base):
     def details(self):
         s = self.summary()
         s['details'] = {
-            'members': list(usr.summary() for usr in self.members),
+            'members': list(member.user_summary() for member in self.i_members),
             'audios': list(audio.summary() for audio in self.audios),
         }
         return s
-
 
 
 class Audio(Base):
@@ -280,14 +300,14 @@ def add_owner_to_group(operator, user, group):
 
     if user not in group.members:
         print "Adding owner to group"
-        member = Member(group, user)
+        member = Member(group, user, Role.editor)
         db_session.add(member)
         db_session.commit()
 
-def add_user_to_group(operator, user, group):
+def add_user_to_group(operator, user, group, role=Role.reader):
     if user not in group.members:
 	print "Adding user to group"
-	member = Member(group, user)
+	member = Member(group, user, role)
 	db_session.add(member)
 	db_session.commit()
 
@@ -316,7 +336,7 @@ def transfer_group(operator, user, group):
         raise ActionNotAuthorized("Personal group ownership cannot be transferred")
     if group.owner_id != user.id:
         # make sure new owner has membership
-        add_user_to_group(operator, user, group)
+        add_user_to_group(operator, user, group, Role.editor)
         # transfer owner
         group.owner_id = user.id
         db_session.commit()
@@ -325,7 +345,7 @@ def create_group(operator, g_name):
     group = Group(g_name, operator)
     db_session.add(group)
     db_session.commit()
-    member = Member(group, operator)
+    member = Member(group, operator, Role.editor)
     db_session.add(member)
     db_session.commit()
 

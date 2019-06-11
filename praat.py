@@ -79,20 +79,42 @@ class Member(Base):
     role = Column(Enum(Role))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     __table_args__ = (UniqueConstraint('group_id', 'user_id', name='_member_tuple'),)
+    user = relationship('User', back_populates='membership')
+    group = relationship('Group', back_populates='members')
 
-    def __init__(self, group, user, _id=None):
+    def __init__(self, group, user, role=Role.reader, _id=None):
         self.id = utils.generate_id(_id)
         self.group_id = group.id
         self.user_id = user.id
-	self.role = Role.reader
+	self.role = role
 
     def summary(self):
         return {
             'id': self.id,
             'group_id': self.group_id,
 	    'user_id': self.user_id,
-            'role': str(self.role),
+            'role': self.descriptive_role(),
             'created_at': self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+
+    def descriptive_role(self):
+        if self.role == Role.reader:
+            return 'reader'
+        elif self.role == Role.editor:
+            return 'editor'
+        else:
+            return 'none'
+
+    def user_summary(self):
+        return {
+            'user_id': self.user_id,
+            'role': self.descriptive_role(),
+        }
+
+    def group_summary(self):
+        return {
+            'group_id': self.group_id,
+            'role': self.descriptive_role(),
         }
 
 class ActionNotAuthorized(Exception):
@@ -107,7 +129,8 @@ class User(Base, UserMixin):
     current_group_id = Column(String(60), nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     ownership = relationship('Group', back_populates='owner')
-    membership = relationship('Group', secondary=Member.__table__, back_populates='members')
+    groups = relationship('Group', secondary=Member.__table__, back_populates='users')
+    membership = relationship('Member', back_populates='user')
 
     def __init__(self, name, google_id, email, _id=None):
         self.id = utils.generate_id(_id)
@@ -131,7 +154,7 @@ class User(Base, UserMixin):
         s['details'] = {
             'currentGroup': cg.summary(),
             'ownership': list(grp.summary() for grp in self.ownership),
-            'membership': list(grp.summary() for grp in self.membership),
+            'membership': list(member.group_summary() for member in self.membership),
         }
         return s
 
@@ -143,7 +166,8 @@ class Group(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     owner = relationship('User', back_populates='ownership')
     audios = relationship('Audio', back_populates='owner')
-    members = relationship('User', secondary=Member.__table__, back_populates='membership')
+    users = relationship('User', secondary=Member.__table__, back_populates='groups')
+    members = relationship('Member', back_populates='group')
 
     def __init__(self, name, owner, _id=None):
         self.id = utils.generate_id(_id)
@@ -163,11 +187,10 @@ class Group(Base):
     def details(self):
         s = self.summary()
         s['details'] = {
-            'members': list(usr.summary() for usr in self.members),
+            'members': list(member.user_summary() for member in self.members),
             'audios': list(audio.summary() for audio in self.audios),
         }
         return s
-
 
 
 class Audio(Base):
@@ -269,10 +292,12 @@ def check_personal_group(user):
     # if user has no current group id, use personal group
     if not user.current_group_id:
         user.current_group_id = group.id
+        db_session.commit()
     # make sure user has membership of personal group
     add_owner_to_group(user, user, group)
 
 
+# Add the group owner
 def add_owner_to_group(operator, user, group):
     if not is_owner(operator, group):
         msg = "User %s is not an owner of group %s" % (operator.name, group.name)
@@ -280,16 +305,24 @@ def add_owner_to_group(operator, user, group):
 
     if user not in group.members:
         print "Adding owner to group"
-        member = Member(group, user)
+        member = Member(group, user, Role.editor)
         db_session.add(member)
         db_session.commit()
 
-def add_user_to_group(operator, user, group):
+def add_user_to_group(operator, user, group, role=Role.reader):
+    if not is_owner(operator, group):
+        msg = "User %s is not an owner of group %s" % (operator.name, group.name)
+        raise ActionNotAuthorized(msg)
+
     if user not in group.members:
 	print "Adding user to group"
-	member = Member(group, user)
+	member = Member(group, user, role)
 	db_session.add(member)
 	db_session.commit()
+    else:
+        member = Member.query.filter_by(group_id=group.id).filter_by(user_id=user.id).first()
+        member.role = role
+        db_session.commit()
 
 def remove_user_from_group(operator, user, group):
     if not is_owner(operator, group):
@@ -316,7 +349,7 @@ def transfer_group(operator, user, group):
         raise ActionNotAuthorized("Personal group ownership cannot be transferred")
     if group.owner_id != user.id:
         # make sure new owner has membership
-        add_user_to_group(operator, user, group)
+        add_user_to_group(operator, user, group, role=Role.editor)
         # transfer owner
         group.owner_id = user.id
         db_session.commit()
@@ -325,7 +358,7 @@ def create_group(operator, g_name):
     group = Group(g_name, operator)
     db_session.add(group)
     db_session.commit()
-    member = Member(group, operator)
+    member = Member(group, operator, Role.editor)
     db_session.add(member)
     db_session.commit()
 

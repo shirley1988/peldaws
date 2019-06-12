@@ -96,10 +96,70 @@ function zoomImage(dir) {
       function populateGroupList(groups, context) {
           var gList = $('#groupList');
           gList.empty();
+          gList.append(createGroupCreationItem())
           $.each(groups, function(index, _group) {
               gList.append(createGroupListItem(_group, context));
           });
       }
+
+      function createGroupCreationItem() {
+          var liNode = document.createElement('li');
+          var aNode = document.createElement('a');
+          aNode.setAttribute('id', 'groupCreationItem');
+          aNode.innerHTML = 'Create New Group';
+          aNode.onclick = function() {
+              $("#groupDisplay").hide();
+              $("#groupNameInput").val('');
+              $("#groupNameInfo").text('Use a name of length < 200 characters. Group name is unique.');
+              $("#groupCreation").show();
+          };
+          liNode.append(aNode);
+          return liNode;
+      }
+
+function createNewGroup() {
+    var name = $("#groupNameInput").val();
+    console.log("Creating new group " + name);
+    var payload =  JSON.stringify({groupName: name});
+    simplePost('/auth/groups',  payload, function(d) {
+        showOwnership();
+    })();
+}
+
+function validateGroupName() {
+    var name = $("#groupNameInput").val().trim();
+    console.log("Validating group name " + name);
+    var btn = $("#createGroupBtn");
+    var info = $("#groupNameInfo");
+
+    if (name === '') {
+        btn.attr('disabled', true);
+        return;
+    }
+
+    if (name.length >= 200) {
+        btn.attr('disabled', true);
+        info.text("Group name should be no more than 200 characters.")
+        return;
+    }
+
+    var api = '/api/auth/groups';
+    $.get(api, function(data) {
+        for (var index = 0; index < data.length; index++) {
+            group = data[index];
+            console.log(group);
+            if (group.name == name) {
+                console.log("Group " + name + " already exists.");
+                info.text("Group " + name + " already exists.");
+                btn.attr('disabled', true);
+                return;
+            }
+        }
+        btn.attr('disabled', false);
+        console.log("You can create new group with name " + name);
+        info.text("You can create new group with name " + name);
+    });
+}
 
       function createGroupListItem(group, context) {
           var liNode = document.createElement('li');
@@ -132,6 +192,7 @@ function zoomImage(dir) {
               });
               //var members = extractGroupMembers(data.details.members);
               //groupMembersNode.text(members.join(", "));
+              $("#groupCreation").hide();
               $("#groupDisplay").show();
               if (context == 'ownership') {
                   showActions(gid);
@@ -368,6 +429,11 @@ function simplePost(api, payload, callback) {
         </div>
         <div class="col-sm-7 col-sm-offset-5 col-md-9 col-md-offset-3 main">
           <!-- h1 class="page-header">placeholder</h1 -->
+          <div id="groupCreation" style="display:none">
+            <input type="text" id="groupNameInput" onchange="validateGroupName()" value=""> </input>
+            <button type="button" class="btn btn-primary" id="createGroupBtn" onclick="createNewGroup()" disabled>Create</button>
+            <small id="groupNameInfo"></small>
+          </div>
           <div id="groupDisplay">
             <form id='myForm'>
               <div class="form-group row">

@@ -149,7 +149,7 @@ class User(Base, UserMixin):
         s = self.summary()
         cg = Group.query.get(self.current_group_id)
         s['details'] = {
-            'currentGroup': cg.summary(),
+            'currentGroup': self.__current_group(),
             #'ownership': list(grp.summary() for grp in self.ownership),
             'ownership': self.__owned_groups(),
             'membership': list(member.group_summary() for member in self.i_membership),
@@ -162,6 +162,10 @@ class User(Base, UserMixin):
             member = Member.query.filter_by(user_id=self.id).filter_by(group_id=grp.id).first()
             _groups.append(member.group_summary())
         return _groups
+
+    def __current_group(self):
+        member = Member.query.filter_by(user_id=self.id).filter_by(group_id=self.current_group_id).first()
+        return member.group_summary()
 
 class Group(Base):
     __tablename__ = 'groups'

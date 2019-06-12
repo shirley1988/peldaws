@@ -58,3 +58,14 @@ az webapp config container set --name peldawsnliu --resource-group peldaws --doc
 az webapp config container set/show
 ## use help for instructions
 az webapp config container --help
+
+
+
+1.2 Deploy updates
+az login
+az acr credential show --name nliuCR
+sudo docker login nliuCR.azurecr.io --username nliuCR
+sudo docker build --tag mypeldaws .
+sudo docker tag mypeldaws nliuCR.azurecr.io/mypeldaws:v0.0.3
+sudo docker push nliuCR.azurecr.io/mypeldaws:v0.0.3
+az webapp config container set -g peldaws -n peldawsnliu -c 'nliucr.azurecr.io/mypeldaws:v0.0.3'

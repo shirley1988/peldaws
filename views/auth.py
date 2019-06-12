@@ -85,7 +85,7 @@ def groups():
             return "Invalid group name"
         _g = praat.Group.query.filter_by(name=_name).first()
         if _g is not None:
-            return "Group of name %s already exists" % (_name)
+            return "Group already exists"
         praat.create_group(operator, _name)
         return "User %s created group %s" % (operator.name, _name)
 

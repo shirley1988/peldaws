@@ -117,6 +117,11 @@ function zoomImage(dir) {
           return liNode;
       }
 
+function deleteGroup() {
+    var groupId = $("#groupHolder").val();
+    console.log("Going to delete group " + groupId);
+}
+
 function createNewGroup() {
     var name = $("#groupNameInput").val();
     console.log("Creating new group " + name);
@@ -175,6 +180,8 @@ function validateGroupName() {
       }
 
       function showGroupInfo(gid, context) {
+          $("#selectBtn").hide();
+          $("#deleteGroupBtn").hide();
           console.log("Group " + gid + "was just clicked");
           $("#groupHolder").val(gid);
           var groupNameNode = $("#groupName");
@@ -196,6 +203,7 @@ function validateGroupName() {
               $("#groupDisplay").show();
               if (context == 'ownership') {
                   showActions(gid);
+                  // $("#deleteGroupBtn").show();
               } else {
                   enableSwitchButton(gid);
               }
@@ -333,7 +341,7 @@ function showActions(gid) {
     details.val();
 
     var btn = $("#selectBtn");
-    btn.text("Submit");
+    btn.text("Submit").show();
 }
 
 function saveAnnotation() {
@@ -383,7 +391,7 @@ function simplePost(api, payload, callback) {
       function enableSwitchButton(gid) {
           $("#actionItems").hide();
           var btn = $("#selectBtn");
-          btn.text("Select to work");
+          btn.text("Select to work").show();
           btn.off('click').click(
               simplePost('/auth/profile', JSON.stringify({groupId: gid}), function(d) {
                   location.href = '/?context=workspace';
@@ -473,7 +481,8 @@ function simplePost(api, payload, callback) {
               </div>
 
               <div class="form-group row">
-                <button type="button" class="btn btn-primary" id="selectBtn">Work in this group</button>
+                <button type="button" class="btn btn-primary" id="selectBtn" style="display:none">Select</button>
+                <button type="button" class="btn btn-danger" id="deleteGroupBtn" onclick="deleteGroup()" style="display:none">Delete Group</button>
               </div>
             </form>
           </div>

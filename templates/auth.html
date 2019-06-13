@@ -96,22 +96,25 @@ function zoomImage(dir) {
       function populateGroupList(groups, context) {
           var gList = $('#groupList');
           gList.empty();
-          gList.append(createGroupCreationItem())
+          if (context == "ownership") {
+              gList.append(createGroupAddDeleteItem());
+          }
           $.each(groups, function(index, _group) {
               gList.append(createGroupListItem(_group, context));
           });
       }
 
-      function createGroupCreationItem() {
+      function createGroupAddDeleteItem() {
           var liNode = document.createElement('li');
           var aNode = document.createElement('a');
           aNode.setAttribute('id', 'groupCreationItem');
-          aNode.innerHTML = 'Create New Group';
+          aNode.innerHTML = '[ Create ] New Group';
+          aNode.setAttribute('style', 'color : red');
           aNode.onclick = function() {
               $("#groupDisplay").hide();
-              $("#groupNameInput").val('');
-              $("#groupNameInfo").text('Use a name of length < 200 characters. Group name is unique.');
               $("#groupCreation").show();
+              $("#groupNameInput").val('');
+              $("#groupNameInfo").text('Use a name of length < 200 characters. Group name should be unique.');
           };
           liNode.append(aNode);
           return liNode;
@@ -120,14 +123,46 @@ function zoomImage(dir) {
 function deleteGroup() {
     var groupId = $("#groupHolder").val();
     console.log("Going to delete group " + groupId);
+    var payloadDict = {
+        groupId: groupId
+    }
+    var payload = JSON.stringify(payloadDict);
+    console.log("deleteGroup payload");
+    console.log(payload);
+    $.ajax({
+        type: 'delete',
+        url: '/auth/groups',
+        data: payloadDict,
+        contentType: "application/json",
+        dataType: "text",
+        success: function(_data) {
+            console.log("successfully delete group");
+            console.log(_data);
+        }, 
+        error: function(_data) {
+            console.log("error data");
+            console.log(_data);
+        }
+    })
 }
 
 function createNewGroup() {
-    var name = $("#groupNameInput").val();
+    var name = $("#groupNameInput").val().trim();
+    if (0 === name.length) {
+        alert("group name cannot be empty!");
+        return;
+    }
     console.log("Creating new group " + name);
+    
     var payload =  JSON.stringify({groupName: name});
     simplePost('/auth/groups',  payload, function(d) {
-        showOwnership();
+        //showOwnership();
+        $.get('/auth/profile', function(data) {
+            console.log(data);
+            populateGroupList(data.details.ownership, 'ownership');
+            $("#workspace").hide();
+            $("#groupNameInput").val('');
+        });
     })();
 }
 
@@ -137,14 +172,16 @@ function validateGroupName() {
     var btn = $("#createGroupBtn");
     var info = $("#groupNameInfo");
 
-    if (name === '') {
-        btn.attr('disabled', true);
+    if (0 === name.length) {
+        //btn.attr('disabled', true);
+        alert("group name cannot be empty");
         return;
     }
 
     if (name.length >= 200) {
-        btn.attr('disabled', true);
-        info.text("Group name should be no more than 200 characters.")
+        //btn.attr('disabled', true);
+        //info.text("Group name should be no more than 200 characters.")
+        alert("group name should be no more than 200 characters long.");
         return;
     }
 
@@ -154,9 +191,11 @@ function validateGroupName() {
             group = data[index];
             console.log(group);
             if (group.name == name) {
-                console.log("Group " + name + " already exists.");
-                info.text("Group " + name + " already exists.");
-                btn.attr('disabled', true);
+               // console.log("Group " + name + " already exists.");
+               // info.text("Group " + name + " already exists.");
+               // btn.attr('disabled', true);
+                $("#groupNameInput").val('');
+                alert("a group with same name has already existed!\nplease use a different name.");
                 return;
             }
         }
@@ -164,6 +203,7 @@ function validateGroupName() {
         console.log("You can create new group with name " + name);
         info.text("You can create new group with name " + name);
     });
+
 }
 
       function createGroupListItem(group, context) {
@@ -203,7 +243,9 @@ function validateGroupName() {
               $("#groupDisplay").show();
               if (context == 'ownership') {
                   showActions(gid);
-                  // $("#deleteGroupBtn").show();
+                  $("#deleteGroupBtn").show();
+                  var deleteBtn = document.getElementById("deleteGroupBtn");
+                  deleteBtn.disabled = true;
               } else {
                   enableSwitchButton(gid);
               }
@@ -439,9 +481,14 @@ function simplePost(api, payload, callback) {
           <!-- h1 class="page-header">placeholder</h1 -->
           <div id="groupCreation" style="display:none">
             <input type="text" id="groupNameInput" onchange="validateGroupName()" value=""> </input>
-            <button type="button" class="btn btn-primary" id="createGroupBtn" onclick="createNewGroup()" disabled>Create</button>
+            <button type="button" class="btn btn-primary" id="createGroupBtn" onclick="createNewGroup()" >Create</button>
             <small id="groupNameInfo"></small>
           </div>
+          <!---<div id="groupDeletion" style="display:none">
+              <input type="text" id="groupToDelete" onchange="verifyGroupToDelete()" value=""></input>
+              <button type="button" class="btn btn-danger" id="deleteGroupBtn" onclick="deleteGroup()" >Delete Group</button>
+              <small id="deleteGroupInfo"></small>
+          </div>--->
           <div id="groupDisplay">
             <form id='myForm'>
               <div class="form-group row">

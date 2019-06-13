@@ -1,5 +1,5 @@
 from flask import send_from_directory, request, render_template, g
-from praat import app, create_group, User, Group, Audio, AudioAnnotation
+from praat import app, create_group, User, Group, Audio, AudioAnnotation, delete_group
 from flask_login import login_required
 import json
 
@@ -52,15 +52,17 @@ def fetch_audio_selection():
 def original_index():
     return render_template("main.html")
 
-@app.route('/auth/groups', methods=['PUT'])
+@app.route('/auth/groups', methods=['PUT', 'DELETE'])
 @login_required
 def create_new_group():
+    user = User.query.filter_by(google_id=userinfo['id']).first()
     if request.method == 'PUT':
-        gName = json.loads(request.headers['data'])['groupId']
-        user = User.query.filter_by(google_id=userinfo['id']).first()
+        gName = json.loads(request.headers['data'])['groupName']
         nGroup = create_group(user, gName)
+    if request.method == 'DELETE':
+        group_id = json.loads(request.headers['data'])['groupId']
+        dGroup = delete_group(user, group_id);
     return index()
-
 
 @app.route('/googleb4aacaa01acbdce3.html')
 def goog_verify():

@@ -376,6 +376,22 @@ def create_group(operator, g_name):
     db_session.add(member)
     db_session.commit()
 
+def delete_group(operator, group_id):
+    group = Group.query.get(group_id)
+    if group.owner_id != operator:
+        raise ActionNotAuthorized("Only owner allowed to delete a group")
+    members = Member.query.filter_by(group_id=group.id)
+    audio = Audio.query.filter_by(owner_id=group.id).first()
+    annotations = Annotation.filter_by(audio_id=audio.id)
+    db_session.delete(group)
+    db_session.commit()
+    db_session.delete(members)
+    db_session.commit()
+    db_session.delete(audio)
+    db_session.commit()
+    db_session.delete(annotations)
+    sb_session.commit()
+
 
 def is_owner(entity, resource):
     return resource.owner_id == entity.id

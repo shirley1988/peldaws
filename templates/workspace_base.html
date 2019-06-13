@@ -51,13 +51,14 @@
               $('#waveformImg').load();
               loadAnnotations();
           });
+          {% else %}
+            $('#fileuploader').show();
           {% endif %}
           if (role == 'reader') {
             $('#resetBtn').attr('disabled', true);
             $('#saveBtn').attr('disabled', true);
             $('#revertBtn').attr('disabled', true);
-          } else {
-            $('#fileuploader').show();
+            $('#fileuploader').hide();
           }
       });
 
@@ -258,14 +259,30 @@ function showProgress() {
 }
 
 
+function ensureNonEmpty(name, value) {
+    if (value === '') {
+        alert(name + " cannot be empty");
+        return false;
+    }
+    return true;
+}
+
 function saveAnnotation() {
-    var name = $('#annotationName').val();
-    var startTime = $('#startTime').val();
-    var endTime = $('#endTime').val();
-    var tierOne = $('#tierOne').val();
-    var tierTwo = $('#tierTwo').val();
-    var tierThree = $('#tierThree').val();
-    var commitMessage = $('#commitMessage').val();
+    var name = $('#annotationName').val().trim();
+    var startTime = $('#startTime').val().trim();
+    var endTime = $('#endTime').val().trim();
+    var tierOne = $('#tierOne').val().trim();
+    var tierTwo = $('#tierTwo').val().trim();
+    var tierThree = $('#tierThree').val().trim();
+    var commitMessage = $('#commitMessage').val().trim();
+    if ( ensureNonEmpty('Annotation Name', name) && ensureNonEmpty('Start Time', startTime) && ensureNonEmpty('End Time', endTime) ) {
+        if (parseFloat(startTime) >= parseFloat(endTime)) {
+            alert("Start Time must be less than End Time");
+            return;
+        }
+    } else {
+        return;
+    }
     var payload = {
         name: name,
         startTime: startTime,

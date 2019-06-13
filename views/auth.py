@@ -191,7 +191,10 @@ def annotation_version_handler(aid, vid, audio=None):
     if result is None:
         return jsonify({"status": "fail", "message": "Annotation version does not exist"})
     resp = result['version']
-    resp.update(json.loads(result['data']))
+    try:
+        resp.update(json.loads(result['data']))
+    except:
+        pass
     return jsonify(resp)
 
 

@@ -317,56 +317,76 @@ def add_owner_to_group(operator, user, group):
         db_session.commit()
 
 def add_user_to_group(operator, user, group, role=Role.reader):
+    if not is_owner(operator, group):
+        msg = "user %s is not an owner of group %s" % (operator.name, group.name)
+        return {"result": "fail", "message": "Action not authorized: " + msg}
+
     if user not in group.members:
 	print "Adding user to group"
-	member = Member(group, user, role)
-	db_session.add(member)
-	db_session.commit()
+        try:
+	    member = Member(group, user, role)
+            db_session.add(member)
+            db_session.commit()
+            return {"result": "success", "message": "User has been added to group"}
+        except Exception as e:
+            return {"result": "fail", "message": "Generic error: " + str(e)}
+    else:
+        return {"result": "success", "message": "User already in group"}
 
-def update_user_role(operator, user_id, group_id, role):
-    group = Group.query.get(group_id)
+def update_user_role(operator, user, group, role):
+    if role != 'reader' and role != 'editor':
+        return {"result": "fail", "message": "Role must be either a reader or editor"}
+
     if not is_owner(operator, group):
-        msg = "User %s is not an owner of group %s" % (operator.name, group_id)
-        raise ActionNotAuthorized(msg)
-    member = Member.query.filter_by(group_id=group_id).filter_by(user_id=user_id).first()
+        msg = "user %s is not an owner of group %s" % (operator.name, group.name)
+        return {"result": "fail", "message": "Action not authorized: " + msg}
+    member = Member.query.filter_by(group_id=group.id).filter_by(user_id=user.id).first()
+    if member is None:
+        return {"result": "fail", "message": "User %s is not a memer of %s" % (user.email, group.name)}
     if role == 'reader' and member.role != Role.reader:
         member.role = Role.reader
         db_session.commit()
     elif role == 'editor' and member.role != Role.editor:
         member.role = Role.editor
         db_session.commit()
+    return {"result": "success"}
 
 
 def remove_user_from_group(operator, user, group):
     if not is_owner(operator, group):
-        msg = "User %s is not an owner of group %s" % (operator.name, group.name)
-        raise ActionNotAuthorized(msg)
+        msg = "user %s is not an owner of group %s" % (operator.name, group.name)
+        return {"result": "fail", "message": "Action not authorized: " + msg}
     member = Member.query.filter_by(group_id=group.id).filter_by(user_id=user.id).first()
     # print "User: " + json.dumps(user.id);
     # print "Group: " + json.dumps(group.owner_id);
     if user.id == group.owner_id:
-	print "User input is the owner of group, and cannot be deleted"
-	msg = "User %s is the owner of current group, owner cannot be deleted" % (operator.name)
-	raise ActionNotAuthorized(msg)
+	msg = "User %s is the owner of current group, owner cannot be removed" % (operator.name)
+        print msg
+        return {"result": "fail", "message": msg}
 
     if member is not None:
         print "Removing user from group"
         db_session.delete(member)
         db_session.commit()
+    return {"result": "success"}
 
 def transfer_group(operator, user, group):
     if not is_owner(operator, group):
-        msg = "User %s is not an owner of group %s" % (operator.name, group.name)
-        raise ActionNotAuthorized(msg)
+        msg = "user %s is not an owner of group %s" % (operator.name, group.name)
+        return {"result": "fail", "message": "Action not authorized: " + msg}
     if group.id == utils.generate_id(operator.id):
-        raise ActionNotAuthorized("Personal group ownership cannot be transferred")
+        msg = "Personal group ownership cannot be transferred"
+        return {"result": "fail", "message": "Action not authorized: " + msg}
     if group.owner_id != user.id:
         # make sure new owner has membership
         print "Adding user %s to group %s as editor" % (user.id, group.id)
-        add_user_to_group(operator, user, group, Role.editor)
+        res = add_user_to_group(operator, user, group, Role.editor)
+        if res['result'] == 'fail':
+            return res
         # transfer owner
         group.owner_id = user.id
         db_session.commit()
+    return {"result": "success"}
 
 def create_group(operator, g_name):
     group = Group(g_name, operator)

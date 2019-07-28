@@ -14,6 +14,7 @@ import difflib
 
 # retrieve a list of users
 @app.route('/api/auth/users', methods=['GET'])
+@login_required
 def api_list_users():
     details = request.args.get('details')
     all_users = praat.User.query.all()
@@ -82,12 +83,27 @@ def groups():
     else:
         _name = request.json.get('groupName')
         if not _name:
-            return "Invalid group name"
+            return jsonify({
+                "result": "fail",
+                "message": "Missing group name."
+                })
         _g = praat.Group.query.filter_by(name=_name).first()
         if _g is not None:
-            return "Group already exists"
-        praat.create_group(operator, _name)
-        return "User %s created group %s" % (operator.name, _name)
+            return jsonify({
+                "result": "fail",
+                "message": "Group " + _name + " already exists."
+                })
+        try:
+            praat.create_group(operator, _name)
+            return jsonify({
+                "result": "success",
+                "message": "User %s created group %s" % (operator.name, _name)
+                })
+        except Exception as e:
+            return jsonify({
+                "result": "fail",
+                "message": "Generic error: " + str(e)
+                })
 
 
 def group_summary(groups):
@@ -105,43 +121,54 @@ def find_user(uid=None, email=None):
 
 # retrieve or update group info
 @app.route('/auth/groups/<gid>', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def group_ops(gid):
     operator = g.user
     group = praat.Group.query.get(gid)
     if group is None:
-        return "Group %s does not exist" % (gid)
+        message = "Group %s does not exist" % (gid)
+        return jsonify({
+            "result": "fail",
+            "message": message
+            })
     if operator is None:
         operator = praat.User.query.first()
     if request.method == 'GET':
         return jsonify(group.details())
 
-    allowed_actions = ['add', 'remove', 'transfer', 'update']
+    allowed_actions = ['add', 'remove', 'transfer', 'setreader', 'seteditor']
     if not praat.is_owner(operator, group):
-        return "User %s has no permission to update group %s" % (operator.name, group.name)
+        message = "User %s has no permission to update group %s" % (operator.name, group.name)
+        return jsonify({
+            "result": "fail",
+            "message": message
+            })
     print "Request JSON!!!"
     print request.json
     action = request.json.get('action', '').lower()
     if not action in allowed_actions:
-        return "Invalid action %s" % (action)
+        message = "Invalid action %s" % (action)
+        return jsonify({
+            "result": "fail",
+            "message": message
+            })
     user = find_user(uid=request.json.get('userId'), email=request.json.get('userEmail'))
-    if user is None and action != 'update':
-        return "User not found"
+    if user is None:
+        return jsonify({
+            "result": "fail",
+            "message": "Target user not found"
+            })
     if action == 'add':
-        praat.add_user_to_group(operator, user, group)
+        resp = praat.add_user_to_group(operator, user, group)
     elif action == 'remove':
-        praat.remove_user_from_group(operator, user, group)
+        resp = praat.remove_user_from_group(operator, user, group)
     elif action == 'transfer':
-        praat.transfer_group(operator, user, group)
+        resp = praat.transfer_group(operator, user, group)
+    elif action == 'setreader':
+        resp = praat.update_user_role(operator, user, group, 'reader')
     else:
-        updates = request.json.get('updates', {})
-        print "!!!!!UPDATES!!!!!!"
-        print updates
-        for user_id, role in updates.iteritems():
-            print "Updating user %s role to %s" % (user_id, role)
-            praat.update_user_role(operator, user_id, gid, role)
-    return "User %s updates group %s - action: %s" % (
-            operator.name, group.name, action)
+        resp = praat.update_user_role(operator, user, group, 'editor')
+    return jsonify(resp)
 
 
 @app.route('/auth/annotations/<aid>', methods=['GET', 'PUT'])

@@ -4,10 +4,20 @@ from flask_login import login_required
 import json
 
 
-@app.route('/workspace', methods=['GET'])
+@app.route('/membership', methods=['GET'])
 @login_required
-def workspace():
-    return render_template('workspace_base.html')
+def show_membership():
+    user = g.user
+    user_details = user.details
+    return render_template('membership.html')
+
+
+@app.route('/ownership', methods=['GET'])
+@login_required
+def show_ownership():
+    user = g.user
+    user_details = user.details
+    return render_template('ownership.html')
 
 
 @app.route('/', methods=['GET'])

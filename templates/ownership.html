@@ -1,0 +1,199 @@
+{% extends "theme.html" %}
+{% block startup %}
+<script>
+$(document).ready(function() {
+    console.log("Document ready!");
+    $.get('/auth/profile', function(user) {
+        console.log(user);
+        generateGreetings(user);
+        details = user.details;
+        console.log("Current group");
+        console.log(details.currentGroup);
+        populateGroupList(details.ownership);
+        getGroupInfo(user.currentGroupId, showGroup);
+    });
+    hookSelectHandler();
+});
+
+function getCurrentGroup(callback) {
+    var gid = $('#groupHolder').val();
+    console.log("Get info for group " + gid);
+    var api = "/auth/groups/" + gid;
+    $.get(api, function(group) {
+        callback(group);
+    });
+}
+
+function emailPicker(users, picker) {
+    return users.filter(function(user) {
+        return picker(user);
+    }).reduce(function(acc, user){
+        return acc + "\n" + user.email;
+    }, '').trim();
+}
+
+function fillExistingMembers() {
+    getCurrentGroup(function(group) {
+        console.log(group);
+        var emails = emailPicker(group.details.members,
+            function(user) {
+                user.email != group.ownerEmail;
+            });
+        $('#membersInput').val(emails);
+    });
+}
+
+
+function fillNewUsers() {
+    getCurrentGroup(function(group) {
+        console.log(group);[]
+        var existingUsers = group.details.members.map(function(member) {
+            return member.id;
+        });
+        $.get('/api/auth/users', function(users){
+            var emails = emailPicker(users, function(user) {
+                return !existingUsers.includes(user.id);
+            });
+            $('#membersInput').val(emails);
+        });
+    });
+}
+
+function pickUsersByRole(role) {
+    getCurrentGroup(function(group) {
+        var emails = emailPicker(group.details.members,
+            function(user) {
+                return user.role == role;
+            });
+        console.log(emails);
+        $('#membersInput').val(emails);
+    });
+}
+
+function updateGroup() {
+    var action = $('#groupChangeHolder').val();
+    var emails = $('#membersInput').val().split("\n").filter(
+        function(e) { return e.trim() != ''; }
+    );
+    console.log("Group changes");
+    console.log(action, emails);
+    if ( !validateAction(action, emails) ) {
+        return;
+    }
+    var results = $("#updateResults");
+    results.empty();
+    emails.forEach(function(email) {
+        var r = document.createElement('li');
+        var info = descriptiveAction(action) + " for " + email + " <font color='green'>SUCCESS!</font>";
+        r.innerHTML = info;
+        results.append(r);
+    });
+}
+
+function descriptiveAction(action) {
+    if (action === 'add') {
+        return '<font color="red">GRANT</font> <b>MEMBERSHIP</b>';
+    } else if (action === 'remove') {
+        return '<font color="red">REVOKE</font> <b>MEMBERSHIP</b>';
+    } else if (action === 'chown') {
+        return '<font color="red">GRANT</font> <b>OWNERSHIP</b>';
+    } else if (action === 'setReader') {
+        return '<font color="red">UPDATE</font> <b>READER</b> role';
+    } else {
+        return '<font color="red">UPDATE</font> <b>EDITOR</b> role';
+    }
+}
+
+function validateAction(action, emails) {
+    if (emails.length ==0) {
+        alert("Please provide at least one user email.")
+        return false;
+    }
+    if ( action === 'chown' && emails.length > 1 ) {
+        alert("Ownership can only be transferred to a single member.")
+        return false;
+    }
+    return true;
+}
+
+function hookSelectHandler() {
+    $('#actionPicker').on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
+        console.log(clickedIndex, isSelected, previousValue);
+        $('#groupChangeHolder').val(this.value);
+        $("#updateResults").empty();
+    });
+    $('#prefillPicker').on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
+        console.log(clickedIndex, isSelected, previousValue);
+        var request = this.value;
+        if (request === 'selNonMember') {
+            fillNewUsers();
+        } else if (request === 'selNonOwner') {
+            fillExistingMembers();
+        } else if (request === 'selReader') {
+            pickUsersByRole('reader');
+        } else if (request === 'selEditor') {
+            pickUsersByRole('editor');
+        } else {
+            $('#membersInput').val("");
+        }
+        $("#updateResults").empty();
+    });
+}
+</script>
+{% endblock %}
+
+{% block sidenav %}
+<ul class="nav nav-sidebar" id="groupList">
+</ul>
+{% endblock %}
+
+{% block content %}
+  <form id='myForm'>
+    <div class="form-group row">
+      <label for="groupName" class="col-sm-2 col-form-label">Name</label>
+      <div class="col-sm-10">
+        <p class="form-control-static" id="groupName"></p>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label for="groupOwner" class="col-sm-2 col-form-label">Owner</label>
+      <div class="col-sm-10">
+        <p class="form-control-static" id="groupOwner"></p>
+      </div>
+    </div>
+
+    <div class="form-group row">
+      <label for="groupMembers" class="col-sm-2 col-form-label">Members</label>
+      <div class="col-sm-10">
+        <ul class="form-control-static" id="groupMembers">
+        </ul>
+      </div>
+    </div>
+  </form>
+
+  <br />
+  <select id="actionPicker" class="selectpicker" title="Select a group update action" data-style="btn-warning">
+      <option value="add">Add Members</option>
+      <option value="remove">Remove Members</option>
+      <option value="chown">Change Owner</option>
+      <option value="setReader">Set Reader</option>
+      <option value="setEditor">Set Editor</option>
+  </select>
+  <select id="prefillPicker" class="selectpicker" title="Prefill users (optional)" data-style="btn-info">
+      <option value="selNonMember">Fill non-member users</option>
+      <option value="selNonOwner">Fill non-owner members</option>
+      <option value="selReader">Fill readers</option>
+      <option value="selEditor">Fill editors</option>
+      <option value="selClearAll">Clear All</option>
+  </select>
+  <br />
+  <br />
+  <textarea id="membersInput" rows="4" cols="60"></textarea>
+  <br />
+  <button type="button" class="btn btn-primary" onclick="updateGroup()">Submit Changes</button>
+  <br />
+  <div>
+    <ul id="updateResults"></ul>
+  </div>
+{% endblock %}

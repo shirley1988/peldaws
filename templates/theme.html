@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Group Management</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.10/css/bootstrap-select.min.css">
+
+    <!-- Custom styles for this template -->
+    <link href="css/auth.css" rel="stylesheet">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.10/js/bootstrap-select.min.js"></script>
+    <script src="js/membership.js"></script>
+
+    <script>
+        function generateGreetings(user) {
+            document.getElementById("userBlk").innerHTML = "Welcome " + user.name;
+            document.getElementById("groupBlk").innerHTML = "Current group " + user.details.currentGroup.name;
+        }
+    </script>
+    {% block startup %}
+    {% endblock %}
+  </head>
+
+  <body>
+
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <div class="navbar-brand" id="userBlk">User</div>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/?context=workspace" id="groupBlk">Group</a></li>
+            <li><a href="/membership">Membership</a></li>
+            <li><a href="/ownership">Ownership</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-5 col-md-3 sidebar">
+          {% block sidenav %}{% endblock %}
+        </div>
+
+        <div class="col-sm-7 col-sm-offset-5 col-md-9 col-md-offset-3 main">
+          {% block content %} {% endblock %}
+        </div>
+      </div>
+    </div>
+
+
+    <!-- placeholer variables -->
+    <input style="display:none" id="groupHolder"></input>
+    <input style="display:none" id="groupChangeHolder"></input>
+  </body>
+</html>

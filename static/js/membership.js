@@ -32,7 +32,7 @@ function getGroupInfo(gid, callback) {
     console.log("Group Holder ");
     console.log(gh);
     gh.val(gid);
-    console.log("Set Group Holder ");
+    console.log("Set Group Holder:", $('#groupHolder').val());
     $.get(api, function(data) {
         console.log("Groups");
         console.log(data);
@@ -51,6 +51,9 @@ function showGroup(gInfo) {
         groupMembersNode.append(createGroupMemberNode(member));
     });
     var btn = $('#selectBtn');
+    if (btn === undefined) {
+        return;
+    }
     btn.off('click').click(
         simplePost('/auth/profile', JSON.stringify({groupId: gInfo.id}), function(d) {
             location.href = '/?context=workspace';

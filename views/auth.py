@@ -191,6 +191,8 @@ def group_ops(gid):
         resp = praat.update_user_role(operator, user, group, 'reader')
     else:
         resp = praat.update_user_role(operator, user, group, 'editor')
+    group = praat.Group.query.get(gid)
+    resp['groupInfo'] = group.details();
     return jsonify(resp)
 
 

@@ -37,7 +37,7 @@ function fillExistingMembers() {
         console.log(group);
         var emails = emailPicker(group.details.members,
             function(user) {
-                user.email != group.ownerEmail;
+                return user.email != group.ownerEmail;
             });
         $('#membersInput').val(emails);
     });
@@ -82,12 +82,47 @@ function updateGroup() {
     }
     var results = $("#updateResults");
     results.empty();
+    var api = '/auth/groups/' + $('#groupHolder').val();
+    console.log("Going to update group " + api);
     emails.forEach(function(email) {
-        var r = document.createElement('li');
-        var info = descriptiveAction(action) + " for " + email + " <font color='green'>SUCCESS!</font>";
-        r.innerHTML = info;
-        results.append(r);
+        var payloadDict = {
+            action: action,
+            userEmail: email,
+        }
+        console.log("Payload dict");
+        console.log(payloadDict);
+        var payload =  JSON.stringify(payloadDict);
+
+        $.ajax({
+            type: "POST",
+            url: api,
+            data: payload,
+            contentType: "application/json",
+            dataType: "text",
+            success: function(_data) {
+                console.log("success data ");
+                console.log(action, email, _data);
+                logUpdateResults(action, email, JSON.parse(_data), results);
+            },
+            error: function(_data) {
+                console.log("error data ");
+                console.log(action, email, _data);
+                logUpdateResults(action, email, JSON.parse(_data), results);
+            }
+        });
     });
+}
+
+function logUpdateResults(action, email, resp, logNode) {
+    var rs = " <font color='green'>SUCCESS!</font>";
+    if ( resp.result == 'fail' ) {
+        rs = " <font color='red'>FAIL! Error message: " + resp.message + "</font>";
+    }
+    var r = document.createElement('li');
+    var info = descriptiveAction(action) + " for " + email + rs;
+    r.innerHTML = info;
+    logNode.append(r);
+    showGroup(resp.groupInfo);
 }
 
 function descriptiveAction(action) {
@@ -95,7 +130,7 @@ function descriptiveAction(action) {
         return '<font color="red">GRANT</font> <b>MEMBERSHIP</b>';
     } else if (action === 'remove') {
         return '<font color="red">REVOKE</font> <b>MEMBERSHIP</b>';
-    } else if (action === 'chown') {
+    } else if (action === 'transfer') {
         return '<font color="red">GRANT</font> <b>OWNERSHIP</b>';
     } else if (action === 'setReader') {
         return '<font color="red">UPDATE</font> <b>READER</b> role';
@@ -109,7 +144,7 @@ function validateAction(action, emails) {
         alert("Please provide at least one user email.")
         return false;
     }
-    if ( action === 'chown' && emails.length > 1 ) {
+    if ( action === 'transfer' && emails.length > 1 ) {
         alert("Ownership can only be transferred to a single member.")
         return false;
     }
@@ -176,7 +211,7 @@ function hookSelectHandler() {
   <select id="actionPicker" class="selectpicker" title="Select a group update action" data-style="btn-warning">
       <option value="add">Add Members</option>
       <option value="remove">Remove Members</option>
-      <option value="chown">Change Owner</option>
+      <option value="transfer">Change Owner</option>
       <option value="setReader">Set Reader</option>
       <option value="setEditor">Set Editor</option>
   </select>

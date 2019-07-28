@@ -2,6 +2,7 @@ from flask import send_from_directory, request, render_template, g
 from praat import app, create_group, User, Group, Audio, AudioAnnotation, delete_group
 from flask_login import login_required
 import json
+from forms import GroupCreationForm
 
 
 @app.route('/membership', methods=['GET'])
@@ -18,6 +19,12 @@ def show_ownership():
     user = g.user
     user_details = user.details
     return render_template('ownership.html')
+
+@app.route('/newgroup', methods=['GET'])
+@login_required
+def show_group_creation():
+    form = GroupCreationForm()
+    return render_template('newgroup.html', form=form)
 
 
 @app.route('/', methods=['GET'])

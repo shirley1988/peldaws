@@ -389,6 +389,7 @@ def transfer_group(operator, user, group):
     return {"result": "success"}
 
 def create_group(operator, g_name):
+    print "User %s is creating group %s" % (operator.email, g_name)
     group = Group(g_name, operator)
     db_session.add(group)
     db_session.commit()

@@ -2,6 +2,7 @@ from flask import send_from_directory
 from flask import g, jsonify, request
 from flask import redirect
 from praat import app
+from forms import GroupCreationForm
 import praat
 import utils
 import json
@@ -64,6 +65,15 @@ def profile():
     return "User is not a member of target group"
 
 
+@app.route("/groups", methods=['POST'])
+@login_required
+def create_group_via_form():
+    operator = g.user
+    form = GroupCreationForm()
+    _name = form.groupName.data
+    print "User %s is creating group %s" % (operator.email, _name)
+    return jsonify(create_new_group(operator, _name))
+
 # retrieve groups owned by current user
 # or create a new group
 @app.route('/auth/groups', methods=['GET', 'POST'])
@@ -86,24 +96,27 @@ def groups():
             return jsonify({
                 "result": "fail",
                 "message": "Missing group name."
-                })
-        _g = praat.Group.query.filter_by(name=_name).first()
-        if _g is not None:
-            return jsonify({
-                "result": "fail",
-                "message": "Group " + _name + " already exists."
-                })
-        try:
-            praat.create_group(operator, _name)
-            return jsonify({
-                "result": "success",
-                "message": "User %s created group %s" % (operator.name, _name)
-                })
-        except Exception as e:
-            return jsonify({
-                "result": "fail",
-                "message": "Generic error: " + str(e)
-                })
+            })
+        return jsonify(create_new_group(operator, _name))
+
+def create_new_group(operator, _name):
+    _g = praat.Group.query.filter_by(name=_name).first()
+    if _g is not None:
+        return {
+            "result": "fail",
+            "message": "Group " + _name + " already exists."
+        }
+    try:
+        praat.create_group(operator, _name)
+        return {
+            "result": "success",
+            "message": "User %s created group %s" % (operator.name, _name)
+        }
+    except Exception as e:
+        return {
+            "result": "fail",
+            "message": "Generic error: " + str(e)
+        }
 
 
 def group_summary(groups):

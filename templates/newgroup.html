@@ -1,0 +1,34 @@
+{% extends "theme.html" %}
+{% block startup %}
+<script>
+$(document).ready(function() {
+    console.log("Document ready!");
+    $.get('/auth/profile', function(user) {
+        console.log(user);
+        generateGreetings(user);
+        details = user.details;
+        console.log("Current group");
+        console.log(details.currentGroup);
+        populateGroupList(details.ownership);
+        getGroupInfo(user.currentGroupId, showGroup);
+    });
+});
+
+</script>
+{% endblock %}
+
+{% block sidenav %}
+<ul class="nav nav-sidebar" id="groupList">
+</ul>
+{% endblock %}
+
+{% block content %}
+  <form action="/groups" method="post" novalidate>
+      <p>
+          {{ form.groupName.label }} <br>
+          {{ form.groupName(size=60) }}
+      </p>
+      <p>{{ form.submit()  }}</p>
+  </form>
+
+{% endblock %}

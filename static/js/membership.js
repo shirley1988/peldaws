@@ -11,6 +11,11 @@ function createGroupListItem(group, groupListener) {
 function populateGroupList(groups) {
     var gList = $('#groupList');
     gList.empty();
+
+    var liNode = document.createElement('li');
+    liNode.innerHTML = "<a href='/newgroup'><font color='red'>Create New Group</font></a>";
+    gList.append(liNode);
+
     var gListener = function() {
         console.log("Listening groups");
         console.log(this.id);

@@ -1,6 +1,7 @@
 from flask import send_from_directory
 from flask import g, jsonify, request
 from flask import redirect
+from flask import render_template
 from praat import app
 from forms import GroupCreationForm
 import praat
@@ -11,6 +12,12 @@ from storage import get_storage_service
 import datetime
 import base64
 import difflib
+
+@app.route('/newgroup', methods=['GET'])
+@login_required
+def show_group_creation(error=None):
+    form = GroupCreationForm()
+    return render_template('newgroup.html', form=form, error=error)
 
 
 # retrieve a list of users
@@ -72,7 +79,10 @@ def create_group_via_form():
     form = GroupCreationForm()
     _name = form.groupName.data
     print "User %s is creating group %s" % (operator.email, _name)
-    return jsonify(create_new_group(operator, _name))
+    res = create_new_group(operator, _name)
+    if res['result'] == 'success':
+        return redirect('/ownership')
+    return render_template('newgroup.html', form=form, error=res['message'])
 
 # retrieve groups owned by current user
 # or create a new group

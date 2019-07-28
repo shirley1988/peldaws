@@ -31,4 +31,7 @@ $(document).ready(function() {
       <p>{{ form.submit()  }}</p>
   </form>
 
+  {% if error %}
+  <p><font color='red'>ERROR:  {{ error  }}</font></p>
+  {% endif %}
 {% endblock %}

@@ -20,12 +20,6 @@ def show_ownership():
     user_details = user.details
     return render_template('ownership.html')
 
-@app.route('/newgroup', methods=['GET'])
-@login_required
-def show_group_creation():
-    form = GroupCreationForm()
-    return render_template('newgroup.html', form=form)
-
 
 @app.route('/', methods=['GET'])
 @login_required

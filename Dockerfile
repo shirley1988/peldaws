@@ -10,7 +10,7 @@ ADD . /code/
 # ssh
 ENV SSH_PASSWD "root:Docker!"
 RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends dialog \
+    && apt-get install -y --no-install-recommends dialog vim\
     && apt-get install -y --no-install-recommends openssh-server \
     && echo "$SSH_PASSWD" | chpasswd 
 COPY sshd_config /etc/ssh/

@@ -152,11 +152,18 @@ function validateAction(action, emails) {
 }
 
 function hookSelectHandler() {
+    hookActionPicker();
+}
+
+function hookActionPicker() {
     $('#actionPicker').on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
         console.log(clickedIndex, isSelected, previousValue);
         $('#groupChangeHolder').val(this.value);
         $("#updateResults").empty();
     });
+}
+
+function hookPrefillPicker() {
     $('#prefillPicker').on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
         console.log(clickedIndex, isSelected, previousValue);
         var request = this.value;
@@ -215,13 +222,13 @@ function hookSelectHandler() {
       <option value="setReader">Set Reader</option>
       <option value="setEditor">Set Editor</option>
   </select>
-  <select id="prefillPicker" class="selectpicker" title="Prefill users (optional)" data-style="btn-info">
+  <!-- select id="prefillPicker" class="selectpicker" title="Prefill users (optional)" data-style="btn-info">
       <option value="selNonMember">Fill non-member users</option>
       <option value="selNonOwner">Fill non-owner members</option>
       <option value="selReader">Fill readers</option>
       <option value="selEditor">Fill editors</option>
       <option value="selClearAll">Clear All</option>
-  </select>
+  </select -->
   <br />
   <br />
   <textarea id="membersInput" rows="4" cols="60"></textarea>

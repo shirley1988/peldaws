@@ -8,16 +8,12 @@ from forms import GroupCreationForm
 @app.route('/membership', methods=['GET'])
 @login_required
 def show_membership():
-    user = g.user
-    user_details = user.details
     return render_template('membership.html')
 
 
 @app.route('/ownership', methods=['GET'])
 @login_required
 def show_ownership():
-    user = g.user
-    user_details = user.details
     return render_template('ownership.html')
 
 
@@ -50,8 +46,10 @@ def index():
         else:
             # TODO: redirect to audio selection?
             return render_template('workspace_base.html', context=context, user=user)
+    elif context == 'ownership':
+        return show_ownership()
     else:
-        return render_template('auth.html', context=context,  audio=audio)
+        return show_membership();
 
 @app.route('/audioSelection.html', methods=['GET'])
 @login_required

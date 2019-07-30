@@ -26,9 +26,9 @@ $(document).ready(function() {
   <form action="/groups" method="post" novalidate>
       <p>
           {{ form.groupName.label }} <br>
-          {{ form.groupName(size=60) }}
+          {{ form.groupName(size=60, placeholder='Enter group name with 4-200 characters') }}
       </p>
-      <p>{{ form.submit()  }}</p>
+      <p>{{ form.submit(class="btn btn-primary")  }}</p>
   </form>
 
   {% if error %}

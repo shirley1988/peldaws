@@ -72,12 +72,14 @@ def profile():
     return "User is not a member of target group"
 
 
-@app.route("/groups", methods=['POST'])
+@app.route("/groups", methods=['GET', 'POST'])
 @login_required
 def create_group_via_form():
     operator = g.user
     form = GroupCreationForm()
-    _name = form.groupName.data
+    if request.method == 'GET':
+        return render_template('newgroup.html', form=form)
+    _name = form.groupName.data.strip()
     print "User %s is creating group %s" % (operator.email, _name)
     res = create_new_group(operator, _name)
     if res['result'] == 'success':
@@ -110,6 +112,11 @@ def groups():
         return jsonify(create_new_group(operator, _name))
 
 def create_new_group(operator, _name):
+    if len(_name) < 4 or len(_name) > 200:
+        return {
+            "result": "fail",
+            "message": "Group name must be between 4 to 200 characters"
+        }
     _g = praat.Group.query.filter_by(name=_name).first()
     if _g is not None:
         return {

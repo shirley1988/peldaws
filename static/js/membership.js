@@ -13,7 +13,7 @@ function populateGroupList(groups) {
     gList.empty();
 
     var liNode = document.createElement('li');
-    liNode.innerHTML = "<a href='/newgroup'><font color='red'>Create New Group</font></a>";
+    liNode.innerHTML = "<a href='/groups'><font color='red'>Create New Group</font></a>";
     gList.append(liNode);
 
     var gListener = function() {

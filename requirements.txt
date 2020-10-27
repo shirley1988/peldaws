@@ -7,7 +7,7 @@ azure-storage-nspkg==3.1.0
 backports.functools-lru-cache==1.5
 cffi==1.12.3
 Click==7.0
-cryptography==2.7
+cryptography==3.2
 cycler==0.10.0
 enum34==1.1.6
 Flask==1.0.2
